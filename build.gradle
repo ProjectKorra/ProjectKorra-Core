@@ -68,7 +68,7 @@ task setupDevServer(type: Copy) {
 	group 'server'
 	description 'Copies the default template server files into the test server directory.'
 
-	from 'resources/server'
+	from 'resources/runServer'
 	into 'server'
 
 	eachFile {
