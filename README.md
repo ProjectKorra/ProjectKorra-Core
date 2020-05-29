@@ -24,7 +24,7 @@ Additionally, ProjectKorra-Core utilizes [Gradle](https://gradle.org/) as its so
 
 ### Building
 
-You can start by either downloading the zipped [source code](https://github.com/ProjectKorra/ProjectKorra-Core/archive/master.zip) directly and unpacking it on your system or cloning it via Git (recommended):
+You can start by either downloading the [source code](https://github.com/ProjectKorra/ProjectKorra-Core/archive/master.zip) directly or cloning it via Git (recommended):
 
 ```console
 git clone https://github.com/ProjectKorra/ProjectKorra-Core.git
