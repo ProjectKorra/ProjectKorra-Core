@@ -2,7 +2,7 @@
 	<a href="https://github.com/ProjectKorra/ProjectKorra-Core/"><img src="http://i.imgur.com/8XB8XHF.png" alt="ProjectKorra - Core"></a>
 </p>
 
-<p align="center"><a href="https://projectkorra.com/">ProjectKorra</a> | Minecraft Reimagined - Master the elements from <i>Avatar: The Last Airbender</i> and <i>The Legend of Korra</i>i></p>
+<p align="center"><a href="https://projectkorra.com/">ProjectKorra</a> | Minecraft Reimagined - Master the elements from <i>Avatar: The Last Airbender</i> and <i>The Legend of Korra</i></p>
 
 <p align="center">
 	<a href="https://travis-ci.org/ProjectKorra/ProjectKorra-Core" target="_blank">
