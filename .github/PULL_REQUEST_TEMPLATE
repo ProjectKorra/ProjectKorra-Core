@@ -1,0 +1,23 @@
+## ProjectKorra-Core Pull Request Template
+
+Fill in whatever sections apply, feel free to remove the others :thumbsup: Make sure to check the checklist below!
+
+## Changes
+
+### :heavy_check_mark: Additions 
+* Adds 1.
+
+### :wrench: Fixes 
+* Fixes 2
+
+### :x: Removals
+* Removes 3.
+
+### :file_folder: Miscellaneous Changes
+* Changes 4 to 5.
+
+## Checklist
+- [ ] I have tested my changes to the best of my abilities.
+- [ ] I have linked to any related GitHub Issues or Trello cards.
+- [ ] I have made sure my code is clean, well documented, and matches the pre-existing style of the codebase.
+- [ ] I understand that my pull request will only be merged after it is reviewed by maintainers and any requested changes are made.

@@ -1,0 +1,31 @@
+# Gradle
+# ------
+
+.gradle/
+build/
+server/
+
+# IntelliJ
+# --------
+
+.idea/
+classes/
+out/
+projectkorra-core.iml
+
+# Eclipse
+# -------
+
+.metadata
+bin/
+tmp/
+*.tmp
+*.bak
+*.swp
+*~.nib
+local.properties
+.settings/
+.loadpath
+.recommenders
+.externalToolBuilders/
+*.launch
