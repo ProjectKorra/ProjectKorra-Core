@@ -3,7 +3,17 @@ package com.projectkorra.core.object;
 public class Angle {
 
 	public static enum AngleMode {
-		DEGREES, RADIANS;
+		DEGREES (Math.PI / 180), 
+		RADIANS (180 / Math.PI);
+		
+		private double conversion;
+		private AngleMode(double conversion) {
+			this.conversion = conversion;
+		}
+		
+		public double getConversion() {
+			return conversion;
+		}
 	}
 	
 	private AngleMode mode;
@@ -18,21 +28,13 @@ public class Angle {
 		return mode;
 	}
 	
-	public double getValue() {
+	public double getRawValue() {
 		return value;
 	}
 	
-	public double getValueInRadians() {
-		if (mode == AngleMode.DEGREES) {
-			return Math.toRadians(value);
-		} else {
-			return value;
-		}
-	}
-	
-	public double getValueInDegrees() {
-		if (mode == AngleMode.RADIANS) {
-			return Math.toDegrees(value);
+	public double getValue(AngleMode mode) {
+		if (this.mode != mode) {
+			return value * mode.getConversion();
 		} else {
 			return value;
 		}
