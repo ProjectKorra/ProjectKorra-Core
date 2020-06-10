@@ -4,6 +4,7 @@ import org.bukkit.Location;
 import org.bukkit.util.Vector;
 
 public enum Dimension {
+	
 	X (new Vector(1, 0, 0)), 
 	Y (new Vector(0, 1, 0)), 
 	Z (new Vector(0, 0, 1));
@@ -12,6 +13,10 @@ public enum Dimension {
 	
 	private Dimension(Vector axis) {
 		this.axis = axis;
+	}
+	
+	public Vector getAxis() {
+		return axis.clone();
 	}
 	
 	/**
