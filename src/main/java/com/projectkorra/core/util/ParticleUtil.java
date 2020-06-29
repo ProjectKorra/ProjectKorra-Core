@@ -12,8 +12,6 @@ import org.bukkit.util.Vector;
 
 public class ParticleUtil {
 
-	private ParticleUtil() {}
-	
 	/**
 	 * Spawn a single particle at the given location
 	 * @param particle what particle to spawn

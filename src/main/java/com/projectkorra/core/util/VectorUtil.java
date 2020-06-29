@@ -8,8 +8,6 @@ import com.projectkorra.core.object.Angle;
 import com.projectkorra.core.object.Angle.AngleMode;
 
 public class VectorUtil {
-	
-	private VectorUtil() {}
 
 	public static final Vector ZERO = new Vector(0, 0, 0);
 
