@@ -11,6 +11,7 @@ import org.bukkit.inventory.ItemStack;
 import org.bukkit.util.Vector;
 
 public class ParticleUtil {
+	private ParticleUtil() {}
 
 	/**
 	 * Spawn a single particle at the given location
@@ -96,7 +97,6 @@ public class ParticleUtil {
 	 * Spawn a single BLOCK_CRACK particle with the given BlockData at the given Location
 	 * @param block BlockData for the BLOCK_CRACK particle to show
 	 * @param loc where to spawn the particle
-	 * @param amount how many of the particle to spawn
 	 */
 	public static void spawnBlockCrack(BlockData block, Location loc) {
 		spawnBlockCrack(block, loc, 1, 0, 0, 0);
