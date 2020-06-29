@@ -3,8 +3,8 @@ package com.projectkorra.core.util;
 import java.util.ArrayList;
 import java.util.List;
 
+import org.apache.commons.lang.Validate;
 import org.bukkit.Location;
-import org.bukkit.util.Vector;
 
 import com.projectkorra.core.enums.Dimension;
 import com.projectkorra.core.object.Angle;
@@ -12,16 +12,6 @@ import com.projectkorra.core.object.Angle.AngleMode;
 
 public class MathUtil {
 
-	/**
-	 * Returns a vector pointing in the direction of the from location -> to location
-	 * @param from start of vector
-	 * @param to end of vector
-	 * @return vector from -> to
-	 */
-	public static Vector getVectorFromTo(Location from, Location to) {
-		return new Vector(to.getX() - from.getX(), to.getY() - from.getY(), to.getZ() - to.getZ());
-	}
-	
 	/**
 	 * Create a List of locations for a horizontal circle with the given properties
 	 * @param center center location of the circle
@@ -44,13 +34,14 @@ public class MathUtil {
 	 * @throws IllegalArgumentException when given Dimensions are the same
 	 */
 	public static List<Location> getCircle(Location center, double radius, Angle theta, Dimension a, Dimension b) throws IllegalArgumentException {
-		if (a == b) {
-			throw new IllegalArgumentException("Dimension axes for the circle cannot be the same!");
-		}
+		Validate.isTrue(a != b, "Dimension axes for the circle cannot be the same!");
+		
+		double interval = Math.abs(theta.getValue(AngleMode.RADIANS));
+		
+		Validate.isTrue(interval > 0, "Theta angle interval cannot be 0");
 		
 		List<Location> circle = new ArrayList<>();
-		
-		for (double angle = 0; angle < Math.PI * 2; angle += theta.getValueInRadians()) {
+		for (double angle = 0; angle < Math.PI * 2; angle += interval) {
 			double av = Math.cos(angle) * radius;
 			double bv = Math.sin(angle) * radius;
 			
@@ -71,11 +62,16 @@ public class MathUtil {
 	 * @param phiInterval vertical angular interval between points on the circle. <b>Using multiples of Math.PI is recommended</b>
 	 * @return a List of locations on the edge of the sphere
 	 */
-	public static List<Location> getSphere(Location center, double radius, double thetaInterval, double phiInterval) {
-		List<Location> coords = new ArrayList<>();
+	public static List<Location> getSphere(Location center, double radius, Angle thetaInterval, Angle phiInterval) {
+		double tv = Math.abs(thetaInterval.getValue(AngleMode.RADIANS));
+		double pv = Math.abs(phiInterval.getValue(AngleMode.RADIANS));
 		
-		for (double theta = 0; theta < Math.PI; theta += thetaInterval) {
-			for (double phi = 0; phi < Math.PI * 2; phi += phiInterval) {
+		Validate.isTrue(tv > 0, "Theta angle interval cannot be 0");
+		Validate.isTrue(pv > 0, "Phi angle interval cannot be 0");
+		
+		List<Location> coords = new ArrayList<>();
+		for (double theta = 0; theta < Math.PI; theta += tv) {
+			for (double phi = 0; phi < Math.PI * 2; phi += pv) {
 				double x = center.getX() + radius * Math.sin(theta) * Math.cos(phi);
 				double y = center.getY() + radius * Math.cos(theta);
 				double z = center.getZ() + radius * Math.sin(theta) * Math.sin(phi);
