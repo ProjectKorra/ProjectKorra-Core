@@ -581,7 +581,7 @@ public class ReflectionUtil {
 	 *
 	 * @return the {@link java.lang.Object Object} value of the {@link java.lang.reflect.Field Field} with the given {@link java.lang.String String} name for the given instance.
 	 *
-	 * @throws NullPointerException if the given {@link java.lang.Class Class} is null or if the given {@link java.lang.Object Object} instance is null.
+	 * @throws NullPointerException if the given {@link java.lang.Class Class} is null.
 	 * @throws NoSuchFieldException if a {@link java.lang.reflect.Field Field} with the given name does not exist.
 	 * @throws SecurityException if the desired {@link java.lang.reflect.Field Field} cannot be accessed due to insufficient permissions.
 	 * @throws IllegalAccessException if the desired {@link java.lang.reflect.Field Field} cannot be accessed.
@@ -601,7 +601,7 @@ public class ReflectionUtil {
 	 *
 	 * @return the {@link java.lang.Object Object} value of the {@link java.lang.reflect.Field Field} for the given instance.
 	 *
-	 * @throws NullPointerException if the given {@link java.lang.Object Object} instance is null.
+	 * @throws NullPointerException if the given {@link java.lang.reflect.Field Field} is null.
 	 * @throws IllegalAccessException if the desired {@link java.lang.reflect.Field Field} cannot be accessed.
 	 *
 	 * @version 1.0.0
@@ -668,13 +668,16 @@ public class ReflectionUtil {
 	 *
 	 * @return the T value of the {@link java.lang.reflect.Field Field} for the given instance.
 	 *
+	 * @throws NullPointerException if the given {@link java.lang.reflect.Field Field} is null.
 	 * @throws IllegalAccessException if the given {@link java.lang.reflect.Field Field} cannot be accessed.
 	 * @throws IllegalArgumentException if the given type T is not assignable to the actual type of the given {@link java.lang.reflect.Field Field}.
 	 *
 	 * @version 1.0.0
 	 * @since 0.0.1
 	 */
-	public static <T> T getValue(final Object instance, final Field field, final Class<T> type) throws IllegalArgumentException, IllegalAccessException {
+	public static <T> T getValue(final Object instance, final Field field, final Class<T> type) throws NullPointerException, IllegalArgumentException, IllegalAccessException {
+		Validate.notNull(field, "field cannot be null");
+
 		if (type == null) {
 			return (T) field.get(instance); // null or Object, T will be Object if null is passed in but we still have to cast.
 		} else if (field.getType().isAssignableFrom(type)) {
@@ -715,6 +718,7 @@ public class ReflectionUtil {
 	 * @param fieldName The {@link java.lang.String String} name of the desired {@link java.lang.reflect.Field Field}.
 	 * @param value The new value of the desired {@link java.lang.reflect.Field Field}.
 	 *
+	 * @throws NullPointerException if the given {@link java.lang.Class Class} is null.
 	 * @throws NoSuchFieldException if a {@link java.lang.reflect.Field Field} with the given name does not exist.
 	 * @throws SecurityException if the desired {@link java.lang.reflect.Field Field} cannot be accessed due to insufficient permissions.
 	 * @throws IllegalAccessException if the desired {@link java.lang.reflect.Field Field} cannot be accessed.
@@ -724,7 +728,7 @@ public class ReflectionUtil {
 	 * @since 0.0.1
 	 */
 	public static void setValue(final Object instance, final Class<?> clazz, final String fieldName, final Object value) throws NoSuchFieldException, SecurityException, IllegalAccessException, IllegalArgumentException {
-		getField(instance.getClass(), fieldName).set(instance, value);
+		getField(clazz, fieldName).set(instance, value);
 	}
 
 	/**
@@ -734,13 +738,16 @@ public class ReflectionUtil {
 	 * @param field The {@link java.lang.reflect.Field Field} to be modified.
 	 * @param value The new value of the desired {@link java.lang.reflect.Field Field}.
 	 *
+	 * @throws NullPointerException if the given {@link java.lang.reflect.Field Field} is null.
 	 * @throws IllegalAccessException if the desired {@link java.lang.reflect.Field Field} cannot be accessed.
 	 * @throws IllegalArgumentException if the given value cannot be assigned to the desired {@link java.lang.reflect.Field Field}.
 	 *
 	 * @version 1.0.0
 	 * @since 0.0.1
 	 */
-	public static void setValue(final Object instance, final Field field, final Object value) throws SecurityException, IllegalAccessException, IllegalArgumentException {
+	public static void setValue(final Object instance, final Field field, final Object value) throws NullPointerException, SecurityException, IllegalAccessException, IllegalArgumentException {
+		Validate.notNull(field, "field cannot be null");
+
 		field.set(instance, value);
 	}
 
