@@ -9,9 +9,9 @@ import com.projectkorra.core.util.VectorUtil;
 
 public class Plane {
 
-	public static final Plane XY = fromDimensions(Dimension.X, Dimension.Y);
-	public static final Plane ZY = fromDimensions(Dimension.Z, Dimension.Y);
-	public static final Plane XZ = fromDimensions(Dimension.X, Dimension.Z);
+	public static final Plane XY = new Plane(Dimension.X.getAxis(), Dimension.Y.getAxis());
+	public static final Plane ZY = new Plane(Dimension.Z.getAxis(), Dimension.Y.getAxis());
+	public static final Plane XZ = new Plane(Dimension.X.getAxis(), Dimension.Z.getAxis());
 
 	private Vector horizontal, vertical;
 
@@ -30,10 +30,6 @@ public class Plane {
 	
 	public Location moveAlongAxes(Location position, double rightward, double upward) {
 		return position.add(horizontal.normalize().multiply(rightward)).add(vertical.normalize().multiply(upward));
-	}
-
-	public static Plane fromDimensions(Dimension horizontal, Dimension vertical) {
-		return new Plane(horizontal.getAxis(), vertical.getAxis());
 	}
 
 	public static Plane fromPerpendicular(Vector perpendicular) {
