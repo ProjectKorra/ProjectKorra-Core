@@ -86,6 +86,10 @@ public class VectorUtil {
 		return (float) Math.toDegrees((theta + _2PI) % _2PI);
 	}
 	
+	/**
+	 * Returns a copy of the zero vector in this class
+	 * @return zero vector
+	 */
 	public static Vector zero() {
 		return ZERO.clone();
 	}
