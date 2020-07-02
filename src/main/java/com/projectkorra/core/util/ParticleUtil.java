@@ -325,9 +325,9 @@ public class ParticleUtil {
 		double value = color.ordinal() / 24D;
 		
 		for (int i = 0; i < amount; i++) {
-			double x = loc.getX() + offsetX * (Math.random() - 0.5);
-			double y = loc.getY() + offsetY * (Math.random() - 0.5);
-			double z = loc.getZ() + offsetZ * (Math.random() - 0.5);
+			double x = loc.getX() + offsetX * 2 * (Math.random() - 0.5);
+			double y = loc.getY() + offsetY * 2 * (Math.random() - 0.5);
+			double z = loc.getZ() + offsetZ * 2 * (Math.random() - 0.5);
 			
 			world.spawnParticle(Particle.NOTE, x, y, z, 0, value, 0, 0, 1);
 		}
@@ -471,9 +471,9 @@ public class ParticleUtil {
 		double b = Math.max(0, Math.min(color.getBlue(), 255)) / 255D;
 		
 		for (int i = 0; i < amount; i++) {
-			double x = loc.getX() + offsetX * (Math.random() - 0.5);
-			double y = loc.getY() + offsetY * (Math.random() - 0.5);
-			double z = loc.getZ() + offsetZ * (Math.random() - 0.5);
+			double x = loc.getX() + offsetX * 2 * (Math.random() - 0.5);
+			double y = loc.getY() + offsetY * 2 * (Math.random() - 0.5);
+			double z = loc.getZ() + offsetZ * 2 * (Math.random() - 0.5);
 			
 			world.spawnParticle(spell, x, y, z, 0, r, g, b, 1);
 		}
@@ -540,9 +540,9 @@ public class ParticleUtil {
 		World world = loc.getWorld();
 		
 		for (int i = 0; i < amount; i++) {
-			double x = loc.getX() + offsetX * (Math.random() - 0.5);
-			double y = loc.getY() + offsetY * (Math.random() - 0.5);
-			double z = loc.getZ() + offsetZ * (Math.random() - 0.5);
+			double x = loc.getX() + offsetX * 2 * (Math.random() - 0.5);
+			double y = loc.getY() + offsetY * 2 * (Math.random() - 0.5);
+			double z = loc.getZ() + offsetZ * 2 * (Math.random() - 0.5);
 			
 			world.spawnParticle(particle.get(), x, y, z, 0, direction.getX(), direction.getY(), direction.getZ(), speed);
 		}
