@@ -29,6 +29,7 @@ public class VectorUtil {
 	 * @param length magnitude of orthogonal vector
 	 * @param rotation counterclockwise rotation, 0 = righthand side of the axis
 	 * @return an orthogonal vector
+	 * @throws IllegalArgumentException when the axis vector is a zero vector
 	 */
 	public static Vector orthogonal(Vector axis, double length, Angle rotation) throws IllegalArgumentException {
 		Validate.isTrue(!axis.equals(ZERO), "Axis direction cannot be the zero vector!");
