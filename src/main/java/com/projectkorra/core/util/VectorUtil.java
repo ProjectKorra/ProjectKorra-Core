@@ -30,18 +30,12 @@ public class VectorUtil {
 	 * @param rotation counterclockwise rotation, 0 = righthand side of the axis
 	 * @return an orthogonal vector
 	 */
-	public static Vector orthogonal(Vector axis, double length, Angle rotation) {
+	public static Vector orthogonal(Vector axis, double length, Angle rotation) throws IllegalArgumentException {
 		Validate.isTrue(!axis.equals(ZERO), "Axis direction cannot be the zero vector!");
 
 		double yaw = Math.toRadians(getYaw(axis));
 		Vector other = new Vector(-Math.sin(yaw), axis.getY() - 1, Math.cos(yaw));
-		Vector third;
-		
-		if (getPitch(other) > getPitch(axis)) {
-			third = other.getCrossProduct(axis);
-		} else {
-			third = axis.getCrossProduct(other);
-		}
+		Vector third = getPitch(other) > getPitch(axis) ? other.getCrossProduct(axis) : axis.getCrossProduct(other);
 
 		return rotate(third.normalize().multiply(length), axis, rotation);
 	}

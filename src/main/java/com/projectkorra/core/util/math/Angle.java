@@ -34,25 +34,9 @@ public class Angle {
 	public void setValue(double value) {
 		this.value = value;
 	}
-
-	public static Angle radians(int value) {
-		return new Angle(AngleMode.RADIANS, (double) value);
-	}
-
-	public static Angle radians(float value) {
-		return new Angle(AngleMode.RADIANS, (double) value);
-	}
-
+	
 	public static Angle radians(double value) {
 		return new Angle(AngleMode.RADIANS, value);
-	}
-
-	public static Angle degrees(int value) {
-		return new Angle(AngleMode.DEGREES, (double) value);
-	}
-
-	public static Angle degrees(float value) {
-		return new Angle(AngleMode.DEGREES, (double) value);
 	}
 
 	public static Angle degrees(double value) {
