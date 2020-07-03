@@ -70,8 +70,8 @@ public class VectorUtil {
 	}
 	
 	/**
-	 * Gets the yaw of the given vector, a vector pointing straight 
-	 * up or down will return pi/2 or -pi/2 respectively
+	 * Gets the yaw of the given vector, a vector pointing straight
+	 * up or down will give a yaw of 0
 	 * @param vector a vector
 	 * @return yaw of the vector
 	 */
