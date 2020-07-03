@@ -4,8 +4,8 @@ import org.apache.commons.lang.Validate;
 import org.bukkit.Location;
 import org.bukkit.util.Vector;
 
-import com.projectkorra.core.math.Angle;
-import com.projectkorra.core.math.Angle.AngleMode;
+import com.projectkorra.core.util.math.Angle;
+import com.projectkorra.core.util.math.Angle.AngleMode;
 
 public class VectorUtil {
 

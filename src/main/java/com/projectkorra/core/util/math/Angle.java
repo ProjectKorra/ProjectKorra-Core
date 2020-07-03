@@ -1,4 +1,4 @@
-package com.projectkorra.core.math;
+package com.projectkorra.core.util.math;
 
 public class Angle {
 
