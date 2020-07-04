@@ -90,6 +90,16 @@ public class ParticleUtil {
 	 * @param data additional data attached to the particle. See {@link Particle} for applicable data types
 	 */
 	public static void spawn(Particle particle, Location loc, int amount, double offsetX, double offsetY, double offsetZ, double extra, Object data) {
+		if (data == null) {
+			if (particle == Particle.REDSTONE) {
+				data = new DustOptions(Color.RED, 0.8f);
+			} else if (particle == Particle.BLOCK_CRACK || particle == Particle.BLOCK_DUST || particle == Particle.FALLING_DUST) {
+				data = Material.BARRIER.createBlockData();
+			} else if (particle == Particle.ITEM_CRACK) {
+				data = new ItemStack(Material.BARRIER);
+			}
+		}
+		
 		loc.getWorld().spawnParticle(particle, loc, amount, offsetX, offsetY, offsetZ, extra, data);
 	}
 
