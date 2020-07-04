@@ -1,5 +1,8 @@
 package com.projectkorra.core.util;
 
+import java.util.HashMap;
+import java.util.Map;
+
 import org.bukkit.Color;
 import org.bukkit.Location;
 import org.bukkit.Material;
@@ -11,6 +14,17 @@ import org.bukkit.inventory.ItemStack;
 import org.bukkit.util.Vector;
 
 public class ParticleUtil {
+	
+	private static final Map<Particle, Object> DEFAULT_DATAS = new HashMap<>();
+	
+	static {
+		DEFAULT_DATAS.put(Particle.REDSTONE, new DustOptions(Color.RED, 0.8f));
+		DEFAULT_DATAS.put(Particle.BLOCK_CRACK, Material.BARRIER.createBlockData());
+		DEFAULT_DATAS.put(Particle.BLOCK_DUST, Material.BARRIER.createBlockData());
+		DEFAULT_DATAS.put(Particle.FALLING_DUST, Material.BARRIER.createBlockData());
+		DEFAULT_DATAS.put(Particle.ITEM_CRACK, new ItemStack(Material.BARRIER));
+	}
+	
 	private ParticleUtil() {}
 
 	/**
@@ -90,14 +104,8 @@ public class ParticleUtil {
 	 * @param data additional data attached to the particle. See {@link Particle} for applicable data types
 	 */
 	public static void spawn(Particle particle, Location loc, int amount, double offsetX, double offsetY, double offsetZ, double extra, Object data) {
-		if (data == null) {
-			if (particle == Particle.REDSTONE) {
-				data = new DustOptions(Color.RED, 0.8f);
-			} else if (particle == Particle.BLOCK_CRACK || particle == Particle.BLOCK_DUST || particle == Particle.FALLING_DUST) {
-				data = Material.BARRIER.createBlockData();
-			} else if (particle == Particle.ITEM_CRACK) {
-				data = new ItemStack(Material.BARRIER);
-			}
+		if (data == null && DEFAULT_DATAS.containsKey(particle)) {
+			data = DEFAULT_DATAS.get(particle);
 		}
 		
 		loc.getWorld().spawnParticle(particle, loc, amount, offsetX, offsetY, offsetZ, extra, data);
