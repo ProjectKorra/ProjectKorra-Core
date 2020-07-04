@@ -5,13 +5,12 @@ import org.bukkit.Location;
 import org.bukkit.util.Vector;
 
 import com.projectkorra.core.util.math.Angle;
+import com.projectkorra.core.util.math.UnitVector;
 import com.projectkorra.core.util.math.Angle.AngleMode;
 
 public class VectorUtil {
 
 	private VectorUtil() {}
-	
-	private static final Vector ZERO = new Vector(0, 0, 0); // this vector should never be modified, only used for equality checks
 	
 	/**
 	 * Get a vector for the direction between two points
@@ -32,7 +31,7 @@ public class VectorUtil {
 	 * @throws IllegalArgumentException when the axis vector is a zero vector
 	 */
 	public static Vector orthogonal(Vector axis, double length, Angle rotation) throws IllegalArgumentException {
-		Validate.isTrue(!axis.equals(ZERO), "Axis direction cannot be the zero vector!");
+		Validate.isTrue(!axis.equals(UnitVector.ZERO.normal()), "Axis direction cannot be the zero vector!");
 
 		double yaw = Math.toRadians(getYaw(axis));
 		Vector other = new Vector(-Math.sin(yaw), axis.getY() - 1, Math.cos(yaw));
@@ -79,13 +78,5 @@ public class VectorUtil {
 		double _2PI = 2 * Math.PI;
 		double theta = Math.atan2(-vector.getX(), vector.getZ());
 		return (float) Math.toDegrees((theta + _2PI) % _2PI);
-	}
-	
-	/**
-	 * Returns a copy of the zero vector in this class
-	 * @return zero vector
-	 */
-	public static Vector zero() {
-		return ZERO.clone();
 	}
 }
