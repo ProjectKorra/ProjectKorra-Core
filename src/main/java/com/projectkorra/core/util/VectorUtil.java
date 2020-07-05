@@ -23,6 +23,20 @@ public class VectorUtil {
 	}
 	
 	/**
+	 * Get a vector for the direction of the given yaw and pitch
+	 * @param yaw horizontal rotation, between +/- 180
+	 * @param pitch vertical rotation, between -/+ 90 (negative is up)
+	 * @return vector from yaw and pitch
+	 */
+	public static Vector direction(float yaw, float pitch) {
+		double y = Math.sin(-Math.toRadians(pitch));
+		double xz = Math.cos(Math.toRadians(pitch));
+		double x = -xz * Math.sin(Math.toRadians(yaw));
+		double z = xz * Math.cos(Math.toRadians(yaw));
+		return new Vector(x, y, z);
+	}
+	
+	/**
 	 * Returns an orthogonal vector from an axis
 	 * @param axis vector to be orthogonal of
 	 * @param length magnitude of orthogonal vector
