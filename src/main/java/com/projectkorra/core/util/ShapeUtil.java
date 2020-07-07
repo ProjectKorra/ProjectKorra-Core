@@ -5,6 +5,7 @@ import java.util.Collection;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
+import java.util.function.Predicate;
 
 import org.bukkit.Color;
 import org.bukkit.Location;
@@ -23,11 +24,26 @@ public class ShapeUtil {
 	
 	/**
 	 * Take the given shape and construct its locations to the given collection
-	 * @param shape shape to collect
+	 * @param shape shape to construct
 	 * @param locs where to collect to
 	 */
 	public static void collect(Shape shape, Collection<Location> locs) {
 		shape.construct((loc) -> locs.add(loc));
+	}
+	
+	/**
+	 * Take the given shape and construct only the locations which pass the
+	 * filter test to the given collection
+	 * @param shape shape to construct
+	 * @param locs where to collect to
+	 * @param filter any location that passes this test is added to the collection
+	 */
+	public static void collect(Shape shape, Collection<Location> locs, Predicate<Location> filter) {
+		shape.construct((loc) -> {
+			if (filter.test(loc)) {
+				locs.add(loc);
+			}
+		});
 	}
 	
 	/**

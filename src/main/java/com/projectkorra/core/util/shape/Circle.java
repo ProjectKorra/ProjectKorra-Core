@@ -11,20 +11,25 @@ import com.projectkorra.core.util.math.Plane;
 public class Circle extends Polygon {
 
 	private double radius;
-	private Angle theta;
+	private Angle theta, initial;
 	
 	public Circle(Location center, double radius, Angle theta) {
-		this(center, radius, theta, Plane.XZ, true);
+		this(center, radius, theta, Angle.radians(0), Plane.XZ, true);
 	}
 	
-	public Circle(Location center, double radius, Angle theta, Plane reference) {
-		this(center, radius, theta, reference, true);
+	public Circle(Location center, double radius, Angle theta, Angle initial) {
+		this(center, radius, theta, initial, Plane.XZ, true);
 	}
 	
-	public Circle(Location center, double radius, Angle theta, Plane reference, boolean hollow) {
+	public Circle(Location center, double radius, Angle theta, Angle initial, Plane reference) {
+		this(center, radius, theta, initial, reference, true);
+	}
+	
+	public Circle(Location center, double radius, Angle theta, Angle initial, Plane reference, boolean hollow) {
 		super(center, reference, hollow);
 		this.radius = radius;
 		this.theta = theta;
+		this.initial = initial;
 		
 		if (theta.getRawValue() <= 0) {
 			theta.set(AngleMode.DEGREES, 1);
@@ -34,16 +39,17 @@ public class Circle extends Polygon {
 	@Override
 	public void construct(Consumer<Location> func) {
 		double angle = theta.getValue(AngleMode.RADIANS);
+		double init = initial.getValue(AngleMode.RADIANS);
 		
 		if (!hollow) {
 			for (double r = 0.0; r < radius; r += 0.1) {
-				for (double i = 0.0; i < 2 * Math.PI; i += angle) {
+				for (double i = init; i < init + 2 * Math.PI; i += angle) {
 					func.accept(reference.moveAlongAxes(center.clone(), r * Math.cos(i), r * Math.sin(i)));
 				}
 			}
 		}
 		
-		for (double i = 0.0; i < 2 * Math.PI; i += angle) {
+		for (double i = init; i < init + 2 * Math.PI; i += angle) {
 			func.accept(reference.moveAlongAxes(center.clone(), radius * Math.cos(i), radius * Math.sin(i)));
 		}
 	}
@@ -62,5 +68,13 @@ public class Circle extends Polygon {
 	
 	public void setTheta(Angle theta) {
 		this.theta = theta;
+	}
+	
+	public Angle getInitial() {
+		return initial;
+	}
+	
+	public void setInitial(Angle initial) {
+		this.initial = initial;
 	}
 }
