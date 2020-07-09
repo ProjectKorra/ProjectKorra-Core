@@ -4,6 +4,7 @@ import java.util.function.Consumer;
 
 import org.bukkit.Location;
 
+import com.projectkorra.core.util.VectorUtil;
 import com.projectkorra.core.util.math.Angle;
 import com.projectkorra.core.util.math.Plane;
 import com.projectkorra.core.util.math.Angle.AngleMode;
@@ -13,6 +14,14 @@ public class CircleArc extends Polygon {
 	private double radius;
 	private float yaw;
 	private Angle theta, interval;
+	
+	public CircleArc(Location center, double radius, float yaw, Angle theta, Angle interval) {
+		this(center, radius, yaw, theta, interval, Plane.fromPerpendicular(VectorUtil.direction(-90, -90)), true);
+	}
+	
+	public CircleArc(Location center, double radius, float yaw, Angle theta, Angle interval, Plane reference) {
+		this(center, radius, yaw, theta, interval, reference, true);
+	}
 	
 	public CircleArc(Location center, double radius, float yaw, Angle theta, Angle interval, Plane reference, boolean hollow) {
 		super(center, reference, hollow);
@@ -24,24 +33,28 @@ public class CircleArc extends Polygon {
 
 	@Override
 	public void construct(Consumer<Location> func) {
-		float lower = yaw - (float) theta.getValue(AngleMode.DEGREES) / 2;
-		float upper = yaw + (float) theta.getValue(AngleMode.DEGREES) / 2;
-		double angle = interval.getValue(AngleMode.DEGREES);
+		double lower = Math.toRadians(yaw - theta.getValue(AngleMode.DEGREES) / 2); // lower bound for the yaw
+		double upper = Math.toRadians(yaw + theta.getValue(AngleMode.DEGREES) / 2); // upper bound for the yaw
+		double angle = interval.getValue(AngleMode.RADIANS); // angle between each location of the arc
+		double rinc = radius * angle / theta.getValue(AngleMode.RADIANS); // interval between each location along the radius
 		
 		if (!hollow) {
+			// construct each location
 			for (double y = lower; y <= upper; y += angle) {
-				for (double r = 0.0; r <= radius; r += 0.1) {
-					func.accept(reference.moveAlongAxes(center.clone(), r * Math.cos(Math.toRadians(y)), r * Math.sin(Math.toRadians(y))));
+				for (double r = 0.0; r <= radius; r += rinc) {
+					func.accept(reference.moveAlongAxes(center.clone(), r * Math.cos(y), r * Math.sin(y)));
 				}
 			}
 		} else {
-			for (double r = 0.0; r < radius; r += 0.1) {
-				func.accept(reference.moveAlongAxes(center.clone(), r * Math.cos(Math.toRadians(lower)), r * Math.sin(Math.toRadians(lower))));
-				func.accept(reference.moveAlongAxes(center.clone(), r * Math.cos(Math.toRadians(upper)), r * Math.sin(Math.toRadians(upper))));
+			// construct the sides for the outline
+			for (double r = 0.0; r < radius; r += rinc) {
+				func.accept(reference.moveAlongAxes(center.clone(), r * Math.cos(lower), r * Math.sin(lower)));
+				func.accept(reference.moveAlongAxes(center.clone(), r * Math.cos(upper), r * Math.sin(upper)));
 			}
 			
+			// construct the curve for the outline
 			for (double y = lower; y <= upper; y += angle) {
-				func.accept(reference.moveAlongAxes(center.clone(), radius * Math.cos(Math.toRadians(y)), radius * Math.sin(Math.toRadians(y))));
+				func.accept(reference.moveAlongAxes(center.clone(), radius * Math.cos(y), radius * Math.sin(y)));
 			}
 		}
 	}

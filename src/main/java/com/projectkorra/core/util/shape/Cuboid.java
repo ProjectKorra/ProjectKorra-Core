@@ -45,6 +45,7 @@ public class Cuboid extends Polyhedron {
 		Plane horizontal = Plane.fromPerpendicular(upwards.normalize());
 		
 		if (hollow) {
+			// construct lines along the horizontal plane horizontal axis
 			for (double x = -length / 2; x <= length / 2; x += interval) {
 				func.accept(horizontal.moveAlongAxes(center.clone(), x, -width / 2).add(upwards.clone().multiply(-height / 2)));
 				func.accept(horizontal.moveAlongAxes(center.clone(), x, -width / 2).add(upwards.clone().multiply(height / 2)));
@@ -52,20 +53,23 @@ public class Cuboid extends Polyhedron {
 				func.accept(horizontal.moveAlongAxes(center.clone(), x, width / 2).add(upwards.clone().multiply(height / 2)));
 			}
 			
-			for (double y = -length / 2; y <= length / 2; y += interval) {
+			// construct lines along the upwards vector
+			for (double y = -height / 2; y <= height / 2; y += interval) {
 				func.accept(horizontal.moveAlongAxes(center.clone(), -length / 2, -width / 2).add(upwards.clone().multiply(y)));
 				func.accept(horizontal.moveAlongAxes(center.clone(), length / 2, -width / 2).add(upwards.clone().multiply(y)));
 				func.accept(horizontal.moveAlongAxes(center.clone(), -length / 2, width / 2).add(upwards.clone().multiply(y)));
 				func.accept(horizontal.moveAlongAxes(center.clone(), length / 2, width / 2).add(upwards.clone().multiply(y)));
 			}
 			
-			for (double z = -length / 2; z <= length / 2; z += interval) {
+			// construct lines along the horizontal plane vertical axis
+			for (double z = -width / 2; z <= width / 2; z += interval) {
 				func.accept(horizontal.moveAlongAxes(center.clone(), -length / 2, z).add(upwards.clone().multiply(-height / 2)));
 				func.accept(horizontal.moveAlongAxes(center.clone(), -length / 2, z).add(upwards.clone().multiply(height / 2)));
 				func.accept(horizontal.moveAlongAxes(center.clone(), length / 2, z).add(upwards.clone().multiply(-height / 2)));
 				func.accept(horizontal.moveAlongAxes(center.clone(), length / 2, z).add(upwards.clone().multiply(height / 2)));
 			}
 		} else {
+			// construct whole cuboid
 			for (double x = -length / 2; x <= length / 2; x += interval) {
 				for (double y = -height / 2; y <= height / 2; y += interval) {
 					for (double z = -width / 2; z <= width / 2; z += interval) {

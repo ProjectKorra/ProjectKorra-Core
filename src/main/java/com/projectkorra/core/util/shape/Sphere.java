@@ -48,12 +48,15 @@ public class Sphere extends Polyhedron {
 	
 	@Override
 	public void construct(Consumer<Location> func) {
-		double angleTheta = theta.getValue(AngleMode.RADIANS);
-		double anglePhi = phi.getValue(AngleMode.RADIANS);
-		Plane horizontal = Plane.fromPerpendicular(upwards.normalize());
+		double angleTheta = theta.getValue(AngleMode.RADIANS); // angle between each location along the pitch
+		double anglePhi = phi.getValue(AngleMode.RADIANS); // angle between each location along the yaw
+		Plane horizontal = Plane.fromPerpendicular(upwards.normalize()); // horizontal reference plane
 		
 		if (!hollow) {
-			for (double r = 0.0; r < radius; r += 0.1) {
+			double rinc = radius * angleTheta / (2 * Math.PI);
+			
+			// construct the inner bits
+			for (double r = 0.0; r < radius; r += rinc) {
 				for (double i = 0.0; i < Math.PI; i += angleTheta) {
 					double yv = r * Math.cos(i);
 					
@@ -66,6 +69,7 @@ public class Sphere extends Polyhedron {
 			}
 		}
 		
+		// construct outer shell
 		for (double i = 0.0; i < Math.PI; i += angleTheta) {
 			double yv = radius * Math.cos(i);
 			

@@ -28,11 +28,13 @@ public class Triangle extends Polygon {
 	@Override
 	public void construct(Consumer<Location> func) {
 		if (hollow) {
+			// construct outline locations
 			for (double x = -length / 2; x <= length / 2; x += interval) {
 				func.accept(reference.moveAlongAxes(center.clone(), x, -height / 2));
 				func.accept(reference.moveAlongAxes(center.clone(), x, (-height / 2) + (height) * (1 - Math.abs(x) / (length / 2))));
 			}
 		} else {
+			// construct all locations
 			for (double x = -length / 2; x <= length / 2; x += interval) {
 				double yBound = (-height / 2) + (height) * (1 - Math.abs(x) / (length / 2));
 				for (double y = -height / 2; y <= yBound; y += interval) {

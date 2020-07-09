@@ -42,14 +42,16 @@ public class Tetrahedron extends Polyhedron {
 	
 	@Override
 	public void construct(Consumer<Location> func) {
-		Plane horizontal = Plane.fromPerpendicular(upwards.normalize());
+		Plane horizontal = Plane.fromPerpendicular(upwards.normalize()); // horizontal reference plane
 		
 		if (hollow) {
+			// construct triangle base
 			for (double x = -length / 2; x <= length / 2 + interval / 2; x += interval) {
 				func.accept(horizontal.moveAlongAxes(center.clone(), x, -width / 2).add(upwards.clone().multiply(height / 2)));
 				func.accept(horizontal.moveAlongAxes(center.clone(), x, (-width / 2) + (width) * (1 - Math.abs(x) / (length / 2))).add(upwards.clone().multiply(height / 2)));
 			}
 			
+			// construct face outlines
 			for (double y = -height / 2; y <= height / 2; y += interval) {
 				double percent = (y + height / 2) / height;
 				double xv = percent * length / 2;
@@ -59,11 +61,13 @@ public class Tetrahedron extends Polyhedron {
 				func.accept(horizontal.moveAlongAxes(center.clone(), -xv, -zv).add(upwards.clone().multiply(y)));
 			}
 		} else {
+			// construct filled triangles at each height interval
 			for (double y = -height / 2; y <= height / 2; y += interval) {
 				double percent = (y + height / 2) / height;
 				double xv = percent * length;
 				double zv = percent * width;
 				
+				// construct filled triangle for this height interval
 				for (double x = -xv / 2; x <= xv / 2; x += interval) {
 					double zBound = (-zv / 2) + zv * (1 - Math.abs(x) / (xv / 2));
 					

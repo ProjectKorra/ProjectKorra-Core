@@ -38,17 +38,21 @@ public class Circle extends Polygon {
 	
 	@Override
 	public void construct(Consumer<Location> func) {
-		double angle = theta.getValue(AngleMode.RADIANS);
-		double init = initial.getValue(AngleMode.RADIANS);
+		double angle = theta.getValue(AngleMode.RADIANS); // angle between each location in the circle
+		double init = initial.getValue(AngleMode.RADIANS); // initial angle for the circle to start from
 		
 		if (!hollow) {
-			for (double r = 0.0; r < radius; r += 0.1) {
+			double rinc = radius * angle / (2 * Math.PI); // interval between each circle generated when not hollow
+			
+			// construct the inner bits of the circle
+			for (double r = 0.0; r < radius; r += rinc) {
 				for (double i = init; i < init + 2 * Math.PI; i += angle) {
 					func.accept(reference.moveAlongAxes(center.clone(), r * Math.cos(i), r * Math.sin(i)));
 				}
 			}
 		}
 		
+		// construct outer ring of circle only
 		for (double i = init; i < init + 2 * Math.PI; i += angle) {
 			func.accept(reference.moveAlongAxes(center.clone(), radius * Math.cos(i), radius * Math.sin(i)));
 		}

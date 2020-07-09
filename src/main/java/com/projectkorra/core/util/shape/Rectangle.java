@@ -40,16 +40,19 @@ public class Rectangle extends Polygon {
 	@Override
 	public void construct(Consumer<Location> func) {
 		if (hollow) {
+			// construct sides along reference plane horizontal axis
 			for (double x = -length / 2; x <= length / 2; x += interval) {
 				func.accept(reference.moveAlongAxes(center.clone(), x, height / 2));
 				func.accept(reference.moveAlongAxes(center.clone(), x, -height / 2));
 			}
 			
+			// construct sides along reference plane vertical axis
 			for (double z = -length / 2; z <= length / 2; z += interval) {
 				func.accept(reference.moveAlongAxes(center.clone(), length / 2, z));
 				func.accept(reference.moveAlongAxes(center.clone(), -length / 2, z));
 			}
 		} else {
+			// construct all locations within reference plane
 			for (double i = -length / 2; i <= length / 2; i += interval) {
 				for (double j = -height / 2; j <= height / 2; j += interval) {
 					func.accept(reference.moveAlongAxes(center.clone(), i, j));
