@@ -15,14 +15,41 @@ public class CircleArc extends Polygon {
 	private float yaw;
 	private Angle theta, interval;
 	
+	/**
+	 * Creates a hollow arc of a circle in the XZ plane
+	 * @param center center of the circle (not the arc)
+	 * @param radius distance from center to points on the arc
+	 * @param yaw starting angle
+	 * @param theta angular magnitude of the arc
+	 * @param interval angle between each location
+	 */
 	public CircleArc(Location center, double radius, float yaw, Angle theta, Angle interval) {
 		this(center, radius, yaw, theta, interval, Plane.fromPerpendicular(VectorUtil.direction(-90, -90)), true);
 	}
 	
+	/**
+	 * Creates a hollow arc of a circle
+	 * @param center center of the circle (not the arc)
+	 * @param radius distance from center to points on the arc
+	 * @param yaw starting angle
+	 * @param theta angular magnitude of the arc
+	 * @param interval angle between each location
+	 * @param reference plane the circle exists in
+	 */
 	public CircleArc(Location center, double radius, float yaw, Angle theta, Angle interval, Plane reference) {
 		this(center, radius, yaw, theta, interval, reference, true);
 	}
 	
+	/**
+	 * Creates an arc of a circle
+	 * @param center center of the circle (not the arc)
+	 * @param radius distance from center to points on the arc
+	 * @param yaw starting angle
+	 * @param theta angular magnitude of the arc
+	 * @param interval angle between each location
+	 * @param reference plane the circle exists in
+	 * @param hollow true to only draw outline
+	 */
 	public CircleArc(Location center, double radius, float yaw, Angle theta, Angle interval, Plane reference, boolean hollow) {
 		super(center, reference, hollow);
 		this.radius = Math.max(radius, 0.1);

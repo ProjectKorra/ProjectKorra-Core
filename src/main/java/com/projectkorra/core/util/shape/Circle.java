@@ -13,18 +13,48 @@ public class Circle extends Polygon {
 	private double radius;
 	private Angle theta, initial;
 	
+	/**
+	 * Creates a hollow circle in the XZ plane with no initial angle
+	 * @param center center location
+	 * @param radius distance from center to any point on the circle
+	 * @param theta angle between each location in the circle
+	 */
 	public Circle(Location center, double radius, Angle theta) {
 		this(center, radius, theta, Angle.radians(0), Plane.XZ, true);
 	}
 	
+	/**
+	 * Creates a hollow circle in the XZ plane
+	 * @param center center location
+	 * @param radius distance from center to any point on the circle
+	 * @param theta angle between each location in the circle
+	 * @param initial angle to start constructing circle from
+	 */
 	public Circle(Location center, double radius, Angle theta, Angle initial) {
 		this(center, radius, theta, initial, Plane.XZ, true);
 	}
 	
+	/**
+	 * Creates a hollow circle
+	 * @param center center location
+	 * @param radius distance from center to any point on the circle
+	 * @param theta angle between each location in the circle
+	 * @param initial angle to start constructing circle from
+	 * @param reference plane to construct circle in
+	 */
 	public Circle(Location center, double radius, Angle theta, Angle initial, Plane reference) {
 		this(center, radius, theta, initial, reference, true);
 	}
 	
+	/**
+	 * Creates a circle
+	 * @param center center location
+	 * @param radius distance from center to any point on the circle
+	 * @param theta angle between each location in the circle
+	 * @param initial angle to start constructing circle from
+	 * @param reference plane to construct circle in
+	 * @param hollow true to only draw outline
+	 */
 	public Circle(Location center, double radius, Angle theta, Angle initial, Plane reference, boolean hollow) {
 		super(center, reference, hollow);
 		this.radius = radius;

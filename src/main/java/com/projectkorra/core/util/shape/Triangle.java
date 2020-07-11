@@ -10,14 +10,38 @@ public class Triangle extends Polygon {
 
 	private double height, length, interval;
 	
+	/**
+	 * Creates a hollow triangle in the XZ plane	
+	 * @param center center location
+	 * @param height vertical magnitude in the reference plane
+	 * @param length horizontal magnitude in the reference plane
+	 * @param interval distance between each location in the triangle
+	 */
 	public Triangle(Location center, double height, double length, double interval) {
 		this(center, height, length, interval, Plane.XZ, true);
 	}
 	
+	/**
+	 * Creates a hollow triangle
+	 * @param center center location
+	 * @param height vertical magnitude in the reference plane
+	 * @param length horizontal magnitude in the reference plane
+	 * @param interval distance between each location in the triangle
+	 * @param reference plane the triangle exists within
+	 */
 	public Triangle(Location center, double height, double length, double interval, Plane reference) {
 		this(center, height, length, interval, reference, true);
 	}
 	
+	/**
+	 * Creates a triangle
+	 * @param center center location
+	 * @param height vertical magnitude in the reference plane
+	 * @param length horizontal magnitude in the reference plane
+	 * @param interval distance between each location in the triangle
+	 * @param reference plane the triangle exists within
+	 * @param hollow true if only drawing the outline
+	 */
 	public Triangle(Location center, double height, double length, double interval, Plane reference, boolean hollow) {
 		super(center, reference, hollow);
 		this.height = Math.max(height, 0.1);

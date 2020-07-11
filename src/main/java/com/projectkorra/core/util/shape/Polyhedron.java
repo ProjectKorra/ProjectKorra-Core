@@ -3,6 +3,9 @@ package com.projectkorra.core.util.shape;
 import org.bukkit.Location;
 import org.bukkit.util.Vector;
 
+/**
+ * Class containing information important to all 3D shapes
+ */
 public abstract class Polyhedron implements Shape {
 
 	protected Location center;

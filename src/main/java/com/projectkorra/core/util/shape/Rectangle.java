@@ -10,26 +10,71 @@ public class Rectangle extends Polygon {
 
 	private double length, height, interval;
 	
+	/**
+	 * Creates a hollow rectangle in the XZ plane
+	 * @param center center location
+	 * @param sides magnitude of length and height
+	 * @param interval distance between each location
+	 */
 	public Rectangle(Location center, double sides, double interval) {
 		this(center, sides, sides, interval, Plane.XZ, true);
 	}
 	
+	/**
+	 * Creates a hollow rectangle in the XZ plane
+	 * @param center center location
+	 * @param length horizontal magnitude in the reference plane
+	 * @param height vertical magnitude in the reference plane
+	 * @param interval distance between each location
+	 */
 	public Rectangle(Location center, double length, double height, double interval) {
 		this(center, length, height, interval, Plane.XZ, true);
 	}
 	
+	/**
+	 * Creates a hollow rectangle
+	 * @param center center location
+	 * @param sides magnitude of length and height
+	 * @param interval distance between each location
+	 * @param reference plane the rectangle exists in
+	 */
 	public Rectangle(Location center, double sides, double interval, Plane reference) {
 		this(center, sides, sides, interval, reference, true);
 	}
 	
+	/**
+	 * Creates a rectangle
+	 * @param center center location
+	 * @param sides magnitude of length and height
+	 * @param interval distance between each location
+	 * @param reference plane the rectangle exists in
+	 * @param hollow true to only draw outline
+	 */
 	public Rectangle(Location center, double sides, double interval, Plane reference, boolean hollow) {
 		this(center, sides, sides, interval, reference, hollow);
 	}
 	
+	/**
+	 * Creates a hollow rectangle
+	 * @param center center location
+	 * @param length horizontal magnitude in the reference plane
+	 * @param height vertical magnitude in the reference plane
+	 * @param interval distance between each location
+	 * @param reference plane the rectangle exists in
+	 */
 	public Rectangle(Location center, double length, double height, double interval, Plane reference) {
 		this(center, length, height, interval, reference, true);
 	}
 	
+	/**
+	 * Creates a rectangle
+	 * @param center center location
+	 * @param length horizontal magnitude in the reference plane
+	 * @param height vertical magnitude in the reference plane
+	 * @param interval distance between each location
+	 * @param reference plane the rectangle exists in
+	 * @param hollow true to only draw outline
+	 */
 	public Rectangle(Location center, double length, double height, double interval, Plane reference, boolean hollow) {
 		super(center, reference, hollow);
 		this.length = Math.max(length, 0.1);

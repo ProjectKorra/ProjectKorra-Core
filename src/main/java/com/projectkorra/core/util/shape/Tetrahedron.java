@@ -12,26 +12,74 @@ public class Tetrahedron extends Polyhedron {
 
 	private double length, height, width, interval;
 	
+	/**
+	 * Creates hollow a tetrahedron (pyramid) using the y-axis for upwards direction
+	 * @param center center location
+	 * @param sides magnitude of the length, height, and width
+	 * @param interval distance between each location
+	 */
 	public Tetrahedron(Location center, double sides, double interval) {
 		this(center, sides, sides, sides, interval, UnitVector.POSITIVE_Y.normal(), true);
 	}
 	
+	/**
+	 * Creates hollow a tetrahedron (pyramid)
+	 * @param center center location
+	 * @param sides magnitude of the length, height, and width
+	 * @param interval distance between each location
+	 * @param upwards upwards direction for this shape, used to construct the perpendicular plane
+	 */
 	public Tetrahedron(Location center, double sides, double interval, Vector upwards) {
 		this(center, sides, sides, sides, interval, upwards, true);
 	}
 	
+	/**
+	 * Creates a tetrahedron (pyramid)
+	 * @param center center location
+	 * @param sides magnitude of the length, height, and width
+	 * @param interval distance between each location
+	 * @param upwards upwards direction for this shape, used to construct the perpendicular plane
+	 * @param hollow true to only draw the outline
+	 */
 	public Tetrahedron(Location center, double sides, double interval, Vector upwards, boolean hollow) {
 		this(center, sides, sides, sides, interval, upwards, hollow);
 	}
 	
+	/**
+	 * Creates a hollow tetrahedron (pyramid) using the y-axis for upwards direction
+	 * @param center center location
+	 * @param length horizontal magnitude in the reference plane
+	 * @param height magnitude of the upwards vector
+	 * @param width vertical magnitude in the reference plane
+	 * @param interval distance between each location
+	 */
 	public Tetrahedron(Location center, double length, double height, double width, double interval) {
 		this(center, length, height, width, interval, UnitVector.POSITIVE_Y.normal(), true);
 	}
 	
+	/**
+	 * Creates a hollow tetrahedron (pyramid)
+	 * @param center center location
+	 * @param length horizontal magnitude in the reference plane
+	 * @param height magnitude of the upwards vector
+	 * @param width vertical magnitude in the reference plane
+	 * @param interval distance between each location
+	 * @param upwards upwards direction for this shape, used to construct the perpendicular plane
+	 */
 	public Tetrahedron(Location center, double length, double height, double width, double interval, Vector upwards) {
 		this(center, length, height, width, interval, upwards, true);
 	}
 	
+	/**
+	 * Creates a tetrahedron (pyramid)
+	 * @param center center location
+	 * @param length horizontal magnitude in the reference plane
+	 * @param height magnitude of the upwards vector
+	 * @param width vertical magnitude in the reference plane
+	 * @param interval distance between each location
+	 * @param upwards upwards direction for this shape, used to construct the perpendicular plane
+	 * @param hollow true to only draw the outline
+	 */
 	public Tetrahedron(Location center, double length, double height, double width, double interval, Vector upwards, boolean hollow) {
 		super(center, upwards, hollow);
 		this.length = Math.max(length, 0.1);

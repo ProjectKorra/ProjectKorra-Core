@@ -15,22 +15,59 @@ public class Sphere extends Polyhedron {
 	private double radius;
 	private Angle theta, phi;
 	
+	/**
+	 * Creates a hollow sphere pointed up along the y-axis
+	 * @param center center location
+	 * @param radius distance between the center and any location on the sphere
+	 * @param both angle between locations along both pitch and yaw 
+	 */
 	public Sphere(Location center, double radius, Angle both) {
 		this(center, radius, both, both, UnitVector.POSITIVE_Y.normal(), true);
 	}
 	
+	/**
+	 * Creates a hollow sphere
+	 * @param center center location
+	 * @param radius distance between the center and any location on the sphere
+	 * @param both angle between locations along both pitch and yaw 
+	 * @param upwards upwards direction to construct horizontal plane from
+	 */
 	public Sphere(Location center, double radius, Angle both, Vector upwards) {
 		this(center, radius, both, both, upwards, true);
 	}
 	
+	/**
+	 * Creates a hollow sphere pointed up along the y-axis
+	 * @param center center location
+	 * @param radius distance between the center and any location on the sphere
+	 * @param theta angle between each location along the pitch
+	 * @param phi angle between each location along the yaw
+	 */
 	public Sphere(Location center, double radius, Angle theta, Angle phi) {
 		this(center, radius, theta, phi, UnitVector.POSITIVE_Y.normal(), true);
 	}
 	
+	/**
+	 * Creates a hollow sphere
+	 * @param center center location
+	 * @param radius distance between the center and any location on the sphere
+	 * @param theta angle between each location along the pitch
+	 * @param phi angle between each location along the yaw
+	 * @param upwards upwards direction to construct horizontal plane from
+	 */
 	public Sphere(Location center, double radius, Angle theta, Angle phi, Vector upwards) {
 		this(center, radius, theta, phi, upwards, true);
 	}
 	
+	/**
+	 * Creates a sphere
+	 * @param center center location
+	 * @param radius distance between the center and any location on the sphere
+	 * @param theta angle between each location along the pitch
+	 * @param phi angle between each location along the yaw
+	 * @param upwards upwards direction to construct horizontal plane from
+	 * @param hollow true to draw only the outline
+	 */
 	public Sphere(Location center, double radius, Angle theta, Angle phi, Vector upwards, boolean hollow) {
 		super(center, upwards, hollow);
 		this.radius = radius;

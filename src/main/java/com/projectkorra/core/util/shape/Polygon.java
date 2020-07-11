@@ -4,6 +4,9 @@ import org.bukkit.Location;
 
 import com.projectkorra.core.util.math.Plane;
 
+/**
+ * Class containing information important to all 2D shapes
+ */
 public abstract class Polygon implements Shape {
 
 	protected Location center;

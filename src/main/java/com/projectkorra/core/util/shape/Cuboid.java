@@ -12,26 +12,74 @@ public class Cuboid extends Polyhedron {
 
 	private double length, height, width, interval;
 	
+	/**
+	 * Creates a hollow cuboid pointed up along the y-axis
+	 * @param center center location
+	 * @param sides magnitude of length, height, and width
+	 * @param interval distance between each location
+	 */
 	public Cuboid(Location center, double sides, double interval) {
 		this(center, sides, sides, sides, interval, UnitVector.POSITIVE_Y.normal(), true);
 	}
 	
+	/**
+	 * Creates a hollow cuboid
+	 * @param center center location
+	 * @param sides magnitude of length, height, and width
+	 * @param interval distance between each location
+	 * @param upwards upwards direction
+	 */
 	public Cuboid(Location center, double sides, double interval, Vector upwards) {
 		this(center, sides, sides, sides, interval, upwards, true);
 	}
 	
+	/**
+	 * Creates a cuboid
+	 * @param center center location
+	 * @param sides magnitude of length, height, and width
+	 * @param interval distance between each location
+	 * @param upwards upwards direction
+	 * @param hollow true to only draw outline
+	 */
 	public Cuboid(Location center, double sides, double interval, Vector upwards, boolean hollow) {
 		this(center, sides, sides, sides, interval, upwards, hollow);
 	}
 	
+	/**
+	 * Creates a hollow cuboid pointed up along the y-axis
+	 * @param center center location
+	 * @param length horizontal magnitude of reference plane
+	 * @param height magnitude of upwards vector
+	 * @param width vertical magnitude of reference plane
+	 * @param interval distance between each location
+	 */
 	public Cuboid(Location center, double length, double height, double width, double interval) {
 		this(center, length, height, width, interval, UnitVector.POSITIVE_Y.normal(), true);
 	}
 	
+	/**
+	 * Creates a hollow cuboid
+	 * @param center center location
+	 * @param length horizontal magnitude of reference plane
+	 * @param height magnitude of upwards vector
+	 * @param width vertical magnitude of reference plane
+	 * @param interval distance between each location
+	 * @param upwards upwards direction
+	 */
 	public Cuboid(Location center, double length, double height, double width, double interval, Vector upwards) {
 		this(center, length, height, width, interval, upwards, true);
 	}
 	
+	/**
+	 * Creates a cuboid
+	 * @param center center location
+	 * @param length horizontal magnitude of reference plane
+	 * @param height magnitude of upwards vector
+	 * @param width vertical magnitude of reference plane
+	 * @param interval distance between each location
+	 * @param upwards upwards direction
+	 * @param hollow true to only draw outline
+	 */
 	public Cuboid(Location center, double length, double height, double width, double interval, Vector upwards, boolean hollow) {
 		super(center, upwards, hollow);
 		this.length = Math.max(length, 0.1);
