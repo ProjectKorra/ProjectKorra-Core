@@ -24,7 +24,7 @@ public abstract class Polyhedron implements Shape {
 	}
 	
 	public Vector getUpwards() {
-		return upwards;
+		return upwards.normalize();
 	}
 	
 	@Override
