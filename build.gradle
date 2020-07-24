@@ -43,12 +43,12 @@ task javadocJar(type: Jar) {
 
 version '0.0.1'
 ext {
-	minecraft_version = '1.15.2'
+	minecraft_version = '1.16.1'
 }
 
 spigot {
 	authors = ['ProjectKorra']
-	apiVersion = '1.15'
+	apiVersion = '1.16'
 	load = STARTUP
 }
 
