@@ -3,7 +3,13 @@
 
 name: PK-Core Continuous Integration
 
-on: [ push, pull_request ]
+on: 
+  push:
+    branches-ignore:
+      - master
+  pull_request:
+    branches:
+      - master
 
 jobs:
 # Run build
@@ -21,15 +27,3 @@ jobs:
       run: chmod +x gradlew
     - name: Build with Gradle
       run: ./gradlew build
-
-# Run JUnitTests
-  test:
-    runs-on: ubuntu-latest
-    steps:
-      - uses: actions/checkout@v2
-      - name: Set up Java Environment
-        uses: actions/setup-java@v1
-        with:
-          java-version: 1.8
-      - name: Run JUnitTests
-        run: ./gradlew test
