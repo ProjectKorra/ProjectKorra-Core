@@ -3,21 +3,21 @@ package com.projectkorra.core.collision;
 import java.util.HashSet;
 import java.util.Set;
 
-import org.bukkit.Location;
+import org.bukkit.util.BoundingBox;
 
 public class CollisionTree {
 	
-	private static final int[] XS = { 1, 1, 1, 1, -1, -1, -1, -1 };
-	private static final int[] YS = { 1, 1, -1, -1, 1, 1, -1, -1 };
-	private static final int[] ZS = { 1, -1, 1, -1, 1, -1, 1, -1 };
+	private static final int[] XS = { 1, 1, 1, 1, 0, 0, 0, 0 };
+	private static final int[] YS = { 1, 1, 0, 0, 1, 1, 0, 0 };
+	private static final int[] ZS = { 1, 0, 1, 0, 1, 0, 1, 0 };
 
-	private Boundary bounds;
+	private BoundingBox bounds;
 	private int capacity;
 	private Set<Collidable> contents;
 	private CollisionTree[] children;
 	
-	public CollisionTree(Location center, double length, double height, double width, int capacity) {
-		this.bounds = new Boundary(center, length, height, width);
+	public CollisionTree(BoundingBox bounds, int capacity) {
+		this.bounds = bounds;
 		this.capacity = capacity;
 		this.contents = new HashSet<Collidable>(capacity);
 		this.children = null;
@@ -27,7 +27,7 @@ public class CollisionTree {
 		if (children == null) {
 			children = new CollisionTree[8];
 			for (int i = 0; i < 8; i++) {
-				children[i] = new CollisionTree(bounds.getCenter().clone().add(XS[i] * bounds.getLength() / 4, YS[i] * bounds.getHeight() / 4, ZS[i] * bounds.getWidth() / 4), bounds.getLength() / 2, bounds.getHeight() / 2, bounds.getWidth() / 2, capacity);
+				children[i] = new CollisionTree(new BoundingBox(bounds.getMinX() + XS[i] * bounds.getWidthX() / 2, bounds.getMinY() + YS[i] * bounds.getHeight() / 2, bounds.getMinZ() + ZS[i] * bounds.getWidthZ() / 2, bounds.getMaxX() - XS[7 - i] * bounds.getWidthX() / 2, bounds.getMaxY() - YS[7 - i] * bounds.getHeight() / 2, bounds.getMaxZ() - ZS[7 - i] * bounds.getWidthZ() / 2), capacity);
 			}
 			
 			for (Collidable obj : contents) {
@@ -38,8 +38,13 @@ public class CollisionTree {
 		}
 	}
 	
+	void reset() {
+		this.contents.clear();
+		this.children = null;
+	}
+	
 	public boolean insert(Collidable obj) {
-		if (!bounds.contains(obj.getLocation())) {
+		if (!bounds.contains(obj.getLocation().getX(), obj.getLocation().getY(), obj.getLocation().getZ())) {
 			return false;
 		}
 		
@@ -62,10 +67,10 @@ public class CollisionTree {
 		}
 	}
 	
-	public Set<Collidable> query(Boundary range) {
+	public Set<Collidable> query(BoundingBox range) {
 		Set<Collidable> found = new HashSet<>();
 		
-		if (bounds.intersects(range)) {
+		if (bounds.overlaps(range)) {
 			return found;
 		}
 		
@@ -75,18 +80,13 @@ public class CollisionTree {
 			}
 		} else {
 			for (Collidable obj : contents) {
-				if (range.contains(obj.getLocation())) {
+				if (range.overlaps(obj.getBoundary())) {
 					found.add(obj);
 				}
 			}
 		}
 		
 		return found;
-	}
-	
-	public void reset() {
-		this.contents.clear();
-		this.children = null;
 	}
 	
 	public Set<Collidable> getContents() {

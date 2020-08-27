@@ -1,9 +1,10 @@
 package com.projectkorra.core.collision;
 
 import org.bukkit.Location;
+import org.bukkit.util.BoundingBox;
 
 public interface Collidable {
+	public String getTag();
 	public Location getLocation();
-	public Boundary getBoundary();
-	public void onCollision(Collidable other);
+	public BoundingBox getBoundary();
 }
