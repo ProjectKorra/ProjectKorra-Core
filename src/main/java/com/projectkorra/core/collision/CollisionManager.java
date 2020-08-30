@@ -10,6 +10,7 @@ import org.apache.commons.lang.Validate;
 import org.bukkit.util.BoundingBox;
 
 import com.projectkorra.core.ProjectKorra;
+import com.projectkorra.core.event.BendingCollisionEvent;
 import com.projectkorra.core.util.CollisionUtil;
 import com.projectkorra.core.util.data.Pair;
 
@@ -20,7 +21,8 @@ public class CollisionManager {
 	private static final CollisionFile COLLISIONS = new CollisionFile(new File(ProjectKorra.plugin().getDataFolder(), "collisions.txt"));
 
 	private CollisionTree tree;
-	private Set<Collidable> instances, collided;
+	private Set<Collidable> instances, removal;
+	private Set<Pair<Collidable, Collidable>> collided;
 	private Map<Pair<String, String>, CollisionData> valids;
 	
 	public CollisionManager() {
@@ -38,15 +40,48 @@ public class CollisionManager {
 			found.remove(obj);
 			
 			for (Collidable other : found) {
-				if (collided.contains(other)) {
+				Pair<Collidable, Collidable> pair = Pair.of(obj, other);
+				if (collided.contains(pair)) {
 					continue;
 				}
 				//TODO: add check if a valid collision exists between obj and other
+				if (doesValidCollisionExist(obj, other)) {
+					CollisionData data = valids.get(CollisionUtil.pairTags(obj, other));
+					Collidable first, second;
+					
+					if (obj.getTag().equalsIgnoreCase(data.getFirst())) {
+						first = obj;
+						second = other;
+					} else {
+						first = other;
+						second = obj;
+					}
+					
+					BendingCollisionEvent event = ProjectKorra.callEvent(new BendingCollisionEvent(first, second, data.getOperator()));
+					
+					if (event.isCancelled()) {
+						continue;
+					}
+					
+					if (event.isFirstBeingRemoved()) {
+						removal.add(first);
+					}
+					
+					if (event.isSecondBeingRemoved()) {
+						removal.add(second);
+					}
+					
+					collided.add(pair);
+				}
 			}
-			collided.add(obj);
 		}
+		
+		//do removal things with removal set
+		
 		tree.reset();
 		instances.clear();
+		collided.clear();
+		removal.clear();
 	}
 
 	//call this after the progress method for Collidable abilities
@@ -70,7 +105,7 @@ public class CollisionManager {
 	public boolean doesValidCollisionExist(Collidable first, Collidable second) {
 		Validate.isTrue(first != null, "First param cannot be null in a collision");
 		Validate.isTrue(second != null, "Second param cannot be null in a collision");
-		return valids.containsKey(CollisionUtil.pair(first, second));
+		return valids.containsKey(CollisionUtil.pairTags(first, second));
 	}
 	
 	/**
@@ -91,7 +126,7 @@ public class CollisionManager {
 		
 		CollisionData data = new CollisionData(first.getTag().toLowerCase(), second.getTag().toLowerCase(), op, null);
 		
-		valids.put(CollisionUtil.pair(first, second), data);
+		valids.put(CollisionUtil.pairTags(first, second), data);
 		COLLISIONS.write(data);
 		return true;
 	}

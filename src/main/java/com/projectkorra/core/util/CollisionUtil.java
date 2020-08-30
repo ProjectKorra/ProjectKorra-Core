@@ -14,7 +14,7 @@ public class CollisionUtil {
 	
 	private static List<String> symbols = Arrays.asList("==", "<=", "=>", "><");
 	
-	public static Pair<String, String> pair(Collidable first, Collidable second) {
+	public static Pair<String, String> pairTags(Collidable first, Collidable second) {
 		return Pair.of(first.getTag().toLowerCase(), second.getTag().toLowerCase());
 	}
 	
