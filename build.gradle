@@ -1,97 +1,78 @@
 // Gradle / Project setup
 // ---------------------------------------------------------
+
 plugins {
 	id 'java'
-	id 'kr.entree.spigradle' version '1.2.4'				// Generates the plugin.yml and helps with ease of access to common plugin libraries.
-	id 'com.github.johnrengelman.shadow' version '5.2.0'	// Allows us to shade libraries into the build plugin.
-	id 'de.undercouch.download' version '4.0.4'				// Helps download the spigot.jar from getbukkit, should be replaced with buildtools.
+
+	// Generates the plugin.yml, allows easier access to common plugin libraries, and facilitates the test server tasks.
+	id 'kr.entree.spigradle' version '2.2.3'
+
+	// Allows us to shade libraries into the build plugin.
+	id 'com.github.johnrengelman.shadow' version '5.2.0'
 }
 
 repositories {
 	jcenter()
 	mavenCentral()
+
+	spigot()
+	paper()
 }
 
 dependencies {
-	compileOnly spigot()
-	compileOnly paper()
+	compileOnly spigot(project.property('mcVersion'))
+	compileOnly paper(project.property('mcVersion'))
 
 	implementation 'com.google.guava:guava:28.2-jre'
-	testImplementation 'junit:junit:4.12'
+
+	testImplementation platform('org.junit:junit-bom:5.7.0')
+	testImplementation 'org.junit.jupiter:junit-jupiter'
+	testImplementation mockBukkit()
 }
 
-clean {
-	delete 'server'
-	delete 'build'
+test {
+	useJUnitPlatform()
+	testLogging {
+		events 'passed', 'skipped', 'failed'
+	}
 }
 
-// Java variables / tasks
+task cleanAll {
+	dependsOn 'clean'
+	dependsOn 'cleanDebug'
+	dependsOn 'cleanSpigotBuild'
+}
+
+// Compilation variables / tasks
 // ---------------------------------------------------------
-
-group 'com.projectkorra.core'
 
 targetCompatibility = 1.8
 sourceCompatibility = 1.8
 
-task javadocJar(type: Jar) {
-	classifier 'javadoc'
-	from javadoc.destinationDir
+tasks.build.dependsOn(shadowJar)
+
+shadowJar {
+	// This is required to prevent Spigradle from attempting to look for an incorrectly named file during debug.
+	classifier = ''
 }
 
-// Spigot variables / tasks
+// Plugin variables / tasks
 // ---------------------------------------------------------
 
-version '0.0.1'
-ext {
-	minecraft_version = '1.15.2'
-}
+group = project.property('group')
+version = project.property('version')
+description = project.property('description')
 
 spigot {
-	authors = ['ProjectKorra']
-	apiVersion = '1.15'
+	name = project.property('name')
+	authors = project.property('authors').split(/(,\s*|\s+)/)
+	apiVersion = project.property('apiVersion')
 	load = STARTUP
-}
 
-// Server setup
-// ---------------------------------------------------------
-
-task downloadPaperJar(type: Download) {
-	group 'server'
-	description 'Downloads the latest stable paper server jar.'
-
-	src "https://papermc.io/api/v1/paper/${minecraft_version}/latest/download"
-	dest 'server/server.jar'
-	overwrite false
-}
-
-task setupDevServer(type: Copy) {
-	group 'server'
-	description 'Copies the default template server files into the test server directory.'
-
-	from 'resources/runServer'
-	into 'server'
-
-	eachFile {
-		if (it.relativePath.getFile(destinationDir).exists()) {
-			it.exclude()
-		}
+	debug {
+		eula = true
+		buildVersion = project.property('mcVersion')
+		args = project.property('debugServerArgs').split(/(,\s*|\s+)/)
+		jvmArgs = project.property('debugServerJvmArgs').split(/(,\s*|\s+)/)
 	}
-}
-
-task copyPluginToServer(dependsOn: [build], type: Copy) {
-	group 'server'
-	description 'Updates the copy of the plugin on the test server. Builds a new copy if necessary.'
-
-	from "${buildDir}/libs"
-	into 'server/plugins'
-}
-
-task runServer(dependsOn: [downloadPaperJar, setupDevServer, copyPluginToServer], type: JavaExec) {
-	group 'server'
-	description 'Sets up the test server and starts it.'
-
-	classpath files('server/server.jar')
-	args('nogui')
-	workingDir = 'server'
-	standardInput = System.in
 }

@@ -3,7 +3,7 @@
 
 .gradle/
 build/
-server/
+debug/
 
 # IntelliJ
 # --------
