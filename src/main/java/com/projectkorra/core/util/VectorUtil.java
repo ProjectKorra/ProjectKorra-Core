@@ -16,7 +16,7 @@ public class VectorUtil {
 	 * Get a vector for the direction between two points
 	 * @param from start point
 	 * @param to end point
-	 * @return vector pointing from -> to
+	 * @return vector pointing from {@code ->} to
 	 */
 	public static Vector direction(Location from, Location to) {
 		return new Vector(to.getX() - from.getX(), to.getY() - from.getY(), to.getZ() - from.getZ());
