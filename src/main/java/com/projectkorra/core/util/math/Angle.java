@@ -35,6 +35,14 @@ public class Angle {
 		this.value = value;
 	}
 	
+	public void increment(double value) {
+		this.value += value;
+	}
+	
+	public void decrement(double value) {
+		this.value -= value;
+	}
+	
 	public static Angle radians(double value) {
 		return new Angle(AngleMode.RADIANS, value);
 	}
