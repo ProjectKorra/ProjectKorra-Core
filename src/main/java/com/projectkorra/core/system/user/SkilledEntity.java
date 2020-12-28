@@ -5,21 +5,24 @@ import java.util.HashSet;
 import java.util.Set;
 
 import org.apache.commons.lang.Validate;
+import org.bukkit.Location;
 import org.bukkit.entity.LivingEntity;
+import org.bukkit.util.Vector;
 
 import com.google.common.collect.ImmutableSet;
 import com.projectkorra.core.system.ability.Ability;
+import com.projectkorra.core.system.ability.AbilityActivator;
 import com.projectkorra.core.system.ability.AbilityBindResult;
 import com.projectkorra.core.system.skill.Skill;
 
-public abstract class SkilledEntity<T extends LivingEntity> {
+public abstract class SkilledEntity implements AbilityActivator {
 
-	private T entity;
+	private LivingEntity entity;
 	private ImmutableSet<Skill> skills;
 	private Set<Skill>toggled;
 	private Ability[] binds; 
 	
-	SkilledEntity(T entity, Set<Skill> skills, Set<Skill> toggled, Ability[] binds) {
+	SkilledEntity(LivingEntity entity, Set<Skill> skills, Set<Skill> toggled, Ability[] binds) {
 		this.entity = entity;
 		this.skills = new ImmutableSet.Builder<Skill>().addAll(skills).build();
 		this.toggled = new HashSet<>(toggled);
@@ -28,8 +31,9 @@ public abstract class SkilledEntity<T extends LivingEntity> {
 	
 	public abstract int getCurrentSlot();
 	public abstract void sendMessage(String message);
+	public abstract boolean hasPermission(String perm);
 	
-	public T getEntity() {
+	public LivingEntity getEntity() {
 		return entity;
 	}
 	
@@ -56,6 +60,10 @@ public abstract class SkilledEntity<T extends LivingEntity> {
 		return getBind(getCurrentSlot());
 	}
 	
+	public boolean canBind(Ability ability) {
+		return ability.isBindable() && this.hasPermission("bending.ability." + ability.getName());
+	}
+	
 	/**
 	 * Bind an ability to the specified slot, or unbind the current ability
 	 * if null is given as the ability parameter
@@ -66,6 +74,8 @@ public abstract class SkilledEntity<T extends LivingEntity> {
 	public AbilityBindResult bind(int slot, Ability ability) {
 		if (slot < 0 || slot > 9) {
 			return AbilityBindResult.INVALID_SLOT;
+		} else if (ability != null && !ability.isBindable()) {
+			return AbilityBindResult.UNBINDABLE_ABILITY;
 		}
 		
 		binds[slot] = ability;
@@ -74,6 +84,14 @@ public abstract class SkilledEntity<T extends LivingEntity> {
 		} else {
 			return AbilityBindResult.BOUND;
 		}
+	}
+	
+	public void setSkills(Skill...skills) {
+		this.skills = new ImmutableSet.Builder<Skill>().add(skills).build();
+	}
+	
+	public void setSkills(Set<Skill> skills) {
+		this.skills = new ImmutableSet.Builder<Skill>().addAll(skills).build();
 	}
 	
 	public boolean addSkill(Skill skill) {
@@ -122,5 +140,15 @@ public abstract class SkilledEntity<T extends LivingEntity> {
 			toggled.add(skill);
 			return true;
 		}
+	}
+	
+	@Override
+	public Location getLocation() {
+		return entity.getEyeLocation();
+	}
+	
+	@Override
+	public Vector getDirection() {
+		return entity.getLocation().getDirection();
 	}
 }
