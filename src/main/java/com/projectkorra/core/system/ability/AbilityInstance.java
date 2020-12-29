@@ -1,22 +1,19 @@
 package com.projectkorra.core.system.ability;
 
-import java.util.Set;
-
-import com.projectkorra.core.system.user.SkilledEntity;
 import com.projectkorra.core.util.configuration.Config;
 
 public abstract class AbilityInstance {
 	
-	protected Set<SkilledEntity> entities;
+	protected AbilityActivator activator;
 	protected Config config;
 	
-	public AbilityInstance(Set<SkilledEntity> entities, Config config) {
-		this.entities = entities;
+	public AbilityInstance(AbilityActivator activator, Config config) {
+		this.activator = activator;
 		this.config = config;
 	}
 	
-	public Set<SkilledEntity> getEntities() {
-		return entities;
+	public AbilityActivator getActivator() {
+		return activator;
 	}
 	
 	public abstract void progress();
