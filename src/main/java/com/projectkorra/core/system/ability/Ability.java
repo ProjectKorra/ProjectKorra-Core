@@ -22,7 +22,6 @@ public abstract class Ability {
 		return skills;
 	}
 	
-	public abstract boolean isBindable();
 	public abstract String getName();
 	public abstract AbilityInstance activate(AbilityActivator activator, Activation type);
 }
