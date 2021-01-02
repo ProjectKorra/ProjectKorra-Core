@@ -8,6 +8,7 @@ import org.bukkit.util.Vector;
  */
 public interface AbilityActivator {
 	
+	public Ability getCurrentAbility();
 	public Location getLocation();
 	public Vector getDirection();
 	
