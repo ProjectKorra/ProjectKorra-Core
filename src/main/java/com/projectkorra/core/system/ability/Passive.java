@@ -1,9 +1,12 @@
 package com.projectkorra.core.system.ability;
 
-import java.util.function.Predicate;
-
 public interface Passive {
 
-	public Predicate<AbilityActivator> getActivationCondition();
+	default public boolean canActivate(AbilityActivator activator) {
+		return true;
+	}
 	
+	default public Activation getTrigger() {
+		return Activation.PASSIVE;
+	}
 }

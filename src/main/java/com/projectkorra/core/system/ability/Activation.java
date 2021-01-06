@@ -13,6 +13,8 @@ public class Activation {
 	public static final Activation SNEAK_PRESS = Activation.of("sneakpress");
 	public static final Activation SNEAK_RELEASE = Activation.of("sneakrelease");
 	public static final Activation OFFHAND_SWAP = Activation.of("offhandswap");
+	public static final Activation PASSIVE = Activation.of("passive");
+	public static final Activation SEQUENCED = Activation.of("sequenced");
 	
 	private String id;
 	

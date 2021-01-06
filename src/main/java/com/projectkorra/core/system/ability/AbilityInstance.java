@@ -1,5 +1,9 @@
 package com.projectkorra.core.system.ability;
 
+import java.lang.reflect.Field;
+import java.util.HashMap;
+import java.util.Map;
+
 import com.projectkorra.core.util.configuration.Config;
 
 public abstract class AbilityInstance {
