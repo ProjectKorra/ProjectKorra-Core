@@ -1,7 +1,8 @@
-package com.projectkorra.core.system.ability;
+package com.projectkorra.core.system.ability.activation;
 
 import java.util.LinkedList;
 
+import com.projectkorra.core.system.ability.Ability;
 import com.projectkorra.core.util.data.DistinctPair;
 
 public class Sequence extends Activation {

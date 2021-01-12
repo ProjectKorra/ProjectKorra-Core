@@ -14,6 +14,8 @@ public class ProjectKorra extends JavaPlugin {
 	public void onEnable() {
 		instance = this;
 		abilitiesFolder = new File(getDataFolder(), "/abilities/");
+		
+		getServer().getScheduler().scheduleSyncRepeatingTask(this, () -> AbilityManager.tick(), 1, 1);
 	}
 
 	@Override

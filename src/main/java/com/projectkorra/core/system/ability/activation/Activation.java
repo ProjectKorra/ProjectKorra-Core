@@ -1,4 +1,4 @@
-package com.projectkorra.core.system.ability;
+package com.projectkorra.core.system.ability.activation;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -8,8 +8,6 @@ public class Activation {
 	private static final Map<String, Activation> CACHE = new HashMap<>();
 	
 	public static final Activation LEFT_CLICK = Activation.of("leftclick");
-	public static final Activation RIGHT_CLICK_BLOCK = Activation.of("rightclickblock");
-	public static final Activation RIGHT_CLICK_ENTITY = Activation.of("rightclickentity");
 	public static final Activation SNEAK_PRESS = Activation.of("sneakpress");
 	public static final Activation SNEAK_RELEASE = Activation.of("sneakrelease");
 	public static final Activation OFFHAND_SWAP = Activation.of("offhandswap");

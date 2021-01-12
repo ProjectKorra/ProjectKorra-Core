@@ -1,8 +1,17 @@
 package com.projectkorra.core.system.ability.modifier;
 
+import static java.lang.annotation.ElementType.FIELD;
+import static java.lang.annotation.RetentionPolicy.RUNTIME;
+
+import java.lang.annotation.Retention;
+import java.lang.annotation.Target;
 import java.util.function.Function;
 
 public class Modifier<T> {
+	
+	@Retention(RUNTIME)
+	@Target(FIELD)
+	public static @interface Modifiable {}
 
 	private String field;
 	private Function<Object, T> func;
