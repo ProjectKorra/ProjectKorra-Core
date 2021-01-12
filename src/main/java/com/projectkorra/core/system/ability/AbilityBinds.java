@@ -3,6 +3,8 @@ package com.projectkorra.core.system.ability;
 import java.util.Arrays;
 import java.util.Optional;
 
+import com.projectkorra.core.system.ability.type.Bindable;
+
 public class AbilityBinds {
 	
 	public static enum AbilityBindResult {

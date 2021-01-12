@@ -1,19 +1,20 @@
 package com.projectkorra.core.system.user;
 
 import java.util.Collection;
+import java.util.UUID;
 
 import org.bukkit.Location;
 import org.bukkit.entity.LivingEntity;
 import org.bukkit.util.Vector;
 
 import com.projectkorra.core.system.ability.Ability;
-import com.projectkorra.core.system.ability.AbilityActivator;
 import com.projectkorra.core.system.ability.AbilityBinds;
-import com.projectkorra.core.system.ability.Bindable;
+import com.projectkorra.core.system.ability.AbilityUser;
+import com.projectkorra.core.system.ability.type.Bindable;
 import com.projectkorra.core.system.skill.Skill;
 import com.projectkorra.core.system.skill.SkillHolder;
 
-public abstract class SkilledEntity extends SkillHolder implements AbilityActivator {
+public abstract class SkilledEntity extends SkillHolder implements AbilityUser {
 
 	private LivingEntity entity;
 	private AbilityBinds binds;
@@ -37,7 +38,7 @@ public abstract class SkilledEntity extends SkillHolder implements AbilityActiva
 	}
 	
 	@Override
-	public Ability getCurrentAbility() {
+	public Ability getBoundAbility() {
 		return binds.get(getCurrentSlot()).orElse(null);
 	}
 	
@@ -49,5 +50,10 @@ public abstract class SkilledEntity extends SkillHolder implements AbilityActiva
 	@Override
 	public Vector getDirection() {
 		return entity.getLocation().getDirection();
+	}
+	
+	@Override
+	public UUID getUniqueID() {
+		return entity.getUniqueId();
 	}
 }

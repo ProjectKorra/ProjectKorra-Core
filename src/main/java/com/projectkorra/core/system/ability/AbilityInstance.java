@@ -1,25 +1,19 @@
 package com.projectkorra.core.system.ability;
 
-import java.lang.reflect.Field;
-import java.util.HashMap;
-import java.util.Map;
-
-import com.projectkorra.core.util.configuration.Config;
-
 public abstract class AbilityInstance {
 	
-	protected AbilityActivator activator;
-	protected Config config;
+	protected AbilityUser activator;
 	
-	public AbilityInstance(AbilityActivator activator, Config config) {
+	public AbilityInstance(AbilityUser activator) {
 		this.activator = activator;
-		this.config = config;
 	}
 	
-	public AbilityActivator getActivator() {
+	public AbilityUser getActivator() {
 		return activator;
 	}
 	
-	public abstract void progress();
+	public abstract void onStart();
+	public abstract void onUpdate();
+	public abstract void onStop();
 	public abstract Class<? extends Ability> getProvider();
 }

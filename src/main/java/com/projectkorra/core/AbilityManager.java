@@ -1,4 +1,4 @@
-package com.projectkorra.core.system.ability;
+package com.projectkorra.core;
 
 import java.lang.reflect.Field;
 import java.util.HashMap;
@@ -7,17 +7,22 @@ import java.util.Map;
 import java.util.Queue;
 import java.util.Set;
 
-import com.projectkorra.core.system.ability.modifier.Modifiable;
+import com.projectkorra.core.system.ability.Ability;
+import com.projectkorra.core.system.ability.AbilityUser;
+import com.projectkorra.core.system.ability.AbilityInstance;
 import com.projectkorra.core.system.ability.modifier.Modifier;
+import com.projectkorra.core.system.ability.modifier.Modifier.Modifiable;
 import com.projectkorra.core.system.skill.Skill;
+import com.projectkorra.core.util.configuration.Configurable;
 
 public final class AbilityManager {
 
-	private static final Map<Class<? extends Ability>, Ability> ABILITIES_BY_CLASS = new HashMap<>();
-	private static final Map<String, Ability> ABILITIES_BY_NAME = new HashMap<>();
+	private static final Map<Class<? extends Ability>, Ability> ABILITIES_BY_CLASS = new HashMap<>(256);
+	private static final Map<String, Ability> ABILITIES_BY_NAME = new HashMap<>(256);
 	private static final Map<Skill, Set<Ability>> ABILITIES_BY_SKILL = new HashMap<>();
-	private static final Map<AbilityActivator, Set<AbilityInstance>> ACTIVE = new HashMap<>();
+	private static final Map<AbilityUser, Map<Class<? extends AbilityInstance>, Set<AbilityInstance>>> INSTANCES = new HashMap<>();
 	private static final Map<AbilityInstance, Queue<Modifier<?>>> INSTANCE_MODIFIERS = new HashMap<>();
+	private static final Set<AbilityInstance> ACTIVE = new HashSet<>(256);
 	
 	//overriding abilities with the same name is a nono
 	public static boolean register(Ability ability) {
@@ -35,16 +40,25 @@ public final class AbilityManager {
 			ABILITIES_BY_SKILL.get(skill).add(ability);
 		}
 		
-		//deal with configurable stuff here??
+		//do config things depending on how configs will work
+		for (Field field : ability.getClass().getDeclaredFields()) {
+			if (field.isAnnotationPresent(Configurable.class)) {
+				
+			}
+		}
 		
 		return true;
 	}
 	
-	public static void track(AbilityActivator activator, Ability ability, AbilityInstance instance) {
+	public static void track(AbilityUser activator, Ability ability, AbilityInstance instance) {
 		//AbilityStartEvent
 		
-		if (!ACTIVE.containsKey(activator)) {
-			ACTIVE.put(activator, new HashSet<>());
+		if (!INSTANCES.containsKey(activator)) {
+			INSTANCES.put(activator, new HashMap<>());
+		}
+		
+		if (!INSTANCES.get(activator).containsKey(instance.getClass())) {
+			INSTANCES.get(activator).put(instance.getClass(), new HashSet<>());
 		}
 		
 		//set values to be the configured ones
@@ -69,6 +83,16 @@ public final class AbilityManager {
 			} catch (Exception e) {
 				continue;
 			}
+		}
+		
+		INSTANCES.get(activator).get(instance.getClass()).add(instance);
+		ACTIVE.add(instance);
+		instance.onStart();
+	}
+	
+	static void tick() {
+		for (AbilityInstance instance : ACTIVE) {
+			instance.onUpdate();
 		}
 	}
 }

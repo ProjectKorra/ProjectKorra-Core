@@ -1,4 +1,4 @@
-package com.projectkorra.core.system.ability;
+package com.projectkorra.core.system.ability.type;
 
 public interface Bindable {
 

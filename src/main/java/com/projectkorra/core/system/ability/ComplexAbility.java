@@ -3,6 +3,8 @@ package com.projectkorra.core.system.ability;
 import java.util.HashMap;
 import java.util.Map;
 
+import com.projectkorra.core.system.ability.activation.Activation;
+import com.projectkorra.core.system.ability.activation.ActivationCriteria;
 import com.projectkorra.core.system.skill.Skill;
 
 public abstract class ComplexAbility extends Ability {
@@ -14,7 +16,7 @@ public abstract class ComplexAbility extends Ability {
 	}
 	
 	@Override
-	public AbilityInstance activate(AbilityActivator activator, Activation trigger) {
-		return TRIGGERS.getOrDefault(trigger, ActivationCriteria.EMPTY).apply(activator, this);
+	public AbilityInstance activate(AbilityUser activator, Activation trigger) {
+		return TRIGGERS.getOrDefault(trigger, ActivationCriteria.EMPTY).update(activator, this, trigger);
 	}
 }
