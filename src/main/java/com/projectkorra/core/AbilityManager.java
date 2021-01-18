@@ -3,13 +3,14 @@ package com.projectkorra.core;
 import java.lang.reflect.Field;
 import java.util.HashMap;
 import java.util.HashSet;
+import java.util.Iterator;
 import java.util.Map;
 import java.util.Queue;
 import java.util.Set;
 
 import com.projectkorra.core.system.ability.Ability;
-import com.projectkorra.core.system.ability.AbilityUser;
 import com.projectkorra.core.system.ability.AbilityInstance;
+import com.projectkorra.core.system.ability.AbilityUser;
 import com.projectkorra.core.system.ability.modifier.Modifier;
 import com.projectkorra.core.system.ability.modifier.Modifier.Modifiable;
 import com.projectkorra.core.system.skill.Skill;
@@ -87,12 +88,17 @@ public final class AbilityManager {
 		
 		INSTANCES.get(activator).get(instance.getClass()).add(instance);
 		ACTIVE.add(instance);
-		instance.onStart();
 	}
 	
 	static void tick() {
-		for (AbilityInstance instance : ACTIVE) {
-			instance.onUpdate();
+		Iterator<AbilityInstance> iter = ACTIVE.iterator();
+		while (iter.hasNext()) {
+			AbilityInstance instance = iter.next();
+			if (instance.shouldRemove()) {
+				iter.remove();
+				continue;
+			}
+			instance.update();
 		}
 	}
 }

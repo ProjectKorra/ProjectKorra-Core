@@ -32,4 +32,12 @@ public class ProjectKorra extends JavaPlugin {
 	public static File getAbilitiesFolder() {
 		return abilitiesFolder;
 	}
+	
+	public static void messageConsole(String msg) {
+		instance.getLogger().info(msg);
+	}
+	
+	public static void warnConsole(String msg) {
+		instance.getLogger().warning(msg);
+	}
 }

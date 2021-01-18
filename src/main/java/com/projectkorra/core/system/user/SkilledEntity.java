@@ -14,12 +14,12 @@ import com.projectkorra.core.system.ability.type.Bindable;
 import com.projectkorra.core.system.skill.Skill;
 import com.projectkorra.core.system.skill.SkillHolder;
 
-public abstract class SkilledEntity extends SkillHolder implements AbilityUser {
+public abstract class SkilledEntity<T extends LivingEntity> extends SkillHolder implements AbilityUser {
 
-	private LivingEntity entity;
+	protected final T entity;
 	private AbilityBinds binds;
 	
-	SkilledEntity(LivingEntity entity, Collection<Skill> skills, Collection<Skill> toggled, AbilityBinds binds) {
+	SkilledEntity(T entity, Collection<Skill> skills, Collection<Skill> toggled, AbilityBinds binds) {
 		super(skills, toggled);
 		this.entity = entity;
 		this.binds = AbilityBinds.copyOf(binds);
@@ -29,7 +29,7 @@ public abstract class SkilledEntity extends SkillHolder implements AbilityUser {
 	public abstract void sendMessage(String message);
 	public abstract boolean hasPermission(String perm);
 	
-	public LivingEntity getEntity() {
+	public T getEntity() {
 		return entity;
 	}
 	
