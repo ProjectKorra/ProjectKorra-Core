@@ -7,6 +7,7 @@ import java.util.Map;
 import java.util.Set;
 
 import org.apache.commons.lang.Validate;
+import org.bukkit.plugin.java.JavaPlugin;
 import org.bukkit.util.BoundingBox;
 
 import com.projectkorra.core.ProjectKorra;
@@ -18,9 +19,11 @@ import com.projectkorra.core.util.data.Pairing;
 
 public class CollisionManager {
 	
+	private static final ProjectKorra PLUGIN = JavaPlugin.getPlugin(ProjectKorra.class);
+	
 	private static final int BOUNDING_MIN = -29999984 / 2;
 	private static final int BOUNDING_MAX = 29999984 / 2;
-	private static final CollisionFile COLLISIONS = new CollisionFile(new File(ProjectKorra.plugin().getDataFolder(), "collisions.txt"));
+	private static final CollisionFile COLLISIONS = new CollisionFile(new File(PLUGIN.getDataFolder(), "collisions.txt"));
 
 	private CollisionTree tree;
 	private Set<Collidable> instances, removal;
@@ -61,7 +64,8 @@ public class CollisionManager {
 						second = obj;
 					}
 					
-					BendingCollisionEvent event = ProjectKorra.callEvent(new BendingCollisionEvent(first, second, data.getOperator()));
+					BendingCollisionEvent event = new BendingCollisionEvent(first, second, data.getOperator());
+					PLUGIN.getServer().getPluginManager().callEvent(event);
 					
 					if (event.isCancelled()) {
 						continue;
