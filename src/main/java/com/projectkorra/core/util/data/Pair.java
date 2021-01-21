@@ -2,10 +2,10 @@ package com.projectkorra.core.util.data;
 
 public class Pair<L, R> {
 
-	private L left;
-	private R right;
+	protected L left;
+	protected R right;
 	
-	private Pair(L left, R right) {
+	Pair(L left, R right) {
 		this.left = left;
 		this.right = right;
 	}
@@ -31,9 +31,5 @@ public class Pair<L, R> {
 		
 		Pair<?, ?> pother = (Pair<?, ?>) other;
 		return (left.equals(pother.left) && right.equals(pother.right)) || (left.equals(pother.right) && right.equals(pother.left));
-	}
-	
-	public static <L, R> Pair<L, R> of(L left, R right) {
-		return new Pair<L, R>(left, right);
 	}
 }

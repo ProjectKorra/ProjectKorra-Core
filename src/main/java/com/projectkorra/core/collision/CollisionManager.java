@@ -12,7 +12,9 @@ import org.bukkit.util.BoundingBox;
 import com.projectkorra.core.ProjectKorra;
 import com.projectkorra.core.event.BendingCollisionEvent;
 import com.projectkorra.core.util.CollisionUtil;
+import com.projectkorra.core.util.data.MutablePair;
 import com.projectkorra.core.util.data.Pair;
+import com.projectkorra.core.util.data.Pairing;
 
 public class CollisionManager {
 	
@@ -31,20 +33,22 @@ public class CollisionManager {
 		collided = new HashSet<>();
 		valids = new HashMap<>();
 		
-		COLLISIONS.readAnd((cd) -> valids.put(Pair.of(cd.getFirst().toLowerCase(), cd.getSecond().toLowerCase()), cd));
+		COLLISIONS.readAnd((cd) -> valids.put(Pairing.of(cd.getFirst().toLowerCase(), cd.getSecond().toLowerCase()), cd));
 	}
 	
 	public void tick() {
+		MutablePair<Collidable, Collidable> pair = Pairing.ofMutable(null, null);
 		for (Collidable obj : instances) {
 			Set<Collidable> found = tree.query(obj.getBoundary());
 			found.remove(obj);
+			pair.setLeft(obj);
 			
 			for (Collidable other : found) {
-				Pair<Collidable, Collidable> pair = Pair.of(obj, other);
+				pair.setRight(other);
 				if (collided.contains(pair)) {
 					continue;
 				}
-				//TODO: add check if a valid collision exists between obj and other
+				
 				if (doesValidCollisionExist(obj, other)) {
 					CollisionData data = valids.get(CollisionUtil.pairTags(obj, other));
 					Collidable first, second;

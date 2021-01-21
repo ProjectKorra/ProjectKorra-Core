@@ -7,6 +7,7 @@ import com.projectkorra.core.collision.Collidable;
 import com.projectkorra.core.collision.CollisionData;
 import com.projectkorra.core.collision.CollisionOperator;
 import com.projectkorra.core.util.data.Pair;
+import com.projectkorra.core.util.data.Pairing;
 
 public class CollisionUtil {
 
@@ -15,7 +16,7 @@ public class CollisionUtil {
 	private static List<String> symbols = Arrays.asList("==", "<=", "=>", "><");
 	
 	public static Pair<String, String> pairTags(Collidable first, Collidable second) {
-		return Pair.of(first.getTag().toLowerCase(), second.getTag().toLowerCase());
+		return Pairing.of(first.getTag().toLowerCase(), second.getTag().toLowerCase());
 	}
 	
 	public static CollisionData parse(String line) throws CollisionParseException {
