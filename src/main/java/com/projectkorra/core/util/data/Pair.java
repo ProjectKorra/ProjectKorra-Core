@@ -1,26 +1,26 @@
 package com.projectkorra.core.util.data;
 
-public class Pair<T, E> {
+public class Pair<L, R> {
 
-	private T first;
-	private E second;
+	private L left;
+	private R right;
 	
-	private Pair(T first, E second) {
-		this.first = first;
-		this.second = second;
+	private Pair(L left, R right) {
+		this.left = left;
+		this.right = right;
 	}
 	
-	public T getFirst() {
-		return first;
+	public L getLeft() {
+		return left;
 	}
 	
-	public E getSecond() {
-		return second;
+	public R getRight() {
+		return right;
 	}
 	
 	@Override
 	public int hashCode() {
-		return first.hashCode() + second.hashCode();
+		return left.hashCode() + right.hashCode();
 	}
 	
 	@Override
@@ -30,10 +30,10 @@ public class Pair<T, E> {
 		}
 		
 		Pair<?, ?> pother = (Pair<?, ?>) other;
-		return (first.equals(pother.first) && second.equals(pother.second)) || (first.equals(pother.second) && second.equals(pother.first));
+		return (left.equals(pother.left) && right.equals(pother.right)) || (left.equals(pother.right) && right.equals(pother.left));
 	}
 	
-	public static <T, E> Pair<T, E> of(T first, E second) {
-		return new Pair<T, E>(first, second);
+	public static <L, R> Pair<L, R> of(L left, R right) {
+		return new Pair<L, R>(left, right);
 	}
 }
