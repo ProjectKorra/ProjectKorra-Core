@@ -7,13 +7,13 @@ import org.bukkit.plugin.PluginDescriptionFile;
 import java.io.File;
 
 public class ProjectKorra extends JavaPlugin {
-	
+
 	@Override
 	public void onEnable() {}
 
 	@Override
 	public void onDisable() {}
-	
+
 	public ProjectKorra() {
 		super();
 	}
