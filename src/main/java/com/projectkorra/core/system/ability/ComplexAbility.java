@@ -19,4 +19,9 @@ public abstract class ComplexAbility extends Ability {
 	public AbilityInstance activate(AbilityUser activator, Activation trigger) {
 		return TRIGGERS.getOrDefault(trigger, ActivationCriteria.EMPTY).update(activator, this, trigger);
 	}
+	
+	@Override
+	public boolean uses(Activation trigger) {
+		return TRIGGERS.containsKey(trigger);
+	}
 }

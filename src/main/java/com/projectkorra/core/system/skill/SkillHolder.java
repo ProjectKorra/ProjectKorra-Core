@@ -91,6 +91,10 @@ public abstract class SkillHolder {
 		return skills.contains(skill);
 	}
 	
+	public final boolean hasAny(Collection<Skill> skills) {
+		return this.skills.stream().anyMatch((s) -> skills.contains(s));
+	}
+	
 	/**
 	 * Toggle the given skill on / off if the SkillHolder has it
 	 * @param skill being toggled
