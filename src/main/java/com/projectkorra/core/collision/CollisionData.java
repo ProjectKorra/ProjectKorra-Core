@@ -2,30 +2,39 @@ package com.projectkorra.core.collision;
 
 public class CollisionData {
 
-	private String first, second;
+	private String left, right, effect;
+	private String[] args;
 	private CollisionOperator type;
-	private Runnable extra;
 	
-	public CollisionData(String first, String second, CollisionOperator type, Runnable extra) {
-		this.first = first;
-		this.second = second;
-		this.type = type;
-		this.extra = extra;
+	public CollisionData(String first, String second, CollisionOperator type) {
+		this(first, second, type, null, null);
 	}
 	
-	public String getFirst() {
-		return first;
+	public CollisionData(String first, String second, CollisionOperator type, String effect, String[] args) {
+		this.left = first;
+		this.right = second;
+		this.type = type;
+		this.effect = effect;
+		this.args = args;
+	}
+	
+	public String getLeft() {
+		return left;
 	}
 	
 	public String getSecond() {
-		return second;
+		return right;
 	}
 	
 	public CollisionOperator getOperator() {
 		return type;
 	}
 	
-	public Runnable getExtra() {
-		return extra;
+	public String getEffect() {
+		return effect;
+	}
+	
+	public String[] getArgs() {
+		return args;
 	}
 }

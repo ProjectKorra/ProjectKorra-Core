@@ -11,6 +11,7 @@ import org.bukkit.plugin.java.JavaPlugin;
 import org.bukkit.util.BoundingBox;
 
 import com.projectkorra.core.ProjectKorra;
+import com.projectkorra.core.collision.effect.CollisionEffect;
 import com.projectkorra.core.event.BendingCollisionEvent;
 import com.projectkorra.core.util.CollisionUtil;
 import com.projectkorra.core.util.data.MutablePair;
@@ -36,7 +37,7 @@ public class CollisionManager {
 		collided = new HashSet<>();
 		valids = new HashMap<>();
 		
-		COLLISIONS.readAnd((cd) -> valids.put(Pairing.of(cd.getFirst().toLowerCase(), cd.getSecond().toLowerCase()), cd));
+		COLLISIONS.readAnd((cd) -> valids.put(Pairing.of(cd.getLeft().toLowerCase(), cd.getSecond().toLowerCase()), cd));
 	}
 	
 	public void tick() {
@@ -56,7 +57,7 @@ public class CollisionManager {
 					CollisionData data = valids.get(CollisionUtil.pairTags(obj, other));
 					Collidable first, second;
 					
-					if (obj.getTag().equalsIgnoreCase(data.getFirst())) {
+					if (obj.getTag().equalsIgnoreCase(data.getLeft())) {
 						first = obj;
 						second = other;
 					} else {
@@ -65,6 +66,7 @@ public class CollisionManager {
 					}
 					
 					BendingCollisionEvent event = new BendingCollisionEvent(first, second, data.getOperator());
+					CollisionEffect.ofLabel(data.getEffect()).ifPresent((c) -> c.accept(event, data.getArgs()));
 					PLUGIN.getServer().getPluginManager().callEvent(event);
 					
 					if (event.isCancelled()) {
@@ -132,7 +134,7 @@ public class CollisionManager {
 			return false;
 		}
 		
-		CollisionData data = new CollisionData(first.getTag().toLowerCase(), second.getTag().toLowerCase(), op, null);
+		CollisionData data = new CollisionData(first.getTag().toLowerCase(), second.getTag().toLowerCase(), op);
 		
 		valids.put(CollisionUtil.pairTags(first, second), data);
 		COLLISIONS.write(data);
