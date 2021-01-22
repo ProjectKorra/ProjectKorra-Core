@@ -80,7 +80,7 @@ public class CollisionTree {
 			}
 		} else {
 			for (Collidable obj : contents) {
-				if (range.overlaps(obj.getBoundary())) {
+				if (range.overlaps(obj.getHitbox())) {
 					found.add(obj);
 				}
 			}

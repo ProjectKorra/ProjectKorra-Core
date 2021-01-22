@@ -1,8 +1,5 @@
 package com.projectkorra.core.util;
 
-import java.util.Arrays;
-import java.util.List;
-
 import com.projectkorra.core.collision.Collidable;
 import com.projectkorra.core.collision.CollisionData;
 import com.projectkorra.core.collision.CollisionOperator;
@@ -12,8 +9,6 @@ import com.projectkorra.core.util.data.Pairing;
 public class CollisionUtil {
 
 	private CollisionUtil() {}
-	
-	private static List<String> symbols = Arrays.asList("==", "<=", "=>", "><");
 	
 	public static Pair<String, String> pairTags(Collidable first, Collidable second) {
 		return Pairing.of(first.getTag().toLowerCase(), second.getTag().toLowerCase());
@@ -25,11 +20,10 @@ public class CollisionUtil {
 			throw new CollisionParseException(line, "arg amount");
 		}
 		
-		//first = split[0]
-		//second = split[2]
-		//symbol = split[1]
-		
-		if (!symbols.contains(split[1])) {
+		CollisionOperator op;
+		try {
+			op = CollisionOperator.fromSymbol(split[1]);
+		} catch (Exception e) {
 			throw new CollisionParseException(line, "operator");
 		}
 		
@@ -41,7 +35,7 @@ public class CollisionUtil {
 			args = other[1].split(",");
 		}
 		
-		return new CollisionData(split[0], split[2], CollisionOperator.fromSymbol(split[1]), effect, args);
+		return new CollisionData(split[0], split[2], op, effect, args);
 	}
 	
 	public static String stringify(CollisionData data) {

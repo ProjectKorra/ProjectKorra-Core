@@ -1,10 +1,10 @@
 package com.projectkorra.core.collision;
 
 public enum CollisionOperator {
-	NEITHER_CANCELED("=="), 
-	FIRST_CANCELED("<="), 
-	SECOND_CANCELED("=>"),
-	BOTH_CANCELED("><");
+	NEITHER_CANCELED("="), 
+	FIRST_CANCELED("<"), 
+	SECOND_CANCELED(">"),
+	BOTH_CANCELED("x");
 	
 	private String symbol;
 	private CollisionOperator(String symbol) {
@@ -16,10 +16,17 @@ public enum CollisionOperator {
 	}
 	
 	public static CollisionOperator fromSymbol(String symbol) {
-		if (symbol == "==") return NEITHER_CANCELED;
-		else if (symbol == "<=") return FIRST_CANCELED;
-		else if (symbol == "=>") return SECOND_CANCELED;
-		else if (symbol == "><") return BOTH_CANCELED;
-		else return null;
+		switch (symbol) {
+			case "=":
+				return NEITHER_CANCELED;
+			case "<":
+				return FIRST_CANCELED;
+			case ">":
+				return SECOND_CANCELED;
+			case "x":
+				return BOTH_CANCELED;
+		}
+		
+		throw new IllegalArgumentException("No operator from " + symbol + " found");
 	}
 }
