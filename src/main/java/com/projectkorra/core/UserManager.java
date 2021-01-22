@@ -9,7 +9,6 @@ import java.util.UUID;
 import org.apache.commons.lang.Validate;
 
 import com.projectkorra.core.system.ability.AbilityUser;
-import com.projectkorra.core.system.ability.activation.Activation;
 
 public final class UserManager {
 
@@ -57,12 +56,6 @@ public final class UserManager {
 	public static AbilityUser get(UUID uuid) {
 		Validate.notNull(uuid, "Ability user cannot have a null unique id");
 		return USERS.get(uuid);
-	}
-	
-	public static void trigger(AbilityUser user, Activation trigger) {
-		if (user.getBoundAbility() == null) {
-			
-		}
 	}
 	
 	static void tick() {

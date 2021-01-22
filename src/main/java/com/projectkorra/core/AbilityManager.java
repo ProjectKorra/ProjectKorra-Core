@@ -80,7 +80,10 @@ public final class AbilityManager {
 		for (Modifier<?> mod : INSTANCE_MODIFIERS.get(instance)) {
 			try {
 				Field field = instance.getClass().getDeclaredField(mod.getField());
+				boolean access = field.isAccessible();
+				field.setAccessible(true);
 				field.set(instance, mod.apply(field.get(instance)));
+				field.setAccessible(access);
 			} catch (Exception e) {
 				continue;
 			}

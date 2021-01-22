@@ -29,6 +29,10 @@ public class ActivationCriteria {
 		this.nodes = nodes;
 	}
 	
+	public int getProgress() {
+		return current;
+	}
+	
 	public AbilityInstance update(AbilityUser activator, Ability ability, Activation trigger) {
 		if (nodes.get(current).test(activator, ability, trigger)) {
 			if (++current == nodes.size()) {

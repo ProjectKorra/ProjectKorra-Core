@@ -1,5 +1,7 @@
 package com.projectkorra.core.util.data;
 
+import java.util.Objects;
+
 public class DistinctPair<T, E> {
 	
 	private T left;
@@ -20,7 +22,7 @@ public class DistinctPair<T, E> {
 	
 	@Override
 	public int hashCode() {
-		return left.hashCode() - right.hashCode();
+		return Objects.hash(left, right);
 	}
 	
 	@Override
