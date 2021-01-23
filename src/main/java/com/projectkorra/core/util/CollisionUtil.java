@@ -16,7 +16,7 @@ public class CollisionUtil {
 	
 	public static CollisionData parse(String line) throws CollisionParseException {
 		String[] split = line.split(" ");
-		if (split.length < 3 || split.length > 4) {
+		if (split.length < 3) {
 			throw new CollisionParseException(line, "arg amount");
 		}
 		
@@ -27,15 +27,20 @@ public class CollisionUtil {
 			throw new CollisionParseException(line, "operator");
 		}
 		
-		String effect = null;
-		String[] args = null;
-		if (split.length == 4) {
-			String[] other = split[3].split("[\\(\\)]");
-			effect = other[0];
-			args = other[1].split(",");
+		String[] effects = null;
+		String[][] args = null;
+		
+		if (split.length > 3) {
+			effects = new String[split.length - 3];
+			args = new String[split.length - 3][];
+			for (int i = 0; i < split.length - 3; ++i) {
+				String[] other = split[i + 3].split("[\\(\\)]");
+				effects[i] = other[0];
+				args[i] = other[1].split(",");
+			}
 		}
 		
-		return new CollisionData(split[0], split[2], op, effect, args);
+		return new CollisionData(split[0], split[2], op, effects, args);
 	}
 	
 	public static String stringify(CollisionData data) {

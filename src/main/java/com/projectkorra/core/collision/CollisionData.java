@@ -2,19 +2,20 @@ package com.projectkorra.core.collision;
 
 public class CollisionData {
 
-	private String left, right, effect;
-	private String[] args;
+	private String left, right;
+	private String[] effects;
+	private String[][] args;
 	private CollisionOperator type;
 	
 	public CollisionData(String first, String second, CollisionOperator type) {
 		this(first, second, type, null, null);
 	}
 	
-	public CollisionData(String first, String second, CollisionOperator type, String effect, String[] args) {
+	public CollisionData(String first, String second, CollisionOperator type, String[] effects, String[][] args) {
 		this.left = first;
 		this.right = second;
 		this.type = type;
-		this.effect = effect;
+		this.effects = effects;
 		this.args = args;
 	}
 	
@@ -30,11 +31,15 @@ public class CollisionData {
 		return type;
 	}
 	
-	public String getEffect() {
-		return effect;
+	public int getEffectAmount() {
+		return effects.length;
 	}
 	
-	public String[] getArgs() {
-		return args;
+	public String getEffect(int index) {
+		return effects[index];
+	}
+	
+	public String[] getArgs(int index) {
+		return args[index];
 	}
 }

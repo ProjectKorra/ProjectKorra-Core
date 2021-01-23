@@ -66,7 +66,11 @@ public class CollisionManager {
 					}
 					
 					BendingCollisionEvent event = new BendingCollisionEvent(first, second, data.getOperator());
-					CollisionEffect.ofLabel(data.getEffect()).ifPresent((c) -> c.accept(event, data.getArgs()));
+					
+					for (int i = 0; i < data.getEffectAmount(); i++) {
+						String[] args = data.getArgs(i);
+						CollisionEffect.ofLabel(data.getEffect(i)).ifPresent((c) -> c.accept(event, args));	
+					}
 					PLUGIN.getServer().getPluginManager().callEvent(event);
 					
 					if (event.isCancelled()) {
@@ -132,7 +136,7 @@ public class CollisionManager {
 	 * @param args effect parameters
 	 * @return false if valid collision exists
 	 */
-	public boolean addValidCollision(Collidable first, Collidable second, CollisionOperator op, String effect, String[] args) {
+	public boolean addValidCollision(Collidable first, Collidable second, CollisionOperator op, String effect[], String[][] args) {
 		if (first == null || second == null || doesValidCollisionExist(first, second)) {
 			return false;
 		}
