@@ -1,7 +1,5 @@
 package com.projectkorra.core;
 
-import java.io.File;
-
 import org.bukkit.plugin.java.JavaPlugin;
 import org.bukkit.plugin.java.JavaPluginLoader;
 import org.bukkit.plugin.PluginDescriptionFile;
@@ -24,6 +22,14 @@ public class ProjectKorra extends JavaPlugin {
 
 	@Override
 	public void onDisable() {}
+
+	public ProjectKorra() {
+		super();
+	}
+
+	protected ProjectKorra(JavaPluginLoader loader, PluginDescriptionFile description, File dataFolder, File file) {
+		super(loader, description, dataFolder, file);
+	}
 	
 	public static ProjectKorra plugin() {
 		return instance;
