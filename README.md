@@ -47,9 +47,19 @@ Compile all documentation:
 gradle javadoc
 ```
 
-Start a local test server with a newly built binary.
+Start a local Spigot test server with a newly built binary and all dependencies.
 ```console
-gradle runServer
+gradle debugSpigot
+```
+
+Start a local Paper test server with a newly built binary and all dependencies.
+```console
+gradle debugPaper
+```
+
+Remove all build/debug files:
+```console
+gradle cleanAll
 ```
 
 *Note: If you are going to use the provided gradle wrapper, replace `gradle` with `gradlew` in the above commands*
