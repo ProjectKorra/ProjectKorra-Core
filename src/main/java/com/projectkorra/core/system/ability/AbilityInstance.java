@@ -51,18 +51,18 @@ public abstract class AbilityInstance {
 		return counter >= 0;
 	}
 	
-	public final void start() {
+	final void start() {
 		startTime = System.currentTimeMillis();
 		counter = 0;
 		onStart();
 	}
 	
-	public final void update() {
+	final void update() {
 		onUpdate();
 		counter++;
 	}
 	
-	public final void stop() {
+	final void stop() {
 		onStop();
 		startTime = -1;
 		counter = -1;

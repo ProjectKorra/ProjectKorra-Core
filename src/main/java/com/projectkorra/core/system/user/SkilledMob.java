@@ -3,6 +3,7 @@ package com.projectkorra.core.system.user;
 import java.util.Collection;
 
 import org.bukkit.entity.Mob;
+import org.bukkit.plugin.java.JavaPlugin;
 
 import com.projectkorra.core.ProjectKorra;
 import com.projectkorra.core.system.ability.AbilityBinds;
@@ -29,7 +30,8 @@ public class SkilledMob extends SkilledEntity<Mob> {
 
 	@Override
 	public void sendMessage(String message) {
-		ProjectKorra.messageConsole(message);
+		// add config option to silence such messages or log them somewhere else
+		JavaPlugin.getPlugin(ProjectKorra.class).getLogger().info("Message sent to SkilledMob (" + entity.getUniqueId() + ", " + entity.getCustomName() + "): `" + message + "`");
 	}
 
 	@Override

@@ -9,5 +9,6 @@ import java.lang.annotation.Target;
 @Target(ElementType.FIELD)
 public @interface Configurable {
 
+	public String key();
 	public String comment() default "";
 }

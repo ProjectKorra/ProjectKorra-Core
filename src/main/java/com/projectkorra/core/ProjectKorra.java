@@ -2,6 +2,9 @@ package com.projectkorra.core;
 
 import org.bukkit.plugin.java.JavaPlugin;
 import org.bukkit.plugin.java.JavaPluginLoader;
+
+import com.projectkorra.core.system.ability.AbilityManager;
+
 import org.bukkit.plugin.PluginDescriptionFile;
 
 import java.io.File;
@@ -17,7 +20,7 @@ public class ProjectKorra extends JavaPlugin {
 		instance = this;
 		abilitiesFolder = new File(getDataFolder(), "/abilities/");
 		
-		getServer().getScheduler().scheduleSyncRepeatingTask(this, () -> AbilityManager.tick(), 1, 1);
+		AbilityManager.init(this);
 	}
 
 	@Override

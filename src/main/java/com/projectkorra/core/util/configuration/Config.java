@@ -4,6 +4,7 @@ import java.io.File;
 
 import org.bukkit.configuration.file.FileConfiguration;
 import org.bukkit.configuration.file.YamlConfiguration;
+import org.bukkit.plugin.java.JavaPlugin;
 
 import com.projectkorra.core.ProjectKorra;
 import com.projectkorra.core.system.ability.Ability;
@@ -47,6 +48,6 @@ public class Config {
 	}
 	
 	public static Config fromAbility(Ability ability) {
-		return new Config(new File(ProjectKorra.getAbilitiesFolder(), "/" + ability.getName() + "/"));
+		return new Config(new File(JavaPlugin.getPlugin(ProjectKorra.class).getDataFolder(), "/configuration/abilities/" + ability.getName() + ".yml"));
 	}
 }
