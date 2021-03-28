@@ -2,30 +2,58 @@ package com.projectkorra.core.system.user;
 
 import java.util.concurrent.ThreadLocalRandom;
 
+import com.projectkorra.core.util.data.Holder;
+
 @FunctionalInterface
 public interface MobSlotAI {
 
+	Holder<Integer> current = Holder.of(0);
+	
 	/**
 	 * Slot selection AI that picks a random slot
 	 */
 	public static MobSlotAI random() {
-		return () -> ThreadLocalRandom.current().nextInt(9);
+		return () -> {
+			current.setHeld(ThreadLocalRandom.current().nextInt(9));
+			return current.getHeld();
+		};
 	}
 	
 	/**
 	 * Slot selection AI that goes through slots
-	 * sequentially, 0 to 8 (left to right)
+	 * incrementally, 0 to 8 (left to right)
 	 */
-	public static MobSlotAI sequential() {
-		return new MobSlotAI() {
-			
-			int current = 0;
-			
-			public int slot() {
-				return current++ % 9;
-			}
+	public static MobSlotAI incremental() {
+		return () -> {
+			current.setHeld((current.getHeld() + 1) % 9);
+			return current.getHeld();
 		};
 	}
 	
-	public int slot();
+	/**
+	 * Slot selection AI that goes through slots
+	 * decrementally, 8 to 0 (right to left)
+	 */
+	public static MobSlotAI decremental() {
+		return new MobSlotAI() {
+
+			@Override
+			public int slot() {
+				return 8 - current.getHeld();
+			}
+			
+			@Override
+			public int next() {
+				current.setHeld((current.getHeld() + 1) % 9);
+				return slot();
+			}
+			
+		};
+	}
+	
+	public default int slot() {
+		return current.getHeld();
+	}
+	
+	public int next();
 }
