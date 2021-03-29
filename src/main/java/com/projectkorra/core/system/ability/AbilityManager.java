@@ -4,6 +4,7 @@ import java.lang.reflect.Field;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Iterator;
+import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 import java.util.Queue;
@@ -11,11 +12,11 @@ import java.util.Set;
 
 import com.projectkorra.core.ProjectKorra;
 import com.projectkorra.core.system.ability.activation.Activation;
+import com.projectkorra.core.system.ability.activation.SequenceInfo;
 import com.projectkorra.core.system.ability.modifier.Modifier;
 import com.projectkorra.core.system.ability.type.Combo;
 import com.projectkorra.core.system.skill.Skill;
 import com.projectkorra.core.util.configuration.Configurable;
-import com.projectkorra.core.util.data.DistinctPair;
 
 public final class AbilityManager {
 	
@@ -27,9 +28,11 @@ public final class AbilityManager {
 	private static final Map<AbilityUser, Map<Class<? extends AbilityInstance>, Set<AbilityInstance>>> INSTANCES = new HashMap<>();
 	private static final Map<AbilityInstance, Queue<Modifier<?>>> INSTANCE_MODIFIERS = new HashMap<>();
 	private static final Set<AbilityInstance> ACTIVE = new HashSet<>(256);
-	private static final ComboTree COMBO_TREE = new ComboTree();
-	private static final Map<List<DistinctPair<Ability, Activation>>, Ability> COMBOS = new HashMap<>();
-	private static final Map<AbilityUser, ComboTree> USER_SEQUENCES = new HashMap<>();
+	
+	//combo management
+	private static final ComboTree COMBO_ROOT = new ComboTree();
+	private static final Map<List<SequenceInfo>, Ability> COMBOS = new HashMap<>();
+	private static final Map<AbilityUser, LinkedList<ComboTree>> USER_SEQUENCES = new HashMap<>();
 	
 	private static boolean init = false;
 	
@@ -59,8 +62,8 @@ public final class AbilityManager {
 		}
 		
 		if (ability instanceof Combo) {
-			List<DistinctPair<Ability, Activation>> sequence = ((Combo) ability).getSequence();
-			COMBO_TREE.build(sequence);
+			List<SequenceInfo> sequence = ((Combo) ability).getSequence();
+			COMBO_ROOT.build(sequence);
 			COMBOS.put(sequence, ability);
 		}
 		
@@ -79,17 +82,29 @@ public final class AbilityManager {
 	public static void activate(AbilityUser user, Activation type) {
 		Ability ability = user.getBoundAbility();
 		
+		//can't activate a null ability
 		if (ability == null) {
 			return;
 		}
 		
-		ComboTree branch = USER_SEQUENCES.getOrDefault(user, COMBO_TREE).getBranch(ability, type);
-		if (branch == null) {
-			USER_SEQUENCES.remove(user);
-		} else if (branch.isEnd()) {
-			ability = COMBOS.get(branch.sequence());
-		} else {
-			USER_SEQUENCES.put(user, branch);
+		//start a new agent at the root
+		USER_SEQUENCES.computeIfAbsent(user, (a) -> new LinkedList<>()).add(COMBO_ROOT);
+		
+		//check through existing agents
+		Iterator<ComboTree> iter = USER_SEQUENCES.get(user).iterator();
+		while (iter.hasNext()) {
+			ComboTree branch = iter.next().getBranch(ability, type);
+			
+			iter.remove(); //regardless of outcome, we don't want this branch anymore
+			if (branch == null) {
+				continue;
+			} else if (branch.isEnd()) {
+				//end of branches means that we can activate a combo from the sequence
+				ability = COMBOS.get(branch.sequence());
+			} else {
+				//update agent with new branch
+				USER_SEQUENCES.get(user).addFirst(branch);
+			}
 		}
 		
 		start(user, ability.activate(user, type));
