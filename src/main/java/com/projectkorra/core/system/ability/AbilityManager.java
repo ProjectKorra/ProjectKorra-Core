@@ -4,15 +4,18 @@ import java.lang.reflect.Field;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Iterator;
+import java.util.List;
 import java.util.Map;
 import java.util.Queue;
 import java.util.Set;
 
 import com.projectkorra.core.ProjectKorra;
+import com.projectkorra.core.system.ability.activation.Activation;
 import com.projectkorra.core.system.ability.modifier.Modifier;
-import com.projectkorra.core.system.ability.modifier.Modifier.Modifiable;
+import com.projectkorra.core.system.ability.type.Combo;
 import com.projectkorra.core.system.skill.Skill;
 import com.projectkorra.core.util.configuration.Configurable;
+import com.projectkorra.core.util.data.DistinctPair;
 
 public final class AbilityManager {
 	
@@ -24,6 +27,9 @@ public final class AbilityManager {
 	private static final Map<AbilityUser, Map<Class<? extends AbilityInstance>, Set<AbilityInstance>>> INSTANCES = new HashMap<>();
 	private static final Map<AbilityInstance, Queue<Modifier<?>>> INSTANCE_MODIFIERS = new HashMap<>();
 	private static final Set<AbilityInstance> ACTIVE = new HashSet<>(256);
+	private static final ComboTree COMBO_TREE = new ComboTree();
+	private static final Map<List<DistinctPair<Ability, Activation>>, Ability> COMBOS = new HashMap<>();
+	private static final Map<AbilityUser, ComboTree> USER_SEQUENCES = new HashMap<>();
 	
 	private static boolean init = false;
 	
@@ -52,6 +58,12 @@ public final class AbilityManager {
 			ABILITIES_BY_SKILL.get(skill).add(ability);
 		}
 		
+		if (ability instanceof Combo) {
+			List<DistinctPair<Ability, Activation>> sequence = ((Combo) ability).getSequence();
+			COMBO_TREE.build(sequence);
+			COMBOS.put(sequence, ability);
+		}
+		
 		//do config things depending on how configs will work
 		for (Field field : ability.getClass().getDeclaredFields()) {
 			if (field.isAnnotationPresent(Configurable.class)) {
@@ -64,7 +76,26 @@ public final class AbilityManager {
 		}
 	}
 	
-	public static void track(AbilityUser activator, Ability ability, AbilityInstance instance) {
+	public static void activate(AbilityUser user, Activation type) {
+		Ability ability = user.getBoundAbility();
+		
+		if (ability == null) {
+			return;
+		}
+		
+		ComboTree branch = USER_SEQUENCES.getOrDefault(user, COMBO_TREE).getBranch(ability, type);
+		if (branch == null) {
+			USER_SEQUENCES.remove(user);
+		} else if (branch.isEnd()) {
+			ability = COMBOS.get(branch.sequence());
+		} else {
+			USER_SEQUENCES.put(user, branch);
+		}
+		
+		start(user, ability.activate(user, type));
+	}
+	
+	public static void start(AbilityUser activator, AbilityInstance instance) {
 		//AbilityPreStartEvent
 		
 		if (!INSTANCES.containsKey(activator)) {
@@ -73,17 +104,6 @@ public final class AbilityManager {
 		
 		if (!INSTANCES.get(activator).containsKey(instance.getClass())) {
 			INSTANCES.get(activator).put(instance.getClass(), new HashSet<>());
-		}
-		
-		//set values to be the configured ones
-		for (Field field : instance.getClass().getDeclaredFields()) {
-			if (field.isAnnotationPresent(Modifiable.class)) {
-				try {
-					setField(field, instance, ability.getClass().getDeclaredField(field.getName()).get(ability));
-				} catch (Exception e) {
-					continue;
-				}
-			}
 		}
 		
 		//throw in any modifications that have been added
