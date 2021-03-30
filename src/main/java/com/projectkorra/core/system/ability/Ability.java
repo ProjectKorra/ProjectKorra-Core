@@ -27,6 +27,11 @@ public abstract class Ability {
 	public abstract String getDescription();
 	public abstract String getAuthor();
 	public abstract String getVersion();
-	public abstract AbilityInstance activate(AbilityUser activator, Activation trigger);
+	public abstract AbilityInstance activate(Activation trigger);
 	public abstract boolean uses(Activation trigger);
+	public abstract boolean requireAll();
+	
+	public boolean canActivate(AbilityUser user, Activation trigger) {
+		return uses(trigger) && user.hasSkills(skills, requireAll());
+	}
 }

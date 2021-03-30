@@ -1,6 +1,7 @@
 package com.projectkorra.core.system.skill;
 
 import java.util.Collection;
+import java.util.Collections;
 import java.util.HashSet;
 import java.util.Set;
 
@@ -15,8 +16,8 @@ public abstract class SkillHolder {
 	private ImmutableSet<Skill> skills = null;
 	private Set<Skill> toggled;
 	
-	public SkillHolder() {
-		this.toggled = new HashSet<>();
+	public SkillHolder(Collection<Skill> skills) {
+		this(skills, Collections.emptySet());
 	}
 	
 	public SkillHolder(Collection<Skill> skills, Collection<Skill> toggled) {
@@ -91,8 +92,14 @@ public abstract class SkillHolder {
 		return skills.contains(skill);
 	}
 	
-	public final boolean hasAny(Collection<Skill> skills) {
-		return this.skills.stream().anyMatch((s) -> skills.contains(s));
+	/**
+	 * Returns whether this SkillHolder has the given Skills
+	 * @param skills what to check for
+	 * @param all true if all are necessary, any number matching otherwise
+	 * @return true if skills match
+	 */
+	public final boolean hasSkills(Collection<Skill> skills, boolean all) {
+		return all ? this.skills.stream().allMatch((s) -> skills.contains(s)) : this.skills.stream().anyMatch((s) -> skills.contains(s));
 	}
 	
 	/**

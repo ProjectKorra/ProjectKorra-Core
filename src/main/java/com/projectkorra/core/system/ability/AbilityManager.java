@@ -79,13 +79,24 @@ public final class AbilityManager {
 		}
 	}
 	
-	public static void activate(AbilityUser user, Activation type) {
+	/**
+	 * Calls activation for the given user, checking for a valid
+	 * combo that they can activate with their bound ability and 
+	 * the given activation type, or activates their bound ability
+	 * if nonnull
+	 * @param user who to activate for
+	 * @param type how to activate
+	 * @return false if null or event is canceled, otherwise passed to {@link #start(AbilityUser, AbilityInstance)}
+	 */
+	public static boolean activate(AbilityUser user, Activation type) {
 		Ability ability = user.getBoundAbility();
 		
 		//can't activate a null ability
-		if (ability == null) {
-			return;
+		if (user == null || type == null || ability == null) {
+			return false;
 		}
+		
+		//AbilityActivateEvent, return false if canceled
 		
 		//start a new agent at the root
 		USER_SEQUENCES.computeIfAbsent(user, (a) -> new LinkedList<>()).add(COMBO_ROOT);
@@ -101,25 +112,28 @@ public final class AbilityManager {
 			} else if (branch.isEnd()) {
 				//end of branches means that we can activate a combo from the sequence
 				ability = COMBOS.get(branch.sequence());
+				type = Activation.SEQUENCED;
 			} else {
 				//update agent with new branch
 				USER_SEQUENCES.get(user).addFirst(branch);
 			}
 		}
 		
-		start(user, ability.activate(user, type));
+		return start(user, ability.activate(type));
 	}
 	
-	public static void start(AbilityUser activator, AbilityInstance instance) {
-		//AbilityPreStartEvent
-		
-		if (!INSTANCES.containsKey(activator)) {
-			INSTANCES.put(activator, new HashMap<>());
+	/**
+	 * Attempts to start the given AbilityInstance for the user
+	 * @param user who to start the instance for
+	 * @param instance what to start
+	 * @return false if user or instance is null or the event is canceled
+	 */
+	public static boolean start(AbilityUser user, AbilityInstance instance) {
+		if (user == null || instance == null) {
+			return false;
 		}
 		
-		if (!INSTANCES.get(activator).containsKey(instance.getClass())) {
-			INSTANCES.get(activator).put(instance.getClass(), new HashSet<>());
-		}
+		//AbilityPreStartEvent, return false if cancelled
 		
 		//throw in any modifications that have been added
 		for (Modifier<?> mod : INSTANCE_MODIFIERS.get(instance)) {
@@ -131,9 +145,10 @@ public final class AbilityManager {
 			}
 		}
 		
-		INSTANCES.get(activator).get(instance.getClass()).add(instance);
+		INSTANCES.computeIfAbsent(user, (u) -> new HashMap<>()).computeIfAbsent(instance.getClass(), (c) -> new HashSet<>()).add(instance);
 		ACTIVE.add(instance);
-		instance.start();
+		instance.start(user);
+		return true;
 	}
 	
 	private static void setField(Field field, Object instance, Object value) throws IllegalArgumentException, IllegalAccessException {

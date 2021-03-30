@@ -12,9 +12,8 @@ import com.projectkorra.core.system.ability.AbilityBinds;
 import com.projectkorra.core.system.ability.AbilityUser;
 import com.projectkorra.core.system.ability.type.Bindable;
 import com.projectkorra.core.system.skill.Skill;
-import com.projectkorra.core.system.skill.SkillHolder;
 
-public abstract class SkilledEntity<T extends LivingEntity> extends SkillHolder implements AbilityUser {
+public abstract class SkilledEntity<T extends LivingEntity> extends AbilityUser {
 
 	protected final T entity;
 	private AbilityBinds binds;
