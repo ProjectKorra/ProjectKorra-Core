@@ -1,7 +1,6 @@
 package com.projectkorra.core.system.ability;
 
 import java.util.Arrays;
-import java.util.Optional;
 
 import com.projectkorra.core.system.ability.type.Bindable;
 
@@ -11,19 +10,17 @@ public class AbilityBinds {
 		OUT_OF_BOUNDS, UNBINDABLE, SUCCESS;
 	}
 
-	private Optional<Ability>[] binds;
+	private Ability[] binds;
 	
-	@SuppressWarnings("unchecked")
 	public AbilityBinds() {
-		this.binds = new Optional[9];
-		Arrays.fill(binds, Optional.empty());
+		this.binds = new Ability[9];
 	}
 	
-	private AbilityBinds(Optional<Ability>[] binds) {
+	public AbilityBinds(Ability[] binds) {
 		this.binds = Arrays.copyOf(binds, 9);
 	}
 	
-	public Optional<Ability> get(int index) throws ArrayIndexOutOfBoundsException {
+	public Ability get(int index) throws ArrayIndexOutOfBoundsException {
 		if (index < 0 || index > 8) {
 			throw new ArrayIndexOutOfBoundsException();
 		}
@@ -34,11 +31,11 @@ public class AbilityBinds {
 	public AbilityBindResult set(int index, Ability ability) {
 		if (index < 0 || index > 8) {
 			return AbilityBindResult.OUT_OF_BOUNDS;
-		} else if (ability == null || !(ability instanceof Bindable)) {
+		} else if (!(ability instanceof Bindable)) {
 			return AbilityBindResult.UNBINDABLE;
 		}
 		
-		binds[index] = Optional.ofNullable(ability);
+		binds[index] = ability;
 		return AbilityBindResult.SUCCESS;
 	}
 	

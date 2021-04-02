@@ -10,11 +10,15 @@ import java.util.Map;
 import java.util.Queue;
 import java.util.Set;
 
+import org.bukkit.event.Event;
+
 import com.projectkorra.core.ProjectKorra;
 import com.projectkorra.core.system.ability.activation.Activation;
 import com.projectkorra.core.system.ability.activation.SequenceInfo;
 import com.projectkorra.core.system.ability.modifier.Modifier;
 import com.projectkorra.core.system.ability.type.Combo;
+import com.projectkorra.core.system.ability.type.Expander;
+import com.projectkorra.core.system.ability.type.Passive;
 import com.projectkorra.core.system.skill.Skill;
 import com.projectkorra.core.util.configuration.Configurable;
 
@@ -22,10 +26,10 @@ public final class AbilityManager {
 	
 	private AbilityManager() {}
 
-	private static final Map<Class<? extends Ability>, Ability> ABILITIES_BY_CLASS = new HashMap<>(256);
-	private static final Map<String, Ability> ABILITIES_BY_NAME = new HashMap<>(256);
+	private static final Map<Class<? extends Ability>, Ability> ABILITIES_BY_CLASS = new HashMap<>();
+	private static final Map<String, Ability> ABILITIES_BY_NAME = new HashMap<>();
 	private static final Map<Skill, Set<Ability>> ABILITIES_BY_SKILL = new HashMap<>();
-	private static final Map<AbilityUser, Map<Class<? extends AbilityInstance>, Set<AbilityInstance>>> INSTANCES = new HashMap<>();
+	private static final Map<AbilityUser, Map<Class<? extends AbilityInstance>, AbilityInstances>> INSTANCES = new HashMap<>();
 	private static final Map<AbilityInstance, Queue<Modifier<?>>> INSTANCE_MODIFIERS = new HashMap<>();
 	private static final Set<AbilityInstance> ACTIVE = new HashSet<>(256);
 	
@@ -33,6 +37,12 @@ public final class AbilityManager {
 	private static final ComboTree COMBO_ROOT = new ComboTree();
 	private static final Map<List<SequenceInfo>, Ability> COMBOS = new HashMap<>();
 	private static final Map<AbilityUser, LinkedList<ComboTree>> USER_SEQUENCES = new HashMap<>();
+	
+	//expander management
+	private static final Map<AbilityUser, AbilityBinds> EXPANDED = new HashMap<>();
+	
+	//passive management
+	private static final Map<Skill, Map<Activation, Set<Ability>>> PASSIVES = new HashMap<>();
 	
 	private static boolean init = false;
 	
@@ -53,18 +63,16 @@ public final class AbilityManager {
 		
 		ABILITIES_BY_CLASS.put(ability.getClass(), ability);
 		ABILITIES_BY_NAME.put(ability.getName(), ability);
-		
-		for (Skill skill : ability.getSkills()) {
-			if (!ABILITIES_BY_SKILL.containsKey(skill)) {
-				ABILITIES_BY_SKILL.put(skill, new HashSet<>());
-			}
-			ABILITIES_BY_SKILL.get(skill).add(ability);
-		}
+		ABILITIES_BY_SKILL.computeIfAbsent(ability.getSkill(), (s) -> new HashSet<>()).add(ability);
 		
 		if (ability instanceof Combo) {
 			List<SequenceInfo> sequence = ((Combo) ability).getSequence();
 			COMBO_ROOT.build(sequence);
 			COMBOS.put(sequence, ability);
+		}
+		
+		if (ability instanceof Passive) {
+			PASSIVES.computeIfAbsent(ability.getSkill(), (s) -> new HashMap<>()).computeIfAbsent(((Passive) ability).getTrigger(), (t) -> new HashSet<>()).add(ability);
 		}
 		
 		//do config things depending on how configs will work
@@ -86,50 +94,70 @@ public final class AbilityManager {
 	 * if nonnull
 	 * @param user who to activate for
 	 * @param type how to activate
+	 * @param provider the event providing this activation (nullable)
 	 * @return false if null or event is canceled, otherwise passed to {@link #start(AbilityUser, AbilityInstance)}
 	 */
-	public static boolean activate(AbilityUser user, Activation type) {
+	public static boolean activate(AbilityUser user, Activation trigger, Event provider) {
 		Ability ability = user.getBoundAbility();
 		
 		//can't activate a null ability
-		if (user == null || type == null || ability == null) {
+		if (user == null || ability == null) {
 			return false;
 		}
 		
 		//AbilityActivateEvent, return false if canceled
 		
-		//start a new agent at the root
-		USER_SEQUENCES.computeIfAbsent(user, (a) -> new LinkedList<>()).add(COMBO_ROOT);
-		
-		//check through existing agents
-		Iterator<ComboTree> iter = USER_SEQUENCES.get(user).iterator();
-		while (iter.hasNext()) {
-			ComboTree branch = iter.next().getBranch(ability, type);
+		if (trigger != null) {
+			//start a new agent at the root
+			USER_SEQUENCES.computeIfAbsent(user, (a) -> new LinkedList<>()).add(COMBO_ROOT);
 			
-			iter.remove(); //regardless of outcome, we don't want this branch anymore
-			if (branch == null) {
-				continue;
-			} else if (branch.isEnd()) {
-				//end of branches means that we can activate a combo from the sequence
-				ability = COMBOS.get(branch.sequence());
-				type = Activation.SEQUENCED;
-			} else {
-				//update agent with new branch
-				USER_SEQUENCES.get(user).addFirst(branch);
+			//check through existing agents
+			Iterator<ComboTree> iter = USER_SEQUENCES.get(user).iterator();
+			while (iter.hasNext()) {
+				ComboTree branch = iter.next().getBranch(ability, trigger);
+				
+				iter.remove(); //regardless of outcome, we don't want this branch anymore
+				if (branch == null) {
+					continue;
+				} else if (branch.isEnd()) {
+					//end of branches means that we can activate a combo from the sequence
+					ability = COMBOS.get(branch.sequence());
+					trigger = null;
+				} else {
+					//update agent with new branch
+					USER_SEQUENCES.get(user).addFirst(branch);
+				}
 			}
 		}
 		
-		return start(user, ability.activate(type));
+		if (ability instanceof Expander) {
+			Expander expand = (Expander) ability;
+			if (expand.isExpansionTrigger(trigger)) {
+				EXPANDED.computeIfAbsent(user, (u) -> AbilityBinds.copyOf(u.getBinds()));
+				user.getBinds().copy(expand.getNewBinds());
+			}
+		}
+		
+		return ability.canActivate(user, trigger) && start(ability.activate(user, trigger, provider));
+	}
+	
+	public static void refreshPassives(AbilityUser user) {
+		for (Skill skill : user.getSkills()) {
+			for (Ability passive : PASSIVES.get(skill).get(null)) {
+				start(passive.activate(user, Activation.PASSIVE, null));
+			}
+		}
+		
+		
 	}
 	
 	/**
-	 * Attempts to start the given AbilityInstance for the user
-	 * @param user who to start the instance for
+	 * Attempts to start the given AbilityInstance
 	 * @param instance what to start
 	 * @return false if user or instance is null or the event is canceled
 	 */
-	public static boolean start(AbilityUser user, AbilityInstance instance) {
-		if (user == null || instance == null) {
+	public static boolean start(AbilityInstance instance) {
+		if (instance == null) {
 			return false;
 		}
 		
@@ -145,9 +173,9 @@ public final class AbilityManager {
 			}
 		}
 		
-		INSTANCES.computeIfAbsent(user, (u) -> new HashMap<>()).computeIfAbsent(instance.getClass(), (c) -> new HashSet<>()).add(instance);
+		INSTANCES.computeIfAbsent(instance.getUser(), (u) -> new HashMap<>()).computeIfAbsent(instance.getClass(), (c) -> new AbilityInstances(instance.getCapacity())).add(instance);
 		ACTIVE.add(instance);
-		instance.start(user);
+		instance.start();
 		return true;
 	}
 	
@@ -164,6 +192,8 @@ public final class AbilityManager {
 			AbilityInstance instance = iter.next();
 			if (instance.shouldRemove()) {
 				iter.remove();
+				INSTANCES.get(instance.getUser()).get(instance.getClass()).remove(instance);
+				instance.stop();
 				continue;
 			}
 			instance.update();

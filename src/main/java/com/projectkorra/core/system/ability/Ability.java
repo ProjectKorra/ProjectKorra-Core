@@ -1,37 +1,21 @@
 package com.projectkorra.core.system.ability;
 
-import com.google.common.collect.ImmutableSet;
+import org.bukkit.event.Event;
+
 import com.projectkorra.core.system.ability.activation.Activation;
 import com.projectkorra.core.system.skill.Skill;
-import com.projectkorra.core.util.configuration.Config;
 
-public abstract class Ability {
+public interface Ability {
 	
-	private ImmutableSet<Skill> skills;
-	private Config config;
+	public String getName();
+	public String getDescription();
+	public String getAuthor();
+	public String getVersion();
+	public Skill getSkill();
+	public AbilityInstance activate(AbilityUser user, Activation trigger, Event provider);
+	public boolean uses(Activation trigger);
 	
-	public Ability(Skill...skills) {
-		this.skills = new ImmutableSet.Builder<Skill>().add(skills).build();
-		this.config = Config.fromAbility(this);
-	}
-	
-	public final ImmutableSet<Skill> getSkills() {
-		return skills;
-	}
-	
-	public final Config getConfig() {
-		return config;
-	}
-	
-	public abstract String getName();
-	public abstract String getDescription();
-	public abstract String getAuthor();
-	public abstract String getVersion();
-	public abstract AbilityInstance activate(Activation trigger);
-	public abstract boolean uses(Activation trigger);
-	public abstract boolean requireAll();
-	
-	public boolean canActivate(AbilityUser user, Activation trigger) {
-		return uses(trigger) && user.hasSkills(skills, requireAll());
+	public default boolean canActivate(AbilityUser user, Activation trigger) {
+		return uses(trigger) && user.hasSkill(getSkill());
 	}
 }
