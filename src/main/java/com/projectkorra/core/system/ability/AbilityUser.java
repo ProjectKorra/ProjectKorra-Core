@@ -14,12 +14,20 @@ import com.projectkorra.core.system.skill.SkillHolder;
  */
 public abstract class AbilityUser extends SkillHolder {
 	
+	private AbilityBinds binds;
+	
 	public AbilityUser(Collection<Skill> skills) {
 		super(skills);
+		this.binds = new AbilityBinds();
 	}
 	
 	public AbilityUser(Collection<Skill> skills, Collection<Skill> toggled) {
 		super(skills, toggled);
+		this.binds = new AbilityBinds();
+	}
+	
+	public final AbilityBinds getBinds() {
+		return binds;
 	}
 	
 	/**

@@ -38,7 +38,7 @@ public abstract class SkilledEntity<T extends LivingEntity> extends AbilityUser 
 	
 	@Override
 	public Ability getBoundAbility() {
-		return binds.get(getCurrentSlot()).orElse(null);
+		return binds.get(getCurrentSlot());
 	}
 	
 	@Override

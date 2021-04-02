@@ -41,6 +41,10 @@ public abstract class SkillHolder {
 		this.skills = new ImmutableSet.Builder<Skill>().addAll(skills).build();
 	}
 	
+	public final Set<Skill> getSkills() {
+		return skills;
+	}
+	
 	/**
 	 * Add a Skill to this SkillHolder if not already present
 	 * @param skill new skill to add

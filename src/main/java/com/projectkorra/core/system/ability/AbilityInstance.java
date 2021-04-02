@@ -2,9 +2,13 @@ package com.projectkorra.core.system.ability;
 
 public abstract class AbilityInstance {
 	
-	private AbilityUser user = null;
+	private AbilityUser user;
 	private int counter = -1;
 	private long startTime = -1;
+	
+	public AbilityInstance(AbilityUser user) {
+		this.user = user;
+	}
 	
 	/**
 	 * Gets the user associated with this instance
@@ -47,8 +51,7 @@ public abstract class AbilityInstance {
 		return counter >= 0;
 	}
 	
-	final void start(AbilityUser user) {
-		this.user = user;
+	final void start() {
 		startTime = System.currentTimeMillis();
 		counter = 0;
 		onStart();
@@ -70,5 +73,6 @@ public abstract class AbilityInstance {
 	public abstract void onUpdate();
 	public abstract void onStop();
 	public abstract boolean shouldRemove();
+	public abstract int getCapacity();
 	public abstract Class<? extends Ability> getProvider();
 }
