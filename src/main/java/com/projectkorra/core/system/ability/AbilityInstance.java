@@ -59,7 +59,7 @@ public abstract class AbilityInstance {
 	
 	final void update() {
 		onUpdate();
-		counter++;
+		++counter;
 	}
 	
 	final void stop() {
@@ -69,10 +69,30 @@ public abstract class AbilityInstance {
 		user = null;
 	}
 	
+	/**
+	 * Method to check if the instance can be updated
+	 * @return true if can update
+	 */
+	public abstract boolean canUpdate();
+	
+	/**
+	 * Method called when instance is started
+	 */
 	public abstract void onStart();
+	
+	/**
+	 * Method called when instance is updated
+	 */
 	public abstract void onUpdate();
+	
+	/**
+	 * Method called when instance is stopped
+	 */
 	public abstract void onStop();
-	public abstract boolean shouldRemove();
+	
+	/**
+	 * How many instances of this can be active for a single player
+	 * @return instance capacity per player
+	 */
 	public abstract int getCapacity();
-	public abstract Class<? extends Ability> getProvider();
 }

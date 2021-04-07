@@ -4,7 +4,6 @@ import java.lang.reflect.Field;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Iterator;
-import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 import java.util.Queue;
@@ -17,7 +16,7 @@ import com.projectkorra.core.system.ability.activation.Activation;
 import com.projectkorra.core.system.ability.activation.SequenceInfo;
 import com.projectkorra.core.system.ability.modifier.Modifier;
 import com.projectkorra.core.system.ability.type.Combo;
-import com.projectkorra.core.system.ability.type.Expander;
+import com.projectkorra.core.system.ability.type.ExpanderInstance;
 import com.projectkorra.core.system.ability.type.Passive;
 import com.projectkorra.core.system.skill.Skill;
 import com.projectkorra.core.util.configuration.Configurable;
@@ -29,17 +28,13 @@ public final class AbilityManager {
 	private static final Map<Class<? extends Ability>, Ability> ABILITIES_BY_CLASS = new HashMap<>();
 	private static final Map<String, Ability> ABILITIES_BY_NAME = new HashMap<>();
 	private static final Map<Skill, Set<Ability>> ABILITIES_BY_SKILL = new HashMap<>();
-	private static final Map<AbilityUser, Map<Class<? extends AbilityInstance>, AbilityInstances>> INSTANCES = new HashMap<>();
 	private static final Map<AbilityInstance, Queue<Modifier<?>>> INSTANCE_MODIFIERS = new HashMap<>();
 	private static final Set<AbilityInstance> ACTIVE = new HashSet<>(256);
+	private static final Map<AbilityUser, ActiveInfo> USER_INFO = new HashMap<>();
 	
 	//combo management
-	private static final ComboTree COMBO_ROOT = new ComboTree();
+	static final ComboTree COMBO_ROOT = new ComboTree();
 	private static final Map<List<SequenceInfo>, Ability> COMBOS = new HashMap<>();
-	private static final Map<AbilityUser, LinkedList<ComboTree>> USER_SEQUENCES = new HashMap<>();
-	
-	//expander management
-	private static final Map<AbilityUser, AbilityBinds> EXPANDED = new HashMap<>();
 	
 	//passive management
 	private static final Map<Skill, Map<Activation, Set<Ability>>> PASSIVES = new HashMap<>();
@@ -93,62 +88,30 @@ public final class AbilityManager {
 	 * the given activation type, or activates their bound ability
 	 * if nonnull
 	 * @param user who to activate for
-	 * @param type how to activate
+	 * @param trigger how to activate
 	 * @param provider the event providing this activation (nullable)
 	 * @return false if null or event is canceled, otherwise passed to {@link #start(AbilityUser, AbilityInstance)}
 	 */
 	public static boolean activate(AbilityUser user, Activation trigger, Event provider) {
-		Ability ability = user.getBoundAbility();
-		
-		//can't activate a null ability
-		if (user == null || ability == null) {
+		if (user == null || trigger == null) {
 			return false;
 		}
 		
+		Ability ability = user.getBoundAbility();
+		
+		if (ability == null) {
+			return false;
+		}
 		//AbilityActivateEvent, return false if canceled
 		
-		if (trigger != null) {
+		USER_INFO.computeIfAbsent(user, (u) -> new ActiveInfo());
+		//attempt combo progression based on bound ability
+		if (ability != null) {
 			//start a new agent at the root
-			USER_SEQUENCES.computeIfAbsent(user, (a) -> new LinkedList<>()).add(COMBO_ROOT);
-			
-			//check through existing agents
-			Iterator<ComboTree> iter = USER_SEQUENCES.get(user).iterator();
-			while (iter.hasNext()) {
-				ComboTree branch = iter.next().getBranch(ability, trigger);
-				
-				iter.remove(); //regardless of outcome, we don't want this branch anymore
-				if (branch == null) {
-					continue;
-				} else if (branch.isEnd()) {
-					//end of branches means that we can activate a combo from the sequence
-					ability = COMBOS.get(branch.sequence());
-					trigger = null;
-				} else {
-					//update agent with new branch
-					USER_SEQUENCES.get(user).addFirst(branch);
-				}
-			}
-		}
-		
-		if (ability instanceof Expander) {
-			Expander expand = (Expander) ability;
-			if (expand.isExpansionTrigger(trigger)) {
-				EXPANDED.computeIfAbsent(user, (u) -> AbilityBinds.copyOf(u.getBinds()));
-				user.getBinds().copy(expand.getNewBinds());
-			}
+			USER_INFO.get(user).updateCombos(ability, trigger);
 		}
 		
 		return ability.canActivate(user, trigger) && start(ability.activate(user, trigger, provider));
-	}
-	
-	public static void refreshPassives(AbilityUser user) {
-		for (Skill skill : user.getSkills()) {
-			for (Ability passive : PASSIVES.get(skill).get(null)) {
-				start(passive.activate(user, Activation.PASSIVE, null));
-			}
-		}
-		
-		
 	}
 	
 	/**
@@ -157,7 +120,15 @@ public final class AbilityManager {
 	 * @return false if user or instance is null or the event is canceled
 	 */
 	public static boolean start(AbilityInstance instance) {
-		if (instance == null) {
+		if (instance == null || instance.getUser() == null) {
+			return false;
+		}
+		
+		if (instance instanceof ExpanderInstance && !USER_INFO.get(instance.getUser()).expand((ExpanderInstance) instance)) {
+			return false;
+		}
+		
+		if (!USER_INFO.get(instance.getUser()).addInstance(instance)) {
 			return false;
 		}
 		
@@ -173,10 +144,27 @@ public final class AbilityManager {
 			}
 		}
 		
-		INSTANCES.computeIfAbsent(instance.getUser(), (u) -> new HashMap<>()).computeIfAbsent(instance.getClass(), (c) -> new AbilityInstances(instance.getCapacity())).add(instance);
 		ACTIVE.add(instance);
 		instance.start();
 		return true;
+	}
+	
+	public static void refreshPassives(AbilityUser user) {
+		for (Skill skill : user.getSkills()) {
+			for (Ability passive : PASSIVES.get(skill).get(Activation.PASSIVE)) {
+				start(passive.activate(user, Activation.PASSIVE, null));
+			}
+		}
+	}
+	
+	public static void remove(AbilityInstance instance) {
+		if (instance == null) {
+			return;
+		}
+		
+		ACTIVE.remove(instance);
+		USER_INFO.get(instance.getUser()).removeInstance(instance);
+		instance.stop();
 	}
 	
 	private static void setField(Field field, Object instance, Object value) throws IllegalArgumentException, IllegalAccessException {
@@ -190,13 +178,12 @@ public final class AbilityManager {
 		Iterator<AbilityInstance> iter = ACTIVE.iterator();
 		while (iter.hasNext()) {
 			AbilityInstance instance = iter.next();
-			if (instance.shouldRemove()) {
+			if (!instance.canUpdate()) {
 				iter.remove();
-				INSTANCES.get(instance.getUser()).get(instance.getClass()).remove(instance);
-				instance.stop();
-				continue;
+				remove(instance);
+			} else {
+				instance.update();
 			}
-			instance.update();
 		}
 	}
 }
