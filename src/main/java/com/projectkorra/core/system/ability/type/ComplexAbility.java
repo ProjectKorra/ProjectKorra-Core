@@ -10,8 +10,13 @@ import com.projectkorra.core.system.ability.Ability;
 import com.projectkorra.core.system.ability.AbilityInstance;
 import com.projectkorra.core.system.ability.AbilityUser;
 import com.projectkorra.core.system.ability.activation.Activation;
+import com.projectkorra.core.system.skill.Skill;
 
-public abstract class ComplexAbility implements Ability {
+public abstract class ComplexAbility extends Ability {
+
+	public ComplexAbility(String name, String description, String author, String version, Skill skill) {
+		super(name, description, author, version, skill);
+	}
 
 	private final Map<Activation, BiFunction<AbilityUser, Event, AbilityInstance>> TRIGGERS = new HashMap<>();
 	
