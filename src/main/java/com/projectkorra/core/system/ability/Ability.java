@@ -7,13 +7,8 @@ import com.projectkorra.core.system.skill.Skill;
 
 public abstract class Ability {
 	
-	public String getName();
-	public String getDescription();
-	public String getAuthor();
-	public String getVersion();
-	public Skill getSkill();
-	public AbilityInstance activate(AbilityUser user, Activation trigger, Event provider);
-	public boolean uses(Activation trigger);
+	private String name, description, author, version;
+	private Skill skill;
 	
 	public Ability(String name, String description, String author, String version, Skill skill) {
 		this.name = name;
