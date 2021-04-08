@@ -29,7 +29,7 @@ public abstract class AbilityInstance {
 	}
 	
 	/**
-	 * Gets the time in millis when this instance
+	 * Gets the time in milliseconds when this instance
 	 * was started, will return {@code -1} if called
 	 * before the instance has started
 	 * @return instance start time
