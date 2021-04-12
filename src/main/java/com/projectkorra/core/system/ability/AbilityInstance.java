@@ -48,18 +48,17 @@ public abstract class AbilityInstance {
 	}
 	
 	public boolean hasStarted() {
-		return counter >= 0;
+		return startTime >= 0;
 	}
 	
 	final void start() {
 		startTime = System.currentTimeMillis();
-		counter = 0;
 		onStart();
 	}
 	
-	final void update() {
-		onUpdate();
+	final boolean update() {
 		++counter;
+		return onUpdate();
 	}
 	
 	final void stop() {
@@ -70,12 +69,6 @@ public abstract class AbilityInstance {
 	}
 	
 	/**
-	 * Method to check if the instance can be updated
-	 * @return true if can update
-	 */
-	public abstract boolean canUpdate();
-	
-	/**
 	 * Method called when instance is started
 	 */
 	public abstract void onStart();
@@ -83,7 +76,7 @@ public abstract class AbilityInstance {
 	/**
 	 * Method called when instance is updated
 	 */
-	public abstract void onUpdate();
+	public abstract boolean onUpdate();
 	
 	/**
 	 * Method called when instance is stopped

@@ -178,11 +178,9 @@ public final class AbilityManager {
 		Iterator<AbilityInstance> iter = ACTIVE.iterator();
 		while (iter.hasNext()) {
 			AbilityInstance instance = iter.next();
-			if (!instance.canUpdate()) {
+			if (!instance.update()) {
 				iter.remove();
 				remove(instance);
-			} else {
-				instance.update();
 			}
 		}
 	}

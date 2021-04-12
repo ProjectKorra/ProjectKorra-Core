@@ -13,15 +13,15 @@ public class ComboTree {
 	private SequenceInfo info;
 	private List<ComboTree> branches;
 	
-	public ComboTree() {
+	ComboTree() {
 		this(null, null, null);
 	}
 	
-	public ComboTree(Ability ability, Activation type) {
+	ComboTree(Ability ability, Activation type) {
 		this(ability, type, null);
 	}
 	
-	public ComboTree(Ability ability, Activation type, ComboTree root) {
+	ComboTree(Ability ability, Activation type, ComboTree root) {
 		this.info = SequenceInfo.of(ability, type);
 		this.root = root;
 		this.branches = new ArrayList<>();

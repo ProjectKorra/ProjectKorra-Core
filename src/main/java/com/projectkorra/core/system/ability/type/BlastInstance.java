@@ -1,5 +1,7 @@
 package com.projectkorra.core.system.ability.type;
 
+import java.util.function.Predicate;
+
 import org.bukkit.Location;
 import org.bukkit.util.Vector;
 
@@ -9,10 +11,12 @@ import com.projectkorra.core.system.ability.AbilityUser;
 public abstract class BlastInstance extends AbilityInstance {
 
 	private Vector direction;
+	private Predicate<Location> passable;
 	protected Location location;
 	
-	public BlastInstance(AbilityUser user) {
+	public BlastInstance(AbilityUser user, Predicate<Location> passable) {
 		super(user);
+		this.passable = passable;
 	}
 	
 	@Override
@@ -22,8 +26,9 @@ public abstract class BlastInstance extends AbilityInstance {
 	}
 
 	@Override
-	public void onUpdate() {
+	public boolean onUpdate() {
 		location.add(direction);
+		return passable.test(location);
 	}
 	
 	/**
