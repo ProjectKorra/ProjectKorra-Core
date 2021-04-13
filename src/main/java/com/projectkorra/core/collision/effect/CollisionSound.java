@@ -22,7 +22,7 @@ public class CollisionSound extends CollisionEffect {
 			sound = Sound.ENTITY_GENERIC_EXPLODE;
 		}
 		
-		Location loc = event.getCenterOfMass();
+		Location loc = event.getCenter();
 		loc.getWorld().playSound(loc, sound, (float)args[1], (float)args[2]);
 	}
 

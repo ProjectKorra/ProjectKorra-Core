@@ -21,6 +21,6 @@ public class CollisionParticles extends CollisionEffect {
 			particle = Particle.BARRIER;
 		}
 		
-		ParticleUtil.spawn(particle, event.getCenterOfMass(), (int)args[1], (double)args[2], 0, null);
+		ParticleUtil.spawn(particle, event.getCenter(), (int)args[1], (double)args[2], 0, null);
 	}
 }

@@ -2,6 +2,7 @@ package com.projectkorra.core.collision;
 
 import java.util.HashSet;
 import java.util.Set;
+import java.util.function.Predicate;
 
 import org.bukkit.util.BoundingBox;
 
@@ -39,12 +40,15 @@ public class CollisionTree {
 	}
 	
 	void reset() {
-		this.contents.clear();
-		this.children = null;
+		for (CollisionTree branch : children) {
+			branch.reset();
+		}
+		children = null;
+		contents.clear();
 	}
 	
 	public boolean insert(Collidable obj) {
-		if (!bounds.contains(obj.getLocation().getX(), obj.getLocation().getY(), obj.getLocation().getZ())) {
+		if (!bounds.contains(obj.getHitbox().getCenterX(), obj.getHitbox().getCenterY(), obj.getHitbox().getCenterZ())) {
 			return false;
 		}
 		
@@ -67,7 +71,7 @@ public class CollisionTree {
 		}
 	}
 	
-	public Set<Collidable> query(BoundingBox range) {
+	public Set<Collidable> query(BoundingBox range, Predicate<Collidable> filter) {
 		Set<Collidable> found = new HashSet<>();
 		
 		if (bounds.overlaps(range)) {
@@ -76,11 +80,11 @@ public class CollisionTree {
 		
 		if (children != null) {
 			for (CollisionTree branch : children) {
-				found.addAll(branch.query(range));
+				found.addAll(branch.query(range, filter));
 			}
 		} else {
 			for (Collidable obj : contents) {
-				if (range.overlaps(obj.getHitbox())) {
+				if (range.overlaps(obj.getHitbox()) && !filter.test(obj)) {
 					found.add(obj);
 				}
 			}
