@@ -20,6 +20,7 @@ import com.projectkorra.core.system.ability.type.ExpanderInstance;
 import com.projectkorra.core.system.ability.type.Passive;
 import com.projectkorra.core.system.skill.Skill;
 import com.projectkorra.core.util.configuration.Configurable;
+import com.projectkorra.core.util.reflection.ReflectionUtil;
 
 public final class AbilityManager {
 	
@@ -74,7 +75,7 @@ public final class AbilityManager {
 		for (Field field : ability.getClass().getDeclaredFields()) {
 			if (field.isAnnotationPresent(Configurable.class)) {
 				try {
-					setField(field, ability, 0);
+					ReflectionUtil.setValueSafely(ability, field, 0);
 				} catch (Exception e) {
 					continue;
 				}
@@ -138,7 +139,7 @@ public final class AbilityManager {
 		for (Modifier<?> mod : INSTANCE_MODIFIERS.get(instance)) {
 			try {
 				Field field = instance.getClass().getDeclaredField(mod.getField());
-				setField(field, instance, mod.apply(field.get(instance)));
+				ReflectionUtil.setValueSafely(instance, field, mod.apply(field.get(instance)));
 			} catch (Exception e) {
 				continue;
 			}
@@ -165,13 +166,6 @@ public final class AbilityManager {
 		ACTIVE.remove(instance);
 		USER_INFO.get(instance.getUser()).removeInstance(instance);
 		instance.stop();
-	}
-	
-	private static void setField(Field field, Object instance, Object value) throws IllegalArgumentException, IllegalAccessException {
-		boolean access = field.isAccessible();
-		field.setAccessible(true);
-		field.set(instance, value);
-		field.setAccessible(access);
 	}
 	
 	static void tick() {

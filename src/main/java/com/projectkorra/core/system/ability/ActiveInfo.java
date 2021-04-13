@@ -46,7 +46,7 @@ public class ActiveInfo {
 		while (iter.hasNext()) {
 			ComboAgent agent = iter.next();
 			
-			switch (agent.next(ability, trigger)) {
+			switch (agent.update(ability, trigger)) {
 			case COMPLETE:
 				completed = agent;
 			case FAILED:
