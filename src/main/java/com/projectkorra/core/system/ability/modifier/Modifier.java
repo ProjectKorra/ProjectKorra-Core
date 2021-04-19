@@ -9,6 +9,9 @@ import java.util.function.Function;
 
 public class Modifier<T> {
 	
+	/**
+	 * Marker annotation for fields that can be modified by a {@link Modifier} object
+	 */
 	@Retention(RUNTIME)
 	@Target(FIELD)
 	public static @interface Modifiable {}

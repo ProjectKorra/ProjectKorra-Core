@@ -1,5 +1,7 @@
 package com.projectkorra.core.system.ability;
 
+import java.util.Set;
+
 import org.bukkit.event.Event;
 
 import com.projectkorra.core.system.ability.activation.Activation;
@@ -40,6 +42,7 @@ public abstract class Ability {
 
 	public abstract AbilityInstance activate(AbilityUser user, Activation trigger, Event provider);
 	public abstract boolean uses(Activation trigger);
+	public abstract Set<Class<? extends AbilityInstance>> instanceClasses();
 	
 	public boolean canActivate(AbilityUser user, Activation trigger) {
 		return uses(trigger) && user.hasSkill(getSkill());

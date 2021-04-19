@@ -60,7 +60,7 @@ public class ActiveInfo {
 	}
 	
 	boolean expand(ExpanderInstance instance) {
-		if (expander != null) {
+		if (expander == null || !instances.computeIfAbsent(instance.getClass(), (c) -> new AbilityInstances(instance.getCapacity())).add(instance)) {
 			return false;
 		}
 		
