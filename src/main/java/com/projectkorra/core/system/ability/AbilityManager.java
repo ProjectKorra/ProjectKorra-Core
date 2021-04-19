@@ -6,7 +6,6 @@ import java.util.HashSet;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
-import java.util.Queue;
 import java.util.Set;
 
 import org.bukkit.event.Event;
@@ -14,7 +13,7 @@ import org.bukkit.event.Event;
 import com.projectkorra.core.ProjectKorra;
 import com.projectkorra.core.system.ability.activation.Activation;
 import com.projectkorra.core.system.ability.activation.SequenceInfo;
-import com.projectkorra.core.system.ability.modifier.Modifier;
+import com.projectkorra.core.system.ability.attribute.Attribute;
 import com.projectkorra.core.system.ability.type.Combo;
 import com.projectkorra.core.system.ability.type.ExpanderInstance;
 import com.projectkorra.core.system.ability.type.Passive;
@@ -29,8 +28,8 @@ public final class AbilityManager {
 	private static final Map<Class<? extends Ability>, Ability> ABILITIES_BY_CLASS = new HashMap<>();
 	private static final Map<String, Ability> ABILITIES_BY_NAME = new HashMap<>();
 	private static final Map<Skill, Set<Ability>> ABILITIES_BY_SKILL = new HashMap<>();
-	private static final Map<AbilityInstance, Queue<Modifier<?>>> INSTANCE_MODIFIERS = new HashMap<>();
 	private static final Set<AbilityInstance> ACTIVE = new HashSet<>(256);
+	private static final Map<Class<? extends AbilityInstance>, Map<String, Field>> ATTRIBUTES = new HashMap<>();
 	private static final Map<AbilityUser, ActiveInfo> USER_INFO = new HashMap<>();
 	
 	//combo management
@@ -69,6 +68,16 @@ public final class AbilityManager {
 		
 		if (ability instanceof Passive) {
 			PASSIVES.computeIfAbsent(ability.getSkill(), (s) -> new HashMap<>()).computeIfAbsent(((Passive) ability).getTrigger(), (t) -> new HashSet<>()).add(ability);
+		}
+		
+		for (Class<? extends AbilityInstance> instance : ability.instanceClasses()) {
+			Map<String, Field> attributes = new HashMap<>();
+			for (Field field : instance.getDeclaredFields()) {
+				if (field.isAnnotationPresent(Attribute.class)) {
+					attributes.put(field.getAnnotation(Attribute.class).value(), field);
+				}
+			}
+			ATTRIBUTES.put(instance, attributes);
 		}
 		
 		//do config things depending on how configs will work
@@ -125,25 +134,15 @@ public final class AbilityManager {
 			return false;
 		}
 		
-		if (instance instanceof ExpanderInstance && !USER_INFO.get(instance.getUser()).expand((ExpanderInstance) instance)) {
-			return false;
-		}
-		
-		if (!USER_INFO.get(instance.getUser()).addInstance(instance)) {
-			return false;
-		}
-		
-		//AbilityPreStartEvent, return false if cancelled
-		
-		//throw in any modifications that have been added
-		for (Modifier<?> mod : INSTANCE_MODIFIERS.get(instance)) {
-			try {
-				Field field = instance.getClass().getDeclaredField(mod.getField());
-				ReflectionUtil.setValueSafely(instance, field, mod.apply(field.get(instance)));
-			} catch (Exception e) {
-				continue;
+		if (instance instanceof ExpanderInstance) {
+			if (!USER_INFO.get(instance.getUser()).expand((ExpanderInstance) instance)) {
+				return false;
 			}
+		} else if (!USER_INFO.get(instance.getUser()).addInstance(instance)) {
+			return false;
 		}
+		
+		//AbilityStartEvent, return false if cancelled
 		
 		ACTIVE.add(instance);
 		instance.start();

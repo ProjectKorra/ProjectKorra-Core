@@ -47,7 +47,11 @@ public abstract class AbilityInstance {
 		return System.currentTimeMillis() - startTime;
 	}
 	
-	public boolean hasStarted() {
+	/**
+	 * Return whether or not this instance has been started
+	 * @return has instance started
+	 */
+	public final boolean hasStarted() {
 		return startTime >= 0;
 	}
 	
