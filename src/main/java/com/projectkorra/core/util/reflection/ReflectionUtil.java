@@ -753,22 +753,19 @@ public class ReflectionUtil {
 	}
 	
 	/**
-	 * Sets the value of the given {@link Field} for the given instance regardless of accessibility.
+	 * Sets the value of the given {@link Field} while silently ignoring any thrown errors
 	 * 
 	 * @param instance The {@link Object} instance containing the given {@link Field} to be modified.
 	 * @param field The {@link Field} to be modified.
 	 * @param value The new value of the desired {@link Field}
-	 * 
-	 * @throws NullPointerException if the given {@link Field} is null.
-	 * @throws IllegalAccessException should not be thrown.
-	 * @throws IllegalArgumentException if the given value cannot be assigned to the desired {@link Field}
 	 */
-	public static void setValueSafely(final Object instance, final Field field, final Object value) throws NullPointerException, IllegalAccessException, IllegalArgumentException {
-		Validate.notNull(field, "field cannot be null");
-		boolean access = field.isAccessible();
-		field.setAccessible(true);
-		field.set(instance, value);
-		field.setAccessible(access);
+	public static void setValueSafely(final Object instance, final Field field, final Object value) {
+		try {
+			boolean access = field.isAccessible();
+			field.setAccessible(true);
+			field.set(instance, value);
+			field.setAccessible(access);
+		} catch (Exception e) {}
 	}
 
 	/**
