@@ -1,5 +1,6 @@
 package com.projectkorra.core.system.ability;
 
+import java.util.ArrayList;
 import java.util.List;
 
 import com.projectkorra.core.system.ability.activation.Activation;
@@ -14,9 +15,20 @@ public class ComboAgent {
 	private ComboTree current;
 	private List<SequenceInfo> sequence;
 	
-	public ComboAgent(ComboTree root) {
-		this.current = root;
-		this.sequence = null;
+	/**
+	 * Construct a new agent that starts from the root of the {@link ComboTree}
+	 */
+	public ComboAgent() {
+		this(ComboTree.ROOT);
+	}
+	
+	/**
+	 * Construct a new agent that starts from the given {@link ComboTree}
+	 * @param starting where to start in the {@link ComboTree}
+	 */
+	public ComboAgent(ComboTree starting) {
+		this.current = starting;
+		this.sequence = new ArrayList<>();
 	}
 	
 	/**

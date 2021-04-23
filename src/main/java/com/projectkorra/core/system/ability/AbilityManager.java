@@ -39,7 +39,6 @@ public final class AbilityManager {
 	private static final Map<AbilityUser, ActiveInfo> USER_INFO = new HashMap<>();
 	
 	//combo management
-	static final ComboTree COMBO_ROOT = new ComboTree();
 	private static final Map<List<SequenceInfo>, Ability> COMBOS = new HashMap<>();
 	
 	//passive management
@@ -90,7 +89,7 @@ public final class AbilityManager {
 		
 		if (ability instanceof Combo) {
 			List<SequenceInfo> sequence = ((Combo) ability).getSequence();
-			COMBO_ROOT.build(sequence);
+			ComboTree.ROOT.build(sequence);
 			COMBOS.put(sequence, ability);
 		}
 		

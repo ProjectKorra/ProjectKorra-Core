@@ -8,24 +8,57 @@ import com.projectkorra.core.system.ability.activation.Activation;
 import com.projectkorra.core.system.ability.activation.SequenceInfo;
 
 public class ComboTree {
+	
+	public static final ComboTree ROOT = new ComboTree();
 
 	private ComboTree root;
 	private SequenceInfo info;
 	private List<ComboTree> branches;
 	
-	ComboTree() {
+	private ComboTree() {
 		this(null, null, null);
 	}
 	
-	ComboTree(Ability ability, Activation trigger) {
+	private ComboTree(Ability ability, Activation trigger) {
 		this(ability, trigger, null);
 	}
 	
-	ComboTree(Ability ability, Activation trigger, ComboTree root) {
+	private ComboTree(Ability ability, Activation trigger, ComboTree root) {
 		this.info = SequenceInfo.of(ability, trigger);
 		this.root = root;
 		this.branches = new ArrayList<>();
 	}
+	
+	/**
+	 * Construct the branches of this {@link ComboTree} based on a given sequence
+	 * @param sequence Combo sequence
+	 */
+	void build(List<SequenceInfo> sequence) {
+		ComboTree branch = this;
+		for (SequenceInfo info : sequence) {
+			branch = branch.branch(info.getAbility(), info.getTrigger());
+		}
+	}
+
+	/**
+	 * Branches off this {@link ComboTree} with the given {@link Ability} and {@link Activation}.
+	 * This either makes a new branch if one doesn't exist, or returns the one that exists.
+	 * @param ability The {@link Ability} for the desired branch
+	 * @param trigger The {@link Activation} for the desired branch
+	 * @return next branch of this {@link ComboTree}
+	 */
+	private ComboTree branch(Ability ability, Activation trigger) {
+		for (ComboTree branch : branches) {
+			if (branch.info.matches(ability, trigger)) {
+				return branch;
+			}
+		}
+		
+		ComboTree branch = new ComboTree(ability, trigger, this);
+		branches.add(branch);
+		return branch;
+	}
+	
 	
 	/**
 	 * Check whether a branch exists for the given {@link Ability} and {@link Activation}
@@ -57,36 +90,6 @@ public class ComboTree {
 		}
 		
 		return null;
-	}
-	
-	/**
-	 * Branches off this {@link ComboTree} with the given {@link Ability} and {@link Activation}.
-	 * This either makes a new branch if one doesn't exist, or returns the one that exists.
-	 * @param ability The {@link Ability} for the desired branch
-	 * @param trigger The {@link Activation} for the desired branch
-	 * @return next branch of this {@link ComboTree}
-	 */
-	private ComboTree branch(Ability ability, Activation trigger) {
-		for (ComboTree branch : branches) {
-			if (branch.info.matches(ability, trigger)) {
-				return branch;
-			}
-		}
-		
-		ComboTree branch = new ComboTree(ability, trigger, this);
-		branches.add(branch);
-		return branch;
-	}
-	
-	/**
-	 * Construct the branches of this {@link ComboTree} based on a given sequence
-	 * @param sequence Combo sequence
-	 */
-	void build(List<SequenceInfo> sequence) {
-		ComboTree branch = this;
-		for (SequenceInfo info : sequence) {
-			branch = branch.branch(info.getAbility(), info.getTrigger());
-		}
 	}
 	
 	/**
