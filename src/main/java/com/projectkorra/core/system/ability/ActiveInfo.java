@@ -41,7 +41,7 @@ public class ActiveInfo {
 	
 	ComboAgent updateCombos(Ability ability, Activation trigger) {
 		ComboAgent completed = null;
-		sequences.add(new ComboAgent(AbilityManager.COMBO_ROOT));
+		sequences.add(new ComboAgent());
 		Iterator<ComboAgent> iter = sequences.iterator();
 		while (iter.hasNext()) {
 			ComboAgent agent = iter.next();
