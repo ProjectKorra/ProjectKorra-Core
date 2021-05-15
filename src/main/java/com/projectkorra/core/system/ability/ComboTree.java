@@ -3,6 +3,7 @@ package com.projectkorra.core.system.ability;
 import java.util.ArrayList;
 import java.util.LinkedList;
 import java.util.List;
+import java.util.Queue;
 
 import com.projectkorra.core.system.ability.activation.Activation;
 import com.projectkorra.core.system.ability.activation.SequenceInfo;
@@ -28,17 +29,6 @@ public class ComboTree {
 		this.root = root;
 		this.branches = new ArrayList<>();
 	}
-	
-	/**
-	 * Construct the branches of this {@link ComboTree} based on a given sequence
-	 * @param sequence Combo sequence
-	 */
-	void build(List<SequenceInfo> sequence) {
-		ComboTree branch = this;
-		for (SequenceInfo info : sequence) {
-			branch = branch.branch(info.getAbility(), info.getTrigger());
-		}
-	}
 
 	/**
 	 * Branches off this {@link ComboTree} with the given {@link Ability} and {@link Activation}.
@@ -58,7 +48,6 @@ public class ComboTree {
 		branches.add(branch);
 		return branch;
 	}
-	
 	
 	/**
 	 * Check whether a branch exists for the given {@link Ability} and {@link Activation}
@@ -104,13 +93,33 @@ public class ComboTree {
 	 * Get the sequence that lead to this branch
 	 * @return branch sequence
 	 */
-	public List<SequenceInfo> sequence() {
+	public Queue<SequenceInfo> sequence() {
 		LinkedList<SequenceInfo> sequence = new LinkedList<>();
 		ComboTree branch = this;
 		while (branch.root != null && branch.info != null) {
 			sequence.addFirst(branch.info);
 			branch = branch.root;
 		}
+		return sequence;
+	}
+	
+	/**
+	 * Construct the branches of this {@link ComboTree} based on a given sequence
+	 * @param sequence Queue of {@link SequenceInfo} for the activation sequence
+	 * @return the given sequence if it is accepted
+	 * @throws IllegalArgumentException if the last branch of the given sequence already exists and branches further
+	 */
+	static Queue<SequenceInfo> build(Queue<SequenceInfo> sequence) throws IllegalArgumentException {
+		ComboTree branch = ROOT;
+		
+		for (SequenceInfo info : sequence) {
+			branch = branch.branch(info.getAbility(), info.getTrigger());
+		}
+		
+		if (branch.doesBranch()) {
+			throw new IllegalArgumentException();
+		}
+		
 		return sequence;
 	}
 }

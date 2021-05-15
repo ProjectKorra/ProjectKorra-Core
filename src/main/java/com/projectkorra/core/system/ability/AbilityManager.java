@@ -4,9 +4,10 @@ import java.lang.reflect.Field;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Iterator;
-import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
+import java.util.Optional;
+import java.util.Queue;
 import java.util.Set;
 
 import org.bukkit.event.Event;
@@ -35,11 +36,11 @@ public final class AbilityManager {
 	//instance info
 	private static final Set<AbilityInstance> ACTIVE = new HashSet<>(256);
 	private static final Map<Class<? extends AbilityInstance>, Map<String, Field>> ATTRIBUTES = new HashMap<>();
-	private static final Map<AbilityInstance, Map<Field, Modifier>> ACTIVE_ATTRIBUTES = new HashMap<>();
+	private static final Map<AbilityInstance, Map<Field, Modifier>> MODIFIERS = new HashMap<>();
 	private static final Map<AbilityUser, ActiveInfo> USER_INFO = new HashMap<>();
 	
 	//combo management
-	private static final Map<List<SequenceInfo>, Ability> COMBOS = new HashMap<>();
+	private static final Map<Queue<SequenceInfo>, Ability> COMBOS = new HashMap<>();
 	
 	//passive management
 	private static final Map<Skill, Map<Activation, Set<Ability>>> PASSIVES = new HashMap<>();
@@ -55,6 +56,18 @@ public final class AbilityManager {
 		plugin.getServer().getScheduler().scheduleSyncRepeatingTask(plugin, () -> tick(), 0, 1);
 	}
 	
+	public static Optional<Ability> fromName(String name) {
+		return Optional.ofNullable(ABILITIES_BY_NAME.get(name.toLowerCase()));
+	}
+	
+	public static <T extends Ability> Optional<T> fromClass(Class<T> clazz) {
+		return Optional.ofNullable(clazz.cast(ABILITIES_BY_CLASS.get(clazz)));
+	}
+	
+	public static Set<Ability> fromSkill(Skill skill) {
+		return new HashSet<>(ABILITIES_BY_SKILL.get(skill));
+	}
+	
 	public static boolean hasAttribute(AbilityInstance instance, String attribute) {
 		return ATTRIBUTES.containsKey(instance.getClass()) && ATTRIBUTES.get(instance.getClass()).containsKey(attribute.toLowerCase());
 	}
@@ -65,7 +78,7 @@ public final class AbilityManager {
 		}
 		
 		Field field = ATTRIBUTES.get(instance.getClass()).get(attribute.toLowerCase());
-		ACTIVE_ATTRIBUTES.computeIfAbsent(instance, (i) -> new HashMap<>()).merge(field, mod, (a, b) -> a.and(b));
+		MODIFIERS.computeIfAbsent(instance, (i) -> new HashMap<>()).merge(field, mod, (a, b) -> a.and(b));
 		return true;
 	}
 	
@@ -88,9 +101,11 @@ public final class AbilityManager {
 		ABILITIES_BY_SKILL.computeIfAbsent(ability.getSkill(), (s) -> new HashSet<>()).add(ability);
 		
 		if (ability instanceof Combo) {
-			List<SequenceInfo> sequence = ((Combo) ability).getSequence();
-			ComboTree.ROOT.build(sequence);
-			COMBOS.put(sequence, ability);
+			try {
+				COMBOS.put(ComboTree.build(((Combo) ability).getSequence()), ability);
+			} catch (Exception e) {
+				System.out.println(ability.getName() + " attempted to register a combo sequence which would never be activated!");
+			}
 		}
 		
 		if (ability instanceof Passive) {
@@ -166,7 +181,7 @@ public final class AbilityManager {
 		
 		//AbilityStartEvent, return false if cancelled
 		
-		for (Entry<Field, Modifier> entry : ACTIVE_ATTRIBUTES.get(instance).entrySet()) {
+		for (Entry<Field, Modifier> entry : MODIFIERS.get(instance).entrySet()) {
 			try {
 				ReflectionUtil.setValueSafely(instance, entry.getKey(), entry.getValue().apply(entry.getKey().get(instance)));
 			} catch (Exception e) {}
@@ -192,9 +207,9 @@ public final class AbilityManager {
 		
 		ACTIVE.remove(instance);
 		USER_INFO.get(instance.getUser()).removeInstance(instance);
-		if (ACTIVE_ATTRIBUTES.containsKey(instance)) {
-			ACTIVE_ATTRIBUTES.get(instance).clear();
-			ACTIVE_ATTRIBUTES.remove(instance);
+		if (MODIFIERS.containsKey(instance)) {
+			MODIFIERS.get(instance).clear();
+			MODIFIERS.remove(instance);
 		}
 		instance.stop();
 	}
