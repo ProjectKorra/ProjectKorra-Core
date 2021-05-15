@@ -1,10 +1,10 @@
 package com.projectkorra.core.system.ability.type;
 
-import java.util.List;
+import java.util.Queue;
 
 import com.projectkorra.core.system.ability.activation.SequenceInfo;
 
 public interface Combo {
 
-	public List<SequenceInfo> getSequence();
+	public Queue<SequenceInfo> getSequence();
 }
