@@ -61,6 +61,10 @@ public abstract class SkilledEntity<T extends LivingEntity> extends AbilityUser 
 	
 	@Override
 	public void damage(LivingEntity target, double damage, boolean ignoreArmor, AbilityInstance source) {
+		if (immune) {
+			return;
+		}
+		
 		UserDamageEntityEvent event = EventUtil.call(new UserDamageEntityEvent(this, target, damage, ignoreArmor, source));
 		if (event.isCancelled()) {
 			return;
@@ -79,6 +83,10 @@ public abstract class SkilledEntity<T extends LivingEntity> extends AbilityUser 
 	
 	@Override
 	public void knockback(LivingEntity target, Vector direction, boolean resetFallDistance, AbilityInstance source) {
+		if (immune) {
+			return;
+		}
+		
 		UserKnockbackEntityEvent event = EventUtil.call(new UserKnockbackEntityEvent(this, target, direction, resetFallDistance, source));
 		if (event.isCancelled()) {
 			return;

@@ -16,7 +16,8 @@ import com.projectkorra.core.system.skill.SkillHolder;
 public abstract class AbilityUser extends SkillHolder {
 	
 	private AbilityBinds binds = new AbilityBinds();
-	private boolean immune = false;
+	
+	public boolean immune = false;
 	
 	public AbilityUser(Collection<Skill> skills) {
 		super(skills);
@@ -33,14 +34,6 @@ public abstract class AbilityUser extends SkillHolder {
 	
 	public final AbilityBinds getBinds() {
 		return binds;
-	}
-	
-	public final boolean isImmune() {
-		return immune;
-	}
-	
-	public final void setImmune(boolean immune) {
-		this.immune = immune;
 	}
 	
 	/**
@@ -86,6 +79,8 @@ public abstract class AbilityUser extends SkillHolder {
 	
 	/**
 	 * Cause this user to knockback a target in the given direction
+	 * <br><br>If called in conjunction with {@link #damage(LivingEntity, double, boolean, AbilityInstance)} on the same target,
+	 * make sure to call this method after the damage so the knockback from the damage itself won't override this knockback.
 	 * @param target The entity to knockback
 	 * @param direction Where to knockback toward
 	 * @param resetFallDistance Whether to set the target's fall distance to zero or not
