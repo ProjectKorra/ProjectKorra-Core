@@ -1,5 +1,7 @@
 package com.projectkorra.core.util.gui;
 
+import java.util.Optional;
+
 import org.bukkit.Bukkit;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
@@ -18,27 +20,28 @@ import com.projectkorra.core.ProjectKorra;
 public class InventoryGui implements Listener {
 
 	private ClickableItem[] items;
-	private Inventory holder;
+	private Inventory display;
 	
 	private InventoryGui(String title, int size) {
 		items = new ClickableItem[size];
-		holder = Bukkit.createInventory(null, size, title);
+		display = Bukkit.createInventory(null, size, title);
 		Bukkit.getServer().getPluginManager().registerEvents(this, JavaPlugin.getPlugin(ProjectKorra.class));
 	}
 	
 	/**
-	 * Attempts to put the given {@link ClickableItem} into the specified slot.
+	 * Inserts the given {@link ClickableItem} into the specified slot, replacing
+	 * the current item if one is present.
 	 * @param slot Where to put the item in the inventory.
 	 * @param item {@link ClickableItem} to put into the GUI.
-	 * @return false if slot is filled or out of bounds.
+	 * @return false if slot is out of bounds.
 	 */
 	public boolean put(int slot, ClickableItem item) {
-		if (slot < 0 || slot > items.length || items[slot] != null) {
+		if (slot < 0 || slot >= items.length) {
 			return false;
 		}
 		
 		items[slot] = item;
-		holder.setItem(slot, item.itemStack);
+		display.setItem(slot, item.itemStack);
 		return true;
 	}
 	
@@ -47,7 +50,7 @@ public class InventoryGui implements Listener {
 	 * @param player Who to open the GUI for.
 	 */
 	public void open(Player player) {
-		player.openInventory(holder);
+		player.openInventory(display);
 	}
 	
 	/**
@@ -55,9 +58,13 @@ public class InventoryGui implements Listener {
 	 * @param player Who to close the GUI for.
 	 */
 	public void close(Player player) {
-		if (holder.getViewers().contains(player)) {
+		if (display.getViewers().contains(player)) {
 			player.closeInventory();
 		}
+	}
+	
+	public Optional<ClickableItem> getItem(int slot) {
+		return Optional.ofNullable((slot < 0 || slot >= items.length) ? null : items[slot]);
 	}
 	
 	/**
@@ -72,7 +79,7 @@ public class InventoryGui implements Listener {
 	
 	@EventHandler
 	private void onClick(InventoryClickEvent event) {
-		if (!event.getInventory().equals(holder) || event.getCurrentItem() == null || !(event.getWhoClicked() instanceof Player)) {
+		if (!event.getInventory().equals(display) || event.getCurrentItem() == null || !(event.getWhoClicked() instanceof Player)) {
 			return;
 		}
 		
