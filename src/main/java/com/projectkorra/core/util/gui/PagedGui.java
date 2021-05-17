@@ -46,21 +46,21 @@ public class PagedGui {
 	}
 	
 	/**
-	 * Attempt to put the given {@link ClickableItem} into the slot of the given page. If that slot
-	 * is filled by the next or previous page items, this method will return false.
-	 * @param page Desired page of the item
-	 * @param index Desired slot of the item
+	 * Attempt to put the given {@link ClickableItem} into the given index.
+	 * <br><br>The index of any slot is given as <code>(page + 1) * size + slot</code> where
+	 * page is the page number, size is the inventory size, and slot is the inventory slot
+	 * @param index Where to put the item
 	 * @param item Clickable item to be inserted
 	 * @return false if page / index are out of bounds, or the space is occupied by default items
 	 */
-	public boolean put(int page, int index, ClickableItem item) {
-		if (page < 0 || page >= pages.size() || index < 0 || index >= size) {
+	public boolean put(int page, int slot, ClickableItem item) {
+		if (page < 0 || page >= pages.size() || slot < 0 || slot >= size) {
 			return false;
-		} else if (pages.get(page).getItem(index).get() == NEXT_PAGE || pages.get(page).getItem(index).get() == PREV_PAGE) {
+		} else if (pages.get(page).get(slot) == NEXT_PAGE || pages.get(page).get(slot) == PREV_PAGE) {
 			return false;
 		}
 		
-		return pages.get(page).put(index, item);
+		return pages.get(page).put(slot, item);
 	}
 	
 	/**
@@ -94,5 +94,33 @@ public class PagedGui {
 		for (InventoryGui gui : pages) {
 			gui.close(player);
 		}
+	}
+
+	/**
+	 * Gets the {@link ClickableItem} on the given page and in the given slot.
+	 * @param page Which page the item is on
+	 * @param slot Which slot the item is in
+	 * @return null if page / slot are out of bounds
+	 */
+	public ClickableItem get(int page, int slot) {
+		if (page < 0 || page >= pages.size()) {
+			return null;
+		}
+		return pages.get(page).get(slot);
+	}
+	
+	/**
+	 * Creates a new {@link ClickableItem} for opening a specific page in this gui
+	 * @param name Display name of the ItemStack 
+	 * @param type Type of the ItemStack
+	 * @param lore Lore for the ItemStack
+	 * @param page Which page to be opened when clicked
+	 * @return the new {@link ClickableItem}
+	 */
+	public ClickableItem pageOpener(String name, Material type, List<String> lore, int page) {
+		if (page < 0 || page >= pages.size()) {
+			return ClickableItem.EMPTY;
+		}
+		return ClickableItem.create(name, type, lore, (p, a, g) -> pages.get(page).open(p));
 	}
 }

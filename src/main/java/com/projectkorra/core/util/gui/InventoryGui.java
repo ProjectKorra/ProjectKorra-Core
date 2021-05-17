@@ -1,7 +1,5 @@
 package com.projectkorra.core.util.gui;
 
-import java.util.Optional;
-
 import org.bukkit.Bukkit;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
@@ -63,8 +61,13 @@ public class InventoryGui implements Listener {
 		}
 	}
 	
-	public Optional<ClickableItem> getItem(int slot) {
-		return Optional.ofNullable((slot < 0 || slot >= items.length) ? null : items[slot]);
+	/**
+	 * Gets the {@link ClickableItem} in the given slot
+	 * @param slot Where to get the item from
+	 * @return null if slot is out of bounds
+	 */
+	public ClickableItem get(int slot) {
+		return (slot < 0 || slot >= items.length) ? null : items[slot];
 	}
 	
 	/**

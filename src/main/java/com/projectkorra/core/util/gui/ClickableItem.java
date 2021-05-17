@@ -11,6 +11,8 @@ import org.bukkit.inventory.meta.ItemMeta;
 import com.projectkorra.core.util.function.TriConsumer;
 
 public class ClickableItem {
+	
+	public static final ClickableItem EMPTY = new ClickableItem(null, (a, b, c) -> {});
 
 	ItemStack itemStack;
 	TriConsumer<Player, InventoryAction, InventoryGui> action;
