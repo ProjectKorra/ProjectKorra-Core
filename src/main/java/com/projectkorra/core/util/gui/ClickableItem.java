@@ -8,14 +8,20 @@ import org.bukkit.event.inventory.InventoryAction;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.meta.ItemMeta;
 
-import com.projectkorra.core.util.function.TriConsumer;
-
 public class ClickableItem {
+	
+	public static interface Action {
+		public void accept(Player player, InventoryAction action, InventoryGui gui);
+		
+		public default Action andThen(Action action) {
+			return (p, a, g) -> {accept(p, a, g); action.accept(p, a, g);};
+		}
+	}
 	
 	public static final ClickableItem EMPTY = new ClickableItem(null, (a, b, c) -> {});
 
-	ItemStack itemStack;
-	TriConsumer<Player, InventoryAction, InventoryGui> action;
+	private ItemStack itemStack;
+	private Action action;
 	
 	/**
 	 * Create a new {@link ClickableItem} for a GUI with the given ItemStack
@@ -23,9 +29,17 @@ public class ClickableItem {
 	 * @param item GUI display item
 	 * @param action What to do when the item is clicked
 	 */
-	public ClickableItem(ItemStack item, TriConsumer<Player, InventoryAction, InventoryGui> action) {
+	public ClickableItem(ItemStack item, Action action) {
 		this.itemStack = item;
 		this.action = action;
+	}
+	
+	public ItemStack getItemStack() {
+		return itemStack;
+	}
+	
+	public Action getAction() {
+		return action;
 	}
 	
 	/**
@@ -37,7 +51,7 @@ public class ClickableItem {
 	 * @param action What to do when the item is clicked
 	 * @return the created {@link ClickableItem}
 	 */
-	public static ClickableItem create(String name, Material type, List<String> lore, TriConsumer<Player, InventoryAction, InventoryGui> action) {
+	public static ClickableItem create(String name, Material type, List<String> lore, Action action) {
 		ItemStack item = new ItemStack(type);
 		ItemMeta meta = item.getItemMeta();
 		

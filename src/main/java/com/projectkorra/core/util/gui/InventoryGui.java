@@ -39,7 +39,7 @@ public class InventoryGui implements Listener {
 		}
 		
 		items[slot] = item;
-		display.setItem(slot, item.itemStack);
+		display.setItem(slot, item.getItemStack());
 		return true;
 	}
 	
@@ -87,6 +87,6 @@ public class InventoryGui implements Listener {
 		}
 		
 		event.setCancelled(true);
-		items[event.getSlot()].action.accept((Player) event.getWhoClicked(), event.getAction(), this);
+		items[event.getSlot()].getAction().accept((Player) event.getWhoClicked(), event.getAction(), this);
 	}
 }
