@@ -1,6 +1,7 @@
 package com.projectkorra.core.util.gui;
 
 import org.bukkit.Bukkit;
+import org.bukkit.ChatColor;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
@@ -17,30 +18,65 @@ import com.projectkorra.core.ProjectKorra;
  */
 public class InventoryGui implements Listener {
 
-	private ClickableItem[] items;
+	private DisplayItem[] items;
 	private Inventory display;
 	
 	private InventoryGui(String title, int size) {
-		items = new ClickableItem[size];
+		items = new DisplayItem[size];
 		display = Bukkit.createInventory(null, size, title);
 		Bukkit.getServer().getPluginManager().registerEvents(this, JavaPlugin.getPlugin(ProjectKorra.class));
 	}
 	
 	/**
-	 * Inserts the given {@link ClickableItem} into the specified slot, replacing
-	 * the current item if one is present.
+	 * Inserts the given {@link DisplayItem} into the specified slot.
+	 * This method will replace the item currently occupying the slot if it is replaceable as
+	 * defined by {@link DisplayItem#isReplaceable()}
 	 * @param slot Where to put the item in the inventory.
-	 * @param item {@link ClickableItem} to put into the GUI.
-	 * @return false if slot is out of bounds.
+	 * @param item {@link DisplayItem} to put into the inventory GUI.
+	 * @return false if slot is out of bounds or current item is non-replaceable
 	 */
-	public boolean put(int slot, ClickableItem item) {
+	public boolean setItem(int slot, DisplayItem item) {
 		if (slot < 0 || slot >= items.length) {
+			return false;
+		}
+		
+		return set(slot, item);
+	}
+	
+	/**
+	 * Inserts the given {@link DisplayItem} into the slot denoted by the given row and column.
+	 * This method will replace the item currently occupying the slot if it is replaceable as
+	 * defined by {@link DisplayItem#isReplaceable()}
+	 * @param row Which row of the inventory to put the item in
+	 * @param column Which column of the inventory to put the item in
+	 * @param item What to put into the inventory GUI.
+	 * @return false if row / column are out of bounds or current item is non-replaceable
+	 */
+	public boolean setItem(int row, int column, DisplayItem item) {
+		if (row < 0 || row >= items.length / 9 || column < 0 || column >= 9) {
+			return false;
+		}
+		
+		return set(row * 9 + column, item);
+	}
+	
+	private boolean set(int slot, DisplayItem item) {
+		if (items[slot] != null && !items[slot].isReplaceable()) {
 			return false;
 		}
 		
 		items[slot] = item;
 		display.setItem(slot, item.getItemStack());
 		return true;
+	}
+	
+	/**
+	 * Gets the {@link DisplayItem} in the given slot
+	 * @param slot Where to get the item from
+	 * @return null if slot is out of bounds or isn't filled yet
+	 */
+	public DisplayItem getItem(int slot) {
+		return (slot < 0 || slot >= items.length) ? null : items[slot];
 	}
 	
 	/**
@@ -62,12 +98,11 @@ public class InventoryGui implements Listener {
 	}
 	
 	/**
-	 * Gets the {@link ClickableItem} in the given slot
-	 * @param slot Where to get the item from
-	 * @return null if slot is out of bounds
+	 * Get the size of the inventory for this gui
+	 * @return inventory size
 	 */
-	public ClickableItem get(int slot) {
-		return (slot < 0 || slot >= items.length) ? null : items[slot];
+	public int size() {
+		return items.length;
 	}
 	
 	/**
@@ -77,7 +112,7 @@ public class InventoryGui implements Listener {
 	 * @return the created {@link InventoryGui}
 	 */
 	public static InventoryGui create(String title, int rows) {
-		return new InventoryGui(title, Math.min(6, Math.max(1, rows)) * 9);
+		return new InventoryGui(ChatColor.translateAlternateColorCodes('&', title), Math.min(6, Math.max(1, rows)) * 9);
 	}
 	
 	@EventHandler
@@ -87,6 +122,6 @@ public class InventoryGui implements Listener {
 		}
 		
 		event.setCancelled(true);
-		items[event.getSlot()].getAction().accept((Player) event.getWhoClicked(), event.getAction(), this);
+		items[event.getSlot()].getAction().ifPresent((a) -> a.accept((Player) event.getWhoClicked(), event.getAction(), this));
 	}
 }
