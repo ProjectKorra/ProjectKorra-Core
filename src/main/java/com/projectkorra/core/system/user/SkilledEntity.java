@@ -8,8 +8,8 @@ import org.bukkit.attribute.Attribute;
 import org.bukkit.entity.LivingEntity;
 import org.bukkit.util.Vector;
 
-import com.projectkorra.core.event.entity.UserDamageEntityEvent;
-import com.projectkorra.core.event.entity.UserKnockbackEntityEvent;
+import com.projectkorra.core.event.user.UserDamageEntityEvent;
+import com.projectkorra.core.event.user.UserKnockbackEntityEvent;
 import com.projectkorra.core.system.ability.Ability;
 import com.projectkorra.core.system.ability.AbilityBinds;
 import com.projectkorra.core.system.ability.AbilityInstance;

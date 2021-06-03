@@ -1,4 +1,4 @@
-package com.projectkorra.core.event.entity;
+package com.projectkorra.core.event.user;
 
 import org.bukkit.entity.LivingEntity;
 import org.bukkit.event.Cancellable;
