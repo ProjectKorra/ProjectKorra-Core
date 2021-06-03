@@ -30,10 +30,10 @@ public enum UnitVector {
 	
 	/**
 	 * Gets a vector of given magnitude for this unit vector
-	 * @param scale magnitude of the vector
+	 * @param mag magnitude of the vector
 	 * @return scaled vector
 	 */
-	public Vector multiply(double scale) {
-		return new Vector(x * scale, y * scale, z * scale);
+	public Vector scaled(double mag) {
+		return new Vector(x * mag, y * mag, z * mag);
 	}
 }

@@ -10,5 +10,5 @@ import java.lang.annotation.Target;
 public @interface Configurable {
 
 	public String key();
-	public String comment() default "";
+	//public String comment() default "";
 }

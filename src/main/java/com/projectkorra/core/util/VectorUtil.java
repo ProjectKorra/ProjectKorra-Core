@@ -4,9 +4,7 @@ import org.apache.commons.lang.Validate;
 import org.bukkit.Location;
 import org.bukkit.util.Vector;
 
-import com.projectkorra.core.util.math.Angle;
 import com.projectkorra.core.util.math.UnitVector;
-import com.projectkorra.core.util.math.Angle.AngleMode;
 
 public class VectorUtil {
 
@@ -26,11 +24,11 @@ public class VectorUtil {
 	 * Returns an orthogonal vector from an axis
 	 * @param axis vector to be orthogonal of
 	 * @param length magnitude of orthogonal vector
-	 * @param rotation counterclockwise rotation, 0 = righthand side of the axis
+	 * @param rotation counterclockwise rotation in radians, 0 = righthand side of the axis
 	 * @return an orthogonal vector
-	 * @throws IllegalArgumentException when the axis vector is a zero vector
+	 * @throws IllegalArgumentException when the axis vector is zero
 	 */
-	public static Vector orthogonal(Vector axis, double length, Angle rotation) throws IllegalArgumentException {
+	public static Vector orthogonal(Vector axis, double length, double rotation) throws IllegalArgumentException {
 		Validate.isTrue(!axis.equals(UnitVector.ZERO.normal()), "Axis direction cannot be the zero vector!");
 
 		double yaw = Math.toRadians(getYaw(axis));
@@ -44,11 +42,11 @@ public class VectorUtil {
 	 * Rotate a vector around an axis, this does mutate the rotator
 	 * @param rotator vector to rotate
 	 * @param axis axis to rotate around
-	 * @param rotation angle to rotate
+	 * @param rotation angle to rotate in radians
 	 * @return rotated vector, <b>not a new vector</b>
 	 */
-	public static Vector rotate(Vector rotator, Vector axis, Angle rotation) {
-		return rotator.rotateAroundAxis(axis, -rotation.getValue(AngleMode.RADIANS));
+	public static Vector rotate(Vector rotator, Vector axis, double rotation) {
+		return rotator.rotateAroundAxis(axis, -rotation);
 	}
 	
 	/**
