@@ -4,6 +4,7 @@ import org.bukkit.Location;
 import org.bukkit.Material;
 import org.bukkit.block.BlockFace;
 import org.bukkit.entity.Player;
+import org.bukkit.event.Event;
 import org.bukkit.event.block.BlockBreakEvent;
 import org.bukkit.event.block.BlockPlaceEvent;
 import org.bukkit.inventory.EquipmentSlot;
@@ -34,7 +35,7 @@ public final class RegionUtil {
 	 * @return true if the fake event isn't cancelled
 	 */
 	public static boolean canBuild(Player player, Location loc) {
-		return !EventUtil.call(new BlockPlaceEvent(loc.getBlock(), loc.getBlock().getState(), loc.getBlock().getRelative(BlockFace.DOWN), HAND_ITEM, player, true, EquipmentSlot.HAND)).isCancelled();
+		return !EventUtil.call(new UserCheckCanBuildEvent(player, loc)).isCancelled();
 	}
 	
 	/**
@@ -44,15 +45,29 @@ public final class RegionUtil {
 	 * @return true if the fake event isn't cancelled
 	 */
 	public static boolean canBreak(Player player, Location loc) {
-		return !EventUtil.call(new BlockBreakEvent(loc.getBlock(), player)).isCancelled();
+		return !EventUtil.call(new UserCheckCanBreakEvent(player, loc)).isCancelled();
 	}
 	
 	/**
-	 * Checks to see if the given {@link BlockPlaceEvent} was called by this utility
-	 * @param event The {@link BlockPlaceEvent} to check 
+	 * Checks to see if the given event was called by this utility
+	 * @param event The event to check 
 	 * @return true if the event was called by this utility
 	 */
-	public static boolean isFake(BlockPlaceEvent event) {
-		return event.getItemInHand() == HAND_ITEM;
+	public static boolean isFake(Event event) {
+		return event instanceof UserCheckCanBuildEvent || event instanceof UserCheckCanBreakEvent;
+	}
+	
+	public static class UserCheckCanBuildEvent extends BlockPlaceEvent {
+		
+		public UserCheckCanBuildEvent(Player player, Location loc) {
+			super(loc.getBlock(), loc.getBlock().getState(), loc.getBlock().getRelative(BlockFace.DOWN), HAND_ITEM, player, true, EquipmentSlot.HAND);
+		}
+	}
+	
+	public static class UserCheckCanBreakEvent extends BlockBreakEvent {
+		
+		public UserCheckCanBreakEvent(Player player, Location loc) {
+			super(loc.getBlock(), player);
+		}
 	}
 }
