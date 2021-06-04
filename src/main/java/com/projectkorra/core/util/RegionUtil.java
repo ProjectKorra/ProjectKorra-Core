@@ -14,7 +14,7 @@ public final class RegionUtil {
 
 	private RegionUtil() {}
 	
-	private static final ItemStack HAND_ITEM = new ItemStack(Material.BARRIER);
+	private static final ItemStack PLACEHOLDER = new ItemStack(Material.AIR);
 	
 	/**
 	 * Checks to see if the location is protected in such a way that the player either cannot
@@ -39,7 +39,8 @@ public final class RegionUtil {
 	}
 	
 	/**
-	 * Calls a fake {@link BlockBreakEvent} to check if the player can destroy at the given location
+	 * Calls a fake {@link BlockBreakEvent} to check if the player can destroy at the given location.
+	 * If you want to ignore this fake event, check {@link RegionUtil#isFake(BlockPlaceEvent)}
 	 * @param player Who to check
 	 * @param loc Where to check
 	 * @return true if the fake event isn't cancelled
@@ -60,7 +61,7 @@ public final class RegionUtil {
 	public static class UserCheckCanBuildEvent extends BlockPlaceEvent {
 		
 		public UserCheckCanBuildEvent(Player player, Location loc) {
-			super(loc.getBlock(), loc.getBlock().getState(), loc.getBlock().getRelative(BlockFace.DOWN), HAND_ITEM, player, true, EquipmentSlot.HAND);
+			super(loc.getBlock(), loc.getBlock().getState(), loc.getBlock().getRelative(BlockFace.DOWN), PLACEHOLDER, player, true, EquipmentSlot.HAND);
 		}
 	}
 	
@@ -68,6 +69,7 @@ public final class RegionUtil {
 		
 		public UserCheckCanBreakEvent(Player player, Location loc) {
 			super(loc.getBlock(), player);
+			this.setDropItems(false);
 		}
 	}
 }
