@@ -37,6 +37,13 @@ public abstract class AbilityUser extends SkillHolder {
 	}
 	
 	/**
+	 * Checks if this the given location is protected from this {@link AbilityUser}
+	 * @param loc Where to check
+	 * @return true if the location is protected
+	 */
+	public abstract boolean checkDefaultProtections(Location loc);
+	
+	/**
 	 * Gets the bound ability of the user's current slot
 	 * @return The currently bound ability
 	 */

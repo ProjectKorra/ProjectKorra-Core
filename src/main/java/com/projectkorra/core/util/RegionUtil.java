@@ -1,5 +1,7 @@
 package com.projectkorra.core.util;
 
+import java.util.function.BiPredicate;
+
 import org.bukkit.Location;
 import org.bukkit.Material;
 import org.bukkit.block.BlockFace;
@@ -10,21 +12,46 @@ import org.bukkit.event.block.BlockPlaceEvent;
 import org.bukkit.inventory.EquipmentSlot;
 import org.bukkit.inventory.ItemStack;
 
+import com.projectkorra.core.system.ability.AbilityUser;
+
 public final class RegionUtil {
 
 	private RegionUtil() {}
 	
+	private static boolean defaultProtection = true; //make configurable
 	private static final ItemStack PLACEHOLDER = new ItemStack(Material.AIR);
+	private static BiPredicate<AbilityUser, Location> protections = null;
 	
 	/**
-	 * Checks to see if the location is protected in such a way that the player either cannot
-	 * build upon or cannot break the existing block, if one exists.
-	 * @param player Who to check against protections
-	 * @param loc Where to check for protections
-	 * @return true if the location is protected from the player
+	 * Adds a region protection check to the current predicate used by {@link #isProtected(AbilityUser, Location)}
+	 * @param protection new region protection check, passing null will be silently ignored
 	 */
-	public static boolean isProtected(Player player, Location loc) {
-		return loc.getBlock().getType().isSolid() ? canBreak(player, loc) : canBuild(player, loc);
+	public static void addProtection(BiPredicate<AbilityUser, Location> protection) {
+		if (protection == null) {
+			return;
+		}
+		
+		protections = (protections != null) ? protections.and(protection) : protection;
+	}
+	
+	/**
+	 * Checks the existing region protection checks to see if the given location is protected
+	 * from the given user. If no region protection checks exist and default protection is enabled,
+	 * this will pass the call along to {@link AbilityUser#checkDefaultProtections(Location)}.
+	 * @param user Who to check against protections
+	 * @param loc Where to check for protections
+	 * @return true if the location is protected from the user
+	 */
+	public static boolean isProtected(AbilityUser user, Location loc) {
+		if (protections == null) {
+			if (!defaultProtection) {
+				return false;
+			}
+			
+			return user.checkDefaultProtections(loc);
+		}
+		
+		return protections.test(user, loc);
 	}
 	
 	/**

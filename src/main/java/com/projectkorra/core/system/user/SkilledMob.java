@@ -2,6 +2,7 @@ package com.projectkorra.core.system.user;
 
 import java.util.Collection;
 
+import org.bukkit.Location;
 import org.bukkit.entity.Mob;
 import org.bukkit.plugin.java.JavaPlugin;
 
@@ -37,6 +38,11 @@ public class SkilledMob extends SkilledEntity<Mob> {
 	@Override
 	public boolean hasPermission(String perm) {
 		return entity.hasPermission(perm);
+	}
+
+	@Override
+	public boolean checkDefaultProtections(Location loc) {
+		return false;
 	}
 
 }
