@@ -2,10 +2,12 @@ package com.projectkorra.core.system.user;
 
 import java.util.Collection;
 
+import org.bukkit.Location;
 import org.bukkit.entity.Player;
 
 import com.projectkorra.core.system.ability.AbilityBinds;
 import com.projectkorra.core.system.skill.Skill;
+import com.projectkorra.core.util.RegionUtil;
 
 public class SkilledPlayer extends SkilledEntity<Player> {
 
@@ -31,5 +33,10 @@ public class SkilledPlayer extends SkilledEntity<Player> {
 	@Override
 	public boolean shouldRemove() {
 		return !entity.isOnline();
+	}
+
+	@Override
+	public boolean checkDefaultProtections(Location loc) {
+		return loc.getBlock().getType().isSolid() ? RegionUtil.canBreak(entity, loc) : RegionUtil.canBuild(entity, loc);
 	}
 }
