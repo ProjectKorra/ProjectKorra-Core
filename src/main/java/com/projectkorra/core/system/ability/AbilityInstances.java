@@ -15,6 +15,15 @@ public class AbilityInstances {
 		
 		private void destroy() {
 			value = null;
+			
+			if (prev != null) {
+				prev.next = next;
+			}
+			
+			if (next != null) {
+				next.prev = prev;
+			}
+			
 			prev = null;
 			next = null;
 		}
@@ -34,6 +43,24 @@ public class AbilityInstances {
 		return head == null ? null : head.value;
 	}
 	
+	public int size() {
+		return size;
+	}
+	
+	public AbilityInstance get(int index) {
+		if (index < 0 || index > size) {
+			throw new IndexOutOfBoundsException();
+		}
+		
+		Node curr = head;
+		
+		for (int i = 0; i < index; ++i) {
+			curr = curr.next;
+		}
+		
+		return curr.value;
+	}
+	
 	boolean add(AbilityInstance instance) {
 		if (++size > capacity) {
 			--size;
@@ -48,16 +75,15 @@ public class AbilityInstances {
 		return true;
 	}
 	
-	void remove(AbilityInstance instance) {
+	boolean remove(AbilityInstance instance) {
 		Node found = find(instance);
 		
 		if (found == null) {
-			return;
+			return false;
 		}
 		
-		found.prev.next = found.next;
-		found.next.prev = found.prev;
 		found.destroy();
+		return true;
 	}
 	
 	private Node find(AbilityInstance instance) {

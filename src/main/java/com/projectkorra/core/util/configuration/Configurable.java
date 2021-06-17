@@ -9,6 +9,10 @@ import java.lang.annotation.Target;
 @Target(ElementType.FIELD)
 public @interface Configurable {
 
-	public String key();
+	/**
+	 * Gets the config path for the configurable field
+	 * @return config path
+	 */
+	public String value();
 	//public String comment() default "";
 }

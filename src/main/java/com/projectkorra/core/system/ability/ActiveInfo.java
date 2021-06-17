@@ -23,7 +23,15 @@ public class ActiveInfo {
 		expander = null;
 	}
 	
+	AbilityInstances getInstances(Class<? extends AbilityInstance> clazz) {
+		return instances.get(clazz);
+	}
+	
 	boolean addInstance(AbilityInstance instance) {
+		if (instance == null) {
+			return false;
+		}
+		
 		return instances.computeIfAbsent(instance.getClass(), (c) -> new AbilityInstances(instance.getCapacity())).add(instance);
 	}
 	
