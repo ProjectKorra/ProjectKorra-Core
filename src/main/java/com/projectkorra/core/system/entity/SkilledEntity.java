@@ -1,4 +1,4 @@
-package com.projectkorra.core.system.user;
+package com.projectkorra.core.system.entity;
 
 import java.util.Collection;
 import java.util.UUID;

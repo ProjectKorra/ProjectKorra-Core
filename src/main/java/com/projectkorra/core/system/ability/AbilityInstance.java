@@ -2,7 +2,7 @@ package com.projectkorra.core.system.ability;
 
 public abstract class AbilityInstance {
 	
-	private AbilityUser user;
+	protected final AbilityUser user;
 	private int counter = -1;
 	private long startTime = -1;
 	
@@ -69,7 +69,6 @@ public abstract class AbilityInstance {
 		onStop();
 		startTime = -1;
 		counter = -1;
-		user = null;
 	}
 	
 	/**

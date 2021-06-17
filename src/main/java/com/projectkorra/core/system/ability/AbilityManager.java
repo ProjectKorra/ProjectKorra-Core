@@ -1,6 +1,5 @@
 package com.projectkorra.core.system.ability;
 
-import java.io.File;
 import java.lang.reflect.Field;
 import java.util.HashMap;
 import java.util.HashSet;
@@ -12,9 +11,10 @@ import java.util.Queue;
 import java.util.Set;
 
 import org.bukkit.event.Event;
-import org.bukkit.plugin.java.JavaPlugin;
 
 import com.projectkorra.core.ProjectKorra;
+import com.projectkorra.core.event.ability.AbilityInstanceStartEvent;
+import com.projectkorra.core.event.user.UserActivationEvent;
 import com.projectkorra.core.system.ability.activation.Activation;
 import com.projectkorra.core.system.ability.activation.SequenceInfo;
 import com.projectkorra.core.system.ability.attribute.Attribute;
@@ -23,8 +23,8 @@ import com.projectkorra.core.system.ability.type.Combo;
 import com.projectkorra.core.system.ability.type.ExpanderInstance;
 import com.projectkorra.core.system.ability.type.Passive;
 import com.projectkorra.core.system.skill.Skill;
+import com.projectkorra.core.util.EventUtil;
 import com.projectkorra.core.util.configuration.Config;
-import com.projectkorra.core.util.configuration.Configurable;
 import com.projectkorra.core.util.reflection.ReflectionUtil;
 
 public final class AbilityManager {
@@ -35,7 +35,6 @@ public final class AbilityManager {
 	private static final Map<Class<? extends Ability>, Ability> ABILITIES_BY_CLASS = new HashMap<>();
 	private static final Map<String, Ability> ABILITIES_BY_NAME = new HashMap<>();
 	private static final Map<Skill, Set<Ability>> ABILITIES_BY_SKILL = new HashMap<>();
-	private static final Map<Ability, Config> ABILITY_CONFIGS = new HashMap<>();
 	
 	//instance info
 	private static final Set<AbilityInstance> ACTIVE = new HashSet<>(256);
@@ -60,6 +59,10 @@ public final class AbilityManager {
 		plugin.getServer().getScheduler().scheduleSyncRepeatingTask(plugin, () -> tick(), 0, 1);
 	}
 	
+	private static ActiveInfo info(AbilityUser user) {
+		return USER_INFO.computeIfAbsent(user, (u) -> new ActiveInfo());
+	}
+	
 	public static Optional<Ability> getAbility(String name) {
 		return Optional.ofNullable(ABILITIES_BY_NAME.get(name.toLowerCase()));
 	}
@@ -72,16 +75,17 @@ public final class AbilityManager {
 		return new HashSet<>(ABILITIES_BY_SKILL.get(skill));
 	}
 	
-	public static Optional<Config> getConfig(Ability ability) {
-		return Optional.ofNullable(ABILITY_CONFIGS.get(ability));
+	public static <T extends AbilityInstance> Optional<T> getInstance(AbilityUser user, Class<T> clazz) {
+		AbilityInstances instances = info(user).getInstances(clazz);
+		if (instances == null) {
+			return Optional.ofNullable(null);
+		} else {
+			return Optional.ofNullable(clazz.cast(instances.top()));
+		}
 	}
 	
-	public static Optional<Config> getConfig(String name) {
-		return getAbility(name).flatMap((a) -> getConfig(a));
-	}
-	
-	public static Optional<Config> getConfig(Class<? extends Ability> clazz) {
-		return getAbility(clazz).flatMap((a) -> getConfig(a));
+	public static Optional<AbilityInstances> getInstances(AbilityUser user, Class<? extends AbilityInstance> clazz) {
+		return Optional.ofNullable(info(user).getInstances(clazz));
 	}
 	
 	public static boolean hasAttribute(AbilityInstance instance, String attribute) {
@@ -138,21 +142,7 @@ public final class AbilityManager {
 			ATTRIBUTES.put(instance, attributes);
 		}
 		
-		Config config = new Config(new File(JavaPlugin.getPlugin(ProjectKorra.class).getDataFolder(), "/configuration/abilities/" + ability.getName() + ".yml"));
-		ABILITY_CONFIGS.put(ability, config);
-		
-		//do config things depending on how configs will work
-		for (Field field : ability.getClass().getDeclaredFields()) {
-			if (field.isAnnotationPresent(Configurable.class)) {
-				try {
-					config.get().addDefault(field.getAnnotation(Configurable.class).key(), field.get(ability));
-					ReflectionUtil.setValueSafely(ability, field, config.get().get(field.getAnnotation(Configurable.class).key()));
-				} catch (Exception e) {
-					e.printStackTrace();
-					JavaPlugin.getPlugin(ProjectKorra.class).getLogger().warning("Unable to set config value of " + field.getName() + " for " + ability.getName());
-				}
-			}
-		}
+		Config.configure(ability);
 	}
 	
 	/**
@@ -176,7 +166,9 @@ public final class AbilityManager {
 			return false;
 		}
 		
-		//UserActivationEvent, return false if cancelled
+		if (EventUtil.call(new UserActivationEvent(user, trigger, provider)).isCancelled()) {
+			return false;
+		}
 		
 		USER_INFO.computeIfAbsent(user, (u) -> new ActiveInfo());
 		if (ability != null) {
@@ -204,7 +196,9 @@ public final class AbilityManager {
 			return false;
 		}
 		
-		//AbilityStartEvent, return false if cancelled
+		if (EventUtil.call(new AbilityInstanceStartEvent(instance)).isCancelled()) {
+			return false;
+		}
 		
 		for (Entry<Field, Modifier> entry : MODIFIERS.get(instance).entrySet()) {
 			try {
