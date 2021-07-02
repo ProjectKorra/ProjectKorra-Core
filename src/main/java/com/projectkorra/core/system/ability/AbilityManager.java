@@ -14,6 +14,8 @@ import org.bukkit.event.Event;
 
 import com.projectkorra.core.ProjectKorra;
 import com.projectkorra.core.event.ability.AbilityInstanceStartEvent;
+import com.projectkorra.core.event.ability.AbilityInstanceStopEvent;
+import com.projectkorra.core.event.ability.AbilityInstanceStopEvent.Reason;
 import com.projectkorra.core.event.user.UserActivationEvent;
 import com.projectkorra.core.system.ability.activation.Activation;
 import com.projectkorra.core.system.ability.activation.SequenceInfo;
@@ -49,6 +51,8 @@ public final class AbilityManager {
 	private static final Map<Skill, Map<Activation, Set<Ability>>> PASSIVES = new HashMap<>();
 	
 	private static boolean init = false;
+	
+	private static long prev = System.currentTimeMillis();
 	
 	public static void init(ProjectKorra plugin) {
 		if (init) {
@@ -200,10 +204,17 @@ public final class AbilityManager {
 			return false;
 		}
 		
-		for (Entry<Field, Modifier> entry : MODIFIERS.get(instance).entrySet()) {
-			try {
-				ReflectionUtil.setValueSafely(instance, entry.getKey(), entry.getValue().apply(entry.getKey().get(instance)));
-			} catch (Exception e) {}
+		if (MODIFIERS.containsKey(instance)) {
+			for (Entry<Field, Modifier> entry : MODIFIERS.get(instance).entrySet()) {
+				try {
+					ReflectionUtil.setValueSafely(instance, entry.getKey(), entry.getValue().apply(entry.getKey().get(instance)));
+				} catch (Exception e) {}
+			}
+			
+			MODIFIERS.computeIfPresent(instance, (i, v) -> {
+				v.clear();
+				return null;
+			});
 		}
 		
 		ACTIVE.add(instance);
@@ -225,22 +236,31 @@ public final class AbilityManager {
 		}
 		
 		ACTIVE.remove(instance);
+		stop(instance, Reason.FORCED);
+	}
+	
+	private static void stop(AbilityInstance instance, Reason reason) {
+		EventUtil.call(new AbilityInstanceStopEvent(instance, reason));
 		USER_INFO.get(instance.getUser()).removeInstance(instance);
-		if (MODIFIERS.containsKey(instance)) {
-			MODIFIERS.get(instance).clear();
-			MODIFIERS.remove(instance);
-		}
 		instance.stop();
 	}
 	
 	static void tick() {
+		double timeDelta = (System.currentTimeMillis() - prev) / 1000D;
 		Iterator<AbilityInstance> iter = ACTIVE.iterator();
+		
 		while (iter.hasNext()) {
 			AbilityInstance instance = iter.next();
-			if (!instance.update()) {
+			
+			if (!instance.update(timeDelta)) {
 				iter.remove();
-				remove(instance);
+				stop(instance, Reason.NATURAL);
+				continue;
 			}
+			
+			instance.postUpdate();
 		}
+		
+		prev = System.currentTimeMillis();
 	}
 }

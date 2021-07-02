@@ -26,9 +26,14 @@ public abstract class BlastInstance extends AbilityInstance {
 	}
 
 	@Override
-	public boolean onUpdate() {
-		location.add(direction);
+	public boolean onUpdate(double timeDelta) {
+		location.add(direction.multiply(timeDelta));
 		return passable.test(location);
+	}
+	
+	@Override
+	public void postUpdate() {
+		direction.normalize();
 	}
 	
 	/**
