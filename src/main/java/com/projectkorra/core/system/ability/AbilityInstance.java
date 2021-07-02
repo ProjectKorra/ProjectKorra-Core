@@ -60,9 +60,9 @@ public abstract class AbilityInstance {
 		onStart();
 	}
 	
-	final boolean update() {
+	final boolean update(double timeDelta) {
 		++counter;
-		return onUpdate();
+		return onUpdate(timeDelta);
 	}
 	
 	final void stop() {
@@ -74,17 +74,24 @@ public abstract class AbilityInstance {
 	/**
 	 * Method called when instance is started
 	 */
-	public abstract void onStart();
+	protected abstract void onStart();
 	
 	/**
-	 * Method called when instance is updated
+	 * Method called to update the instance
+	 * @param timeDelta the time difference between update calls, in seconds
+	 * @return false to stop updating
 	 */
-	public abstract boolean onUpdate();
+	protected abstract boolean onUpdate(double timeDelta);
+	
+	/**
+	 * Method called after instance has been successfully updated
+	 */
+	protected abstract void postUpdate();
 	
 	/**
 	 * Method called when instance is stopped
 	 */
-	public abstract void onStop();
+	protected abstract void onStop();
 	
 	/**
 	 * How many instances of this can be active for a single player

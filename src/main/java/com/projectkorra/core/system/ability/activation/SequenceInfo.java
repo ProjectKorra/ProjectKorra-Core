@@ -58,6 +58,10 @@ public class SequenceInfo {
 		return false;
 	}
 	
+	public String toDisplay() {
+		return trigger.getDisplay() + " " + ability.getName();
+	}
+	
 	public static SequenceInfo of(Ability ability, Activation trigger) {
 		if (ability == null || trigger == null) {
 			return null;
