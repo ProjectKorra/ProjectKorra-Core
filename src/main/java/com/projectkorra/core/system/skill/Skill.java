@@ -57,7 +57,7 @@ public class Skill {
 	}
 	
 	public static Optional<Skill> getByName(String name) {
-		return Optional.ofNullable(SKILLS.get(name));
+		return Optional.ofNullable(SKILLS.get(name.toLowerCase()));
 	}
 	
 	/**
