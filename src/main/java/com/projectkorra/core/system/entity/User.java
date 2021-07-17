@@ -1,12 +1,8 @@
 package com.projectkorra.core.system.entity;
 
 import java.util.Collection;
+import java.util.Optional;
 import java.util.UUID;
-
-import org.bukkit.Location;
-import org.bukkit.attribute.Attribute;
-import org.bukkit.entity.LivingEntity;
-import org.bukkit.util.Vector;
 
 import com.projectkorra.core.event.user.UserDamageEntityEvent;
 import com.projectkorra.core.event.user.UserKnockbackEntityEvent;
@@ -18,11 +14,16 @@ import com.projectkorra.core.system.ability.type.Bindable;
 import com.projectkorra.core.system.skill.Skill;
 import com.projectkorra.core.util.EventUtil;
 
-public abstract class SkilledEntity<T extends LivingEntity> extends AbilityUser {
+import org.bukkit.Location;
+import org.bukkit.attribute.Attribute;
+import org.bukkit.entity.LivingEntity;
+import org.bukkit.util.Vector;
+
+public abstract class User<T extends LivingEntity> extends AbilityUser {
 
 	protected final T entity;
 	
-	SkilledEntity(T entity, Collection<Skill> skills, Collection<Skill> toggled, AbilityBinds binds) {
+	User(T entity, Collection<Skill> skills, Collection<Skill> toggled, AbilityBinds binds) {
 		super(skills, toggled, binds);
 		this.entity = entity;
 	}
@@ -40,8 +41,13 @@ public abstract class SkilledEntity<T extends LivingEntity> extends AbilityUser 
 	}
 	
 	@Override
-	public Ability getBoundAbility() {
-		return getBinds().get(getCurrentSlot());
+	public final Optional<Ability> getCurrentAbility() {
+		return getBoundAbility(getCurrentSlot());
+	}
+	
+	@Override
+	public final UUID getUniqueID() {
+		return entity.getUniqueId();
 	}
 	
 	@Override
@@ -55,17 +61,12 @@ public abstract class SkilledEntity<T extends LivingEntity> extends AbilityUser 
 	}
 	
 	@Override
-	public UUID getUniqueID() {
-		return entity.getUniqueId();
-	}
-	
-	@Override
-	public void damage(LivingEntity target, double damage, boolean ignoreArmor, AbilityInstance source) {
-		if (immune) {
+	public void damage(LivingEntity target, double damage, boolean ignoreArmor, AbilityInstance provider) {
+		if (target.getNoDamageTicks() > target.getMaximumNoDamageTicks() / 2.0f && damage <= target.getLastDamage()) {
 			return;
 		}
-		
-		UserDamageEntityEvent event = EventUtil.call(new UserDamageEntityEvent(this, target, damage, ignoreArmor, source));
+
+		UserDamageEntityEvent event = EventUtil.call(new UserDamageEntityEvent(this, target, damage, ignoreArmor, provider));
 		if (event.isCancelled()) {
 			return;
 		}
@@ -82,12 +83,8 @@ public abstract class SkilledEntity<T extends LivingEntity> extends AbilityUser 
 	}
 	
 	@Override
-	public void knockback(LivingEntity target, Vector direction, boolean resetFallDistance, AbilityInstance source) {
-		if (immune) {
-			return;
-		}
-		
-		UserKnockbackEntityEvent event = EventUtil.call(new UserKnockbackEntityEvent(this, target, direction, resetFallDistance, source));
+	public void knockback(LivingEntity target, Vector direction, boolean resetFallDistance, AbilityInstance provider) {
+		UserKnockbackEntityEvent event = EventUtil.call(new UserKnockbackEntityEvent(this, target, direction, resetFallDistance, provider));
 		if (event.isCancelled()) {
 			return;
 		}

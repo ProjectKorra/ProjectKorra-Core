@@ -7,7 +7,7 @@ import com.projectkorra.core.system.ability.type.Bindable;
 public class AbilityBinds {
 	
 	public static enum AbilityBindResult {
-		OUT_OF_BOUNDS, UNBINDABLE, SUCCESS;
+		FAIL_OUT_OF_BOUNDS, FAIL_NONBINDABLE, SUCCESS;
 	}
 
 	private Ability[] binds;
@@ -30,9 +30,9 @@ public class AbilityBinds {
 	
 	public AbilityBindResult set(int index, Ability ability) {
 		if (index < 0 || index > 8) {
-			return AbilityBindResult.OUT_OF_BOUNDS;
+			return AbilityBindResult.FAIL_OUT_OF_BOUNDS;
 		} else if (!(ability instanceof Bindable)) {
-			return AbilityBindResult.UNBINDABLE;
+			return AbilityBindResult.FAIL_NONBINDABLE;
 		}
 		
 		binds[index] = ability;
@@ -42,8 +42,9 @@ public class AbilityBinds {
 	public void copy(AbilityBinds other) {
 		binds = Arrays.copyOf(other.binds, 9);
 	}
-	
-	public static AbilityBinds copyOf(AbilityBinds other) {
-		return new AbilityBinds(other.binds);
+
+	@Override
+	public AbilityBinds clone() {
+		return new AbilityBinds(this.binds);
 	}
 }

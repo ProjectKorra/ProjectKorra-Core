@@ -691,6 +691,52 @@ public class ReflectionUtil {
 	}
 
 	/**
+	 * Retrieves the value of the field in the declaring object instance as a specific type 
+	 * while ignoring accessibility. Any exception thrown will return null instead.
+	 * @param <T> Type of the returned value
+	 * @param instance Declaring object that contains the field
+	 * @param field Field to get the value from
+	 * @param type Class for the T type
+	 * @return null under any exception, otherwise the value of the field in the instance as the specific type
+	 */
+	public static <T> T getValueSafely(final Object instance, final Field field, final Class<T> type) {
+		T value;
+
+		try {
+			boolean access = field.canAccess(instance);
+			field.setAccessible(true);
+			value = type.cast(field.get(instance));
+			field.setAccessible(access);
+		} catch (Exception e) {
+			return null;
+		}
+
+		return value;
+	}
+
+	/**
+	 * Retrieves the value of the field in the declaring object instance while ignoring
+	 * accessibility. Any exception thrown will return null instead.
+	 * @param instance Declaring object that contains the field
+	 * @param field Field to get the value from
+	 * @return null under any exception, otherwise the value of the field in the instance
+	 */
+	public static Object getValueSafely(final Object instance, final Field field) {
+		Object value;
+
+		try {
+			boolean access = field.canAccess(instance);
+			field.setAccessible(true);
+			value = field.get(instance);
+			field.setAccessible(access);
+		} catch (Exception e) {
+			return null;
+		}
+
+		return value;
+	}
+
+	/**
 	 * Sets the value of the {@link java.lang.reflect.Field Field} with the given {@link java.lang.String String} name for the given instance.
 	 *
 	 * @param instance The {@link java.lang.Object Object} instance containing the desired {@link java.lang.reflect.Field Field} to be modified.
@@ -761,7 +807,7 @@ public class ReflectionUtil {
 	 */
 	public static void setValueSafely(final Object instance, final Field field, final Object value) {
 		try {
-			boolean access = field.isAccessible();
+			boolean access = field.canAccess(instance);
 			field.setAccessible(true);
 			field.set(instance, value);
 			field.setAccessible(access);

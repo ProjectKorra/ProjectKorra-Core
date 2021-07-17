@@ -21,7 +21,7 @@ public abstract class ComplexAbility extends Ability {
 	private final Map<Activation, BiFunction<AbilityUser, Event, AbilityInstance>> TRIGGERS = new HashMap<>();
 	
 	@Override
-	public AbilityInstance activate(AbilityUser user, Activation trigger, Event event) {
+	protected AbilityInstance activate(AbilityUser user, Activation trigger, Event event) {
 		return TRIGGERS.getOrDefault(trigger.getClass(), (u, e) -> null).apply(user, event);
 	}
 	
