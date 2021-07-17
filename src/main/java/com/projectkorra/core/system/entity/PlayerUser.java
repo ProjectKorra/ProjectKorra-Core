@@ -9,9 +9,9 @@ import com.projectkorra.core.system.ability.AbilityBinds;
 import com.projectkorra.core.system.skill.Skill;
 import com.projectkorra.core.util.RegionUtil;
 
-public class SkilledPlayer extends SkilledEntity<Player> {
+public class PlayerUser extends User<Player> {
 
-	public SkilledPlayer(Player player, Collection<Skill> skills, Collection<Skill> toggled, AbilityBinds binds) {
+	public PlayerUser(Player player, Collection<Skill> skills, Collection<Skill> toggled, AbilityBinds binds) {
 		super(player, skills, toggled, binds);
 	}
 

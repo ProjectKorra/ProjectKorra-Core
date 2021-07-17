@@ -9,9 +9,9 @@ import com.google.common.collect.ImmutableSet;
 import com.projectkorra.core.ProjectKorra;
 import com.projectkorra.core.system.ability.activation.Activation;
 import com.projectkorra.core.system.skill.Skill;
-import com.projectkorra.core.util.configuration.Configured;
+import com.projectkorra.core.util.configuration.Configurable;
 
-public abstract class Ability implements Configured {
+public abstract class Ability implements Configurable {
 	
 	private String name, description, author, version;
 	private Skill skill;
@@ -51,7 +51,7 @@ public abstract class Ability implements Configured {
 		return file;
 	}
 
-	public abstract AbilityInstance activate(AbilityUser user, Activation trigger, Event provider);
+	protected abstract AbilityInstance activate(AbilityUser user, Activation trigger, Event provider);
 	public abstract boolean uses(Activation trigger);
 	public abstract ImmutableSet<Class<? extends AbilityInstance>> instanceClasses();
 	

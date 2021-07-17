@@ -14,7 +14,7 @@ import com.projectkorra.core.util.reflection.ReflectionUtil;
 
 public class Config {
 	
-	private static final Map<Configured, Config> CACHE = new HashMap<>();
+	private static final Map<Configurable, Config> CACHE = new HashMap<>();
 
 	private File file;
 	private FileConfiguration config;
@@ -52,21 +52,23 @@ public class Config {
 		return config;
 	}
 	
-	public static Config from(Configured object) {
+	public static Config from(Configurable object) {
 		return CACHE.computeIfAbsent(object, (o) -> new Config(o.getFile()));
 	}
 	
-	public static void configure(Configured object) {
+	public static <T extends Configurable> T configure(T object) {
 		for (Field field : object.getClass().getDeclaredFields()) {
-			if (field.isAnnotationPresent(Configurable.class)) {
+			if (field.isAnnotationPresent(Configure.class)) {
 				try {
-					from(object).get().addDefault(field.getAnnotation(Configurable.class).value(), field.get(object));
-					ReflectionUtil.setValueSafely(object, field, from(object).get().get(field.getAnnotation(Configurable.class).value()));
+					from(object).get().addDefault(field.getAnnotation(Configure.class).value(), field.get(object));
+					ReflectionUtil.setValueSafely(object, field, from(object).get().get(field.getAnnotation(Configure.class).value()));
 				} catch (Exception e) {
 					e.printStackTrace();
 					JavaPlugin.getPlugin(ProjectKorra.class).getLogger().warning("Unable to set config value of " + field.getName() + " for " + object.getFile().getName());
 				}
 			}
 		}
+
+		return object;
 	}
 }

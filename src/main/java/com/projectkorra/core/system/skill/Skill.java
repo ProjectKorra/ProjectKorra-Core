@@ -21,11 +21,8 @@ public class Skill {
 	 * A skill is something that entities can do, common examples of this
 	 * are bending, martial arts, weapon using, and spirit powers.
 	 * 
-	 * @param name what the skill is called or titled
-	 * @param verb the action of using the skill
-	 * @param user what someone using the skill is called
-	 * @param description explanation of the skill
-	 * @param color text color associated with this skill
+	 * @param display {@link DisplayVariant} for this skill
+	 * @param description What this skill enables players to do
 	 */
 	Skill(DisplayVariant display, String description) {
 		this.display = display;

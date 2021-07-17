@@ -107,18 +107,28 @@ public final class AbilityManager {
 	}
 	
 	/**
-	 * Attempts to register the given {@link Ability} into the system.
+	 * Attempts to register the given {@link Ability} into the system. The process of registration goes:
+	 * <ul>
+	 * <li>Ability is cached by class, name, and skill
+	 * <li>Combos are loaded into the {@link ComboTree}
+	 * <li>Passives are cached by their activation trigger
+	 * <li>Instance attributes have their fields stored by name
+	 * <li>The ability is auto-configured using the {@link Configure} annotation
+	 * </ul>
+	 * <br>
+	 * @param <T> Type of the ability
 	 * @param ability The ability to register
 	 * @throws IllegalArgumentException if an ability with the given name exists
+	 * @return the successfully registered ability
 	 */
-	public static void register(Ability ability) throws IllegalArgumentException {
+	public static <T extends Ability> T register(T ability) throws IllegalArgumentException {
 		if (ABILITIES_BY_NAME.containsKey(ability.getName())) {
 			throw new IllegalArgumentException("An Ability with named '" + ability.getName() + "' already exists!");
 		} else if (ABILITIES_BY_CLASS.containsKey(ability.getClass())) {
 			throw new IllegalArgumentException("An Ability from class '" + ability.getClass().getSimpleName() + "' already exists!");
 		}
 		
-		//check if ability is enabled, return if not
+		//check if ability is enabled, return if not (exception possibly? or would null work?)
 		
 		ABILITIES_BY_CLASS.put(ability.getClass(), ability);
 		ABILITIES_BY_NAME.put(ability.getName(), ability);
@@ -146,7 +156,7 @@ public final class AbilityManager {
 			ATTRIBUTES.put(instance, attributes);
 		}
 		
-		Config.configure(ability);
+		return Config.configure(ability);
 	}
 	
 	/**
@@ -164,7 +174,7 @@ public final class AbilityManager {
 			return false;
 		}
 		
-		Ability ability = user.getBoundAbility();
+		Ability ability = user.getCurrentAbility().orElseGet(() -> null);
 		
 		if (ability == null) {
 			return false;
@@ -174,25 +184,22 @@ public final class AbilityManager {
 			return false;
 		}
 		
-		USER_INFO.computeIfAbsent(user, (u) -> new ActiveInfo());
-		if (ability != null) {
-			USER_INFO.get(user).updateCombos(ability, trigger);
-		}
-		
+		USER_INFO.computeIfAbsent(user, (u) -> new ActiveInfo()).updateCombos(ability, trigger);
 		return ability.canActivate(user, trigger) && start(ability.activate(user, trigger, provider));
 	}
 	
 	/**
-	 * Attempts to start the given AbilityInstance
+	 * Attempts to start the given AbilityInstance. At this stage: an {@link AbilityInstanceStartEvent} will be called,
+	 * an {@link ExpanderInstance} will have their abilities bound, 
 	 * @param instance what to start
 	 * @return false if user or instance is null or the event is cancelled
 	 */
 	public static boolean start(AbilityInstance instance) {
 		if (instance == null || instance.getUser() == null) {
 			return false;
-		}
-		
-		if (instance instanceof ExpanderInstance) {
+		} else if (EventUtil.call(new AbilityInstanceStartEvent(instance)).isCancelled()) {
+			return false;
+		} else if (instance instanceof ExpanderInstance) {
 			if (!USER_INFO.get(instance.getUser()).expand((ExpanderInstance) instance)) {
 				return false;
 			}
@@ -200,14 +207,11 @@ public final class AbilityManager {
 			return false;
 		}
 		
-		if (EventUtil.call(new AbilityInstanceStartEvent(instance)).isCancelled()) {
-			return false;
-		}
-		
 		if (MODIFIERS.containsKey(instance)) {
 			for (Entry<Field, Modifier> entry : MODIFIERS.get(instance).entrySet()) {
 				try {
-					ReflectionUtil.setValueSafely(instance, entry.getKey(), entry.getValue().apply(entry.getKey().get(instance)));
+					Object applied = entry.getValue().apply(ReflectionUtil.getValueSafely(instance, entry.getKey(), Object.class));
+					ReflectionUtil.setValueSafely(instance, entry.getKey(), applied);
 				} catch (Exception e) {}
 			}
 			

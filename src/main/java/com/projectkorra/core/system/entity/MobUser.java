@@ -10,11 +10,11 @@ import com.projectkorra.core.ProjectKorra;
 import com.projectkorra.core.system.ability.AbilityBinds;
 import com.projectkorra.core.system.skill.Skill;
 
-public class SkilledMob extends SkilledEntity<Mob> {
+public class MobUser extends User<Mob> {
 	
 	private MobSlotAI ai;
 
-	public SkilledMob(Mob entity, Collection<Skill> skills, Collection<Skill> toggled, AbilityBinds binds, MobSlotAI ai) {
+	MobUser(Mob entity, Collection<Skill> skills, Collection<Skill> toggled, AbilityBinds binds, MobSlotAI ai) {
 		super(entity, skills, toggled, binds);
 		this.ai = ai;
 	}
