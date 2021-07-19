@@ -21,7 +21,19 @@ public class VectorUtil {
 	}
 	
 	/**
-	 * Returns an orthogonal vector from an axis
+	 * Calculates an orthogonal vector from the given axis that points to the righthand side of the axis
+	 * when viewed in the direction of the axis.
+	 * @param axis vector to be orthogonal of
+	 * @param length magnitude of the orthogonal vector
+	 * @return an orthogonal vector
+	 */
+	public static Vector orthogonal(Vector axis, double length) {
+		return orthogonal(axis, length, 0);
+	}
+
+	/**
+	 * Calculates an orthogonal vector from the given axis and then rotates it from the initial righthand
+	 * side the given rotation angle when viewed in the direction of the axis.
 	 * @param axis vector to be orthogonal of
 	 * @param length magnitude of orthogonal vector
 	 * @param rotation counterclockwise rotation in radians, 0 = righthand side of the axis
