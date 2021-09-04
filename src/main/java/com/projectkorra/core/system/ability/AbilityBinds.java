@@ -1,10 +1,14 @@
 package com.projectkorra.core.system.ability;
 
 import java.util.Arrays;
+import java.util.HashSet;
+import java.util.Iterator;
+import java.util.Optional;
+import java.util.Set;
 
 import com.projectkorra.core.system.ability.type.Bindable;
 
-public class AbilityBinds {
+public class AbilityBinds implements Iterable<Ability> {
 	
 	public static enum AbilityBindResult {
 		FAIL_OUT_OF_BOUNDS, FAIL_NONBINDABLE, SUCCESS;
@@ -20,12 +24,12 @@ public class AbilityBinds {
 		this.binds = Arrays.copyOf(binds, 9);
 	}
 	
-	public Ability get(int index) throws ArrayIndexOutOfBoundsException {
+	public Optional<Ability> get(int index) {
 		if (index < 0 || index > 8) {
-			throw new ArrayIndexOutOfBoundsException();
+			return Optional.empty();
 		}
 		
-		return binds[index];
+		return Optional.ofNullable(binds[index]);
 	}
 	
 	public AbilityBindResult set(int index, Ability ability) {
@@ -38,6 +42,18 @@ public class AbilityBinds {
 		binds[index] = ability;
 		return AbilityBindResult.SUCCESS;
 	}
+
+	public Set<Integer> slotsOf(Ability ability) {
+		Set<Integer> slots = new HashSet<>();
+
+		for (int i = 0; i < 9; ++i) {
+			if (ability == binds[i]) {
+				slots.add(i);
+			}
+		}
+
+		return slots;
+	}
 	
 	public void copy(AbilityBinds other) {
 		binds = Arrays.copyOf(other.binds, 9);
@@ -46,5 +62,36 @@ public class AbilityBinds {
 	@Override
 	public AbilityBinds clone() {
 		return new AbilityBinds(this.binds);
+	}
+
+	@Override
+	public Iterator<Ability> iterator() {
+		return new BindIterator(this);
+	}
+
+	private static class BindIterator implements Iterator<Ability> {
+
+		private int cursor = -1;
+		private Ability[] binds;
+
+		private BindIterator(AbilityBinds abilityBinds) {
+			this.binds = abilityBinds.binds;
+		}
+
+		@Override
+		public boolean hasNext() {
+			return cursor < 9;
+		}
+
+		@Override
+		public Ability next() {
+			return binds[++cursor];
+		}
+
+		/**
+		 * @deprecated Unsupported operation
+		 */
+		@Deprecated
+		public void remove() {}
 	}
 }

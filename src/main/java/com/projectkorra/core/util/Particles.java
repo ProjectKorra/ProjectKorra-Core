@@ -13,7 +13,7 @@ import org.bukkit.block.data.BlockData;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.util.Vector;
 
-public class ParticleUtil {
+public class Particles {
 	
 	private static final Map<Particle, Object> DEFAULT_DATAS = new HashMap<>();
 	
@@ -25,7 +25,7 @@ public class ParticleUtil {
 		DEFAULT_DATAS.put(Particle.ITEM_CRACK, new ItemStack(Material.BARRIER));
 	}
 	
-	private ParticleUtil() {}
+	private Particles() {}
 
 	/**
 	 * Spawn a single particle at the given location
