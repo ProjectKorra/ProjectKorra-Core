@@ -98,4 +98,10 @@ public abstract class AbilityInstance {
 	 * @return instance capacity per player
 	 */
 	public abstract int getCapacity();
+
+	/**
+	 * Gets the name associated with this instance
+	 * @return name of the instance
+	 */
+	public abstract String getName();
 }

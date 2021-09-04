@@ -6,9 +6,9 @@ import org.bukkit.util.Vector;
 
 import com.projectkorra.core.util.math.UnitVector;
 
-public class VectorUtil {
+public class Vectors {
 
-	private VectorUtil() {}
+	private Vectors() {}
 	
 	/**
 	 * Get a vector for the direction between two points

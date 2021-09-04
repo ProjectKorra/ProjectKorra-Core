@@ -14,9 +14,9 @@ import org.bukkit.inventory.ItemStack;
 
 import com.projectkorra.core.system.ability.AbilityUser;
 
-public final class RegionUtil {
+public final class Regions {
 
-	private RegionUtil() {}
+	private Regions() {}
 	
 	private static boolean defaultProtection = true; //make configurable
 	private static final ItemStack PLACEHOLDER = new ItemStack(Material.AIR);
@@ -56,24 +56,24 @@ public final class RegionUtil {
 	
 	/**
 	 * Calls a fake {@link BlockPlaceEvent} to check if the player can build at the given location.
-	 * If you want to ignore this fake event, check {@link RegionUtil#isFake(BlockPlaceEvent)}
+	 * If you want to ignore this fake event, check {@link Regions#isFake(BlockPlaceEvent)}
 	 * @param player Who to check
 	 * @param loc Where to check
 	 * @return true if the fake event isn't cancelled
 	 */
 	public static boolean canBuild(Player player, Location loc) {
-		return !EventUtil.call(new UserCheckCanBuildEvent(player, loc)).isCancelled();
+		return !Events.call(new UserCheckCanBuildEvent(player, loc)).isCancelled();
 	}
 	
 	/**
 	 * Calls a fake {@link BlockBreakEvent} to check if the player can destroy at the given location.
-	 * If you want to ignore this fake event, check {@link RegionUtil#isFake(BlockPlaceEvent)}
+	 * If you want to ignore this fake event, check {@link Regions#isFake(BlockPlaceEvent)}
 	 * @param player Who to check
 	 * @param loc Where to check
 	 * @return true if the fake event isn't cancelled
 	 */
 	public static boolean canBreak(Player player, Location loc) {
-		return !EventUtil.call(new UserCheckCanBreakEvent(player, loc)).isCancelled();
+		return !Events.call(new UserCheckCanBreakEvent(player, loc)).isCancelled();
 	}
 	
 	/**

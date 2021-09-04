@@ -12,10 +12,10 @@ import com.projectkorra.core.ProjectKorra;
 /**
 * A utility class to provide simple and uniform ways to schedule {@link java.lang.Runnable Runnables} and {@link org.bukkit.scheduler.BukkitRunnable BukkitRunnables}.
 */
-public class ThreadUtil {
+public class Threads {
 	private static final ProjectKorra PLUGIN = JavaPlugin.getPlugin(ProjectKorra.class);
 
-	private ThreadUtil() {}
+	private Threads() {}
 
 	/**
 	* Schedules the given {@link org.bukkit.scheduler.BukkitRunnable BukkitRunnable} to run <b>synchronously</b> starting on next tick. Wraps {@link org.bukkit.scheduler.BukkitRunnable#runTask BukkitRunnable#runTask()}.

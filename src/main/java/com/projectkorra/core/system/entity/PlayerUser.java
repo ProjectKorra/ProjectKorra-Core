@@ -7,7 +7,7 @@ import org.bukkit.entity.Player;
 
 import com.projectkorra.core.system.ability.AbilityBinds;
 import com.projectkorra.core.system.skill.Skill;
-import com.projectkorra.core.util.RegionUtil;
+import com.projectkorra.core.util.Regions;
 
 public class PlayerUser extends User<Player> {
 
@@ -37,6 +37,6 @@ public class PlayerUser extends User<Player> {
 
 	@Override
 	public boolean checkDefaultProtections(Location loc) {
-		return loc.getBlock().getType().isSolid() ? RegionUtil.canBreak(entity, loc) : RegionUtil.canBuild(entity, loc);
+		return loc.getBlock().getType().isSolid() ? Regions.canBreak(entity, loc) : Regions.canBuild(entity, loc);
 	}
 }

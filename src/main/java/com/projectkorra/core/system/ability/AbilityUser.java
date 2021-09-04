@@ -1,17 +1,20 @@
 package com.projectkorra.core.system.ability;
 
 import java.util.Collection;
+import java.util.HashMap;
+import java.util.Map;
 import java.util.Optional;
+import java.util.Set;
 import java.util.UUID;
 
 import com.projectkorra.core.event.user.UserBindChangeEvent;
 import com.projectkorra.core.event.user.UserBindCopyEvent;
+import com.projectkorra.core.event.user.UserCooldownStartEvent;
 import com.projectkorra.core.system.skill.Skill;
 import com.projectkorra.core.system.skill.SkillHolder;
-import com.projectkorra.core.util.EventUtil;
+import com.projectkorra.core.util.Events;
 
 import org.bukkit.Location;
-import org.bukkit.entity.LivingEntity;
 import org.bukkit.util.Vector;
 
 /**
@@ -20,6 +23,7 @@ import org.bukkit.util.Vector;
 public abstract class AbilityUser extends SkillHolder {
 	
 	private AbilityBinds binds = new AbilityBinds();
+	private Map<Ability, Cooldown> cooldowns = new HashMap<>();
 	
 	public boolean immune = false;
 	
@@ -94,25 +98,47 @@ public abstract class AbilityUser extends SkillHolder {
 		}
 	}
 
+	/**
+	 * Copies the binds from another {@link AbilityBinds} object
+	 * @param other Binds to copy
+	 */
 	public final void copyBinds(AbilityBinds other) {
-		if (EventUtil.call(new UserBindCopyEvent(this, other)).isCancelled()) {
+		if (Events.call(new UserBindCopyEvent(this, other)).isCancelled()) {
 			return;
 		}
 
 		binds.copy(other);
 	}
 
-	public final Optional<Ability> getBoundAbility(int slot) {
-		if (slot < 0 || slot > 8) {
-			return Optional.empty();
-		}
+	/**
+	 * Gets the bound ability using {@link #getCurrentSlot()}
+	 * @return ability bound to the current slot
+	 */
+	public final Optional<Ability> getBoundAbility() {
+		return binds.get(getCurrentSlot());
+	}
 
-		return Optional.ofNullable(binds.get(slot));
+	/**
+	 * Gets the ability bound to the given slot
+	 * @param slot ability bind slot
+	 * @return ability bound to the given slot
+	 */
+	public final Optional<Ability> getBoundAbility(int slot) {
+		return binds.get(slot);
+	}
+
+	/**
+	 * Gets which slots the given ability is bound to
+	 * @param ability Ability to check for
+	 * @return slots the ability is bound to
+	 */
+	public final Set<Integer> getSlotsWith(Ability ability) {
+		return binds.slotsOf(ability);
 	}
 
 	// helper function to avoid rewriting code for bind and clear functions
 	private void setSlot(int slot, Ability ability) {
-		UserBindChangeEvent event = EventUtil.call(new UserBindChangeEvent(this, slot, ability));
+		UserBindChangeEvent event = Events.call(new UserBindChangeEvent(this, slot, ability));
 
 		if (event.isCancelled()) {
 			return;
@@ -130,6 +156,51 @@ public abstract class AbilityUser extends SkillHolder {
 	public final AbilityBinds getBinds() {
 		return binds.clone();
 	}
+
+	public final boolean addCooldown(Ability ability, long cooldown) {
+		return addCooldown(ability, cooldown, false);
+	}
+
+	/**
+	 * Adds a cooldown for this user on the given ability, ignored if the tag is null, cooldown is non-positive, or 
+	 * the ability is already on cooldown (and noncumulative)
+	 * @param tag A form of id for the cooldown, usually relating it to an {@link AbilityInstance}
+	 * @param cooldown Duration of the cooldown
+	 * @param cumulative Should the cooldown be added to the existing duration
+	 * @return true if the cooldown was successfully added
+	 */
+	public final boolean addCooldown(Ability ability, long cooldown, boolean cumulative) {
+		if (ability == null || cooldown <= 0) {
+			return false;
+		}
+
+		if (cooldowns.containsKey(ability) && !cumulative) {
+			return false;
+		}
+
+		UserCooldownStartEvent event = Events.call(new UserCooldownStartEvent(this, ability, cooldown));
+
+		if (event.isCancelled()) {
+			return false;
+		}
+
+		cooldowns.computeIfAbsent(ability, Cooldown::new).addDuration(event.getDuration());
+		return true;
+	}
+
+	/**
+	 * Checks if this user has a cooldown for any of the given ability's tags
+	 * from {@link Ability#getCooldownTags()}
+	 * @param ability Ability to check for cooldowns
+	 * @return true if any of the ability's cooldown tags are found for this user
+	 */
+	public final boolean isOnCooldown(Ability ability) {
+		return cooldowns.containsKey(ability);
+	}
+
+	public final void removeCooldown(Ability ability) {
+		cooldowns.remove(ability);
+	}
 	
 	/**
 	 * Checks if this the given location is protected from this {@link AbilityUser}
@@ -137,12 +208,12 @@ public abstract class AbilityUser extends SkillHolder {
 	 * @return true if the location is protected
 	 */
 	public abstract boolean checkDefaultProtections(Location loc);
-	
+
 	/**
-	 * Gets the bound ability of the user's current slot
-	 * @return The currently bound ability
+	 * Gets the user's currently hovered slot
+	 * @return Hovered slot
 	 */
-	public abstract Optional<Ability> getCurrentAbility();
+	public abstract int getCurrentSlot();
 	
 	/**
 	 * Gets the location of where abilities generally start
@@ -169,24 +240,4 @@ public abstract class AbilityUser extends SkillHolder {
 	 * @return True to remove user from memory
 	 */
 	public abstract boolean shouldRemove();
-	
-	/**
-	 * Cause this user to inflict damage to the given target
-	 * @param target The entity to damage
-	 * @param damage How much damage to inflict
-	 * @param ignoreArmor If true, the damage will be increased so that any reductions from armor are <b>approximately</b> negated
-	 * @param source The {@link AbilityInstance} which caused the knockback, if applicable
-	 */
-	public abstract void damage(LivingEntity target, double damage, boolean ignoreArmor, AbilityInstance provider);
-	
-	/**
-	 * Cause this user to knockback a target in the given direction
-	 * <br><br>If called in conjunction with {@link #damage(LivingEntity, double, boolean, AbilityInstance)} on the same target,
-	 * make sure to call this method after the damage so the knockback from the damage itself won't override this knockback.
-	 * @param target The entity to knockback
-	 * @param direction Where to knockback toward
-	 * @param resetFallDistance Whether to set the target's fall distance to zero or not
-	 * @param source The {@link AbilityInstance} which caused the knockback, if applicable
-	 */
-	public abstract void knockback(LivingEntity target, Vector direction, boolean resetFallDistance, AbilityInstance provider);
 }

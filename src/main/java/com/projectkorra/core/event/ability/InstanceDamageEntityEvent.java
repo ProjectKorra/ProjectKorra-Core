@@ -1,34 +1,27 @@
-package com.projectkorra.core.event.user;
+package com.projectkorra.core.event.ability;
+
+import com.projectkorra.core.system.ability.AbilityInstance;
 
 import org.bukkit.entity.LivingEntity;
 import org.bukkit.event.Cancellable;
 import org.bukkit.event.Event;
 import org.bukkit.event.HandlerList;
 
-import com.projectkorra.core.system.ability.AbilityInstance;
-import com.projectkorra.core.system.ability.AbilityUser;
-
-public class UserDamageEntityEvent extends Event implements Cancellable {
+public class InstanceDamageEntityEvent extends Event implements Cancellable {
 
 	private static final HandlerList HANDLERS = new HandlerList();
 	
 	private boolean cancelled = false;
-	private AbilityUser user;
 	private LivingEntity target;
 	private double damage;
-	private boolean ignoreArmor;
 	private AbilityInstance source;
+	private boolean ignoreArmor;
 	
-	public UserDamageEntityEvent(AbilityUser user, LivingEntity target, double damage, boolean ignoreArmor, AbilityInstance source) {
-		this.user = user;
+	public InstanceDamageEntityEvent(LivingEntity target, double damage, AbilityInstance source, boolean ignoreArmor) {
 		this.target = target;
 		this.damage = damage;
-		this.ignoreArmor = ignoreArmor;
 		this.source = source;
-	}
-	
-	public AbilityUser getUser() {
-		return user;
+		this.ignoreArmor = ignoreArmor;
 	}
 	
 	public LivingEntity getTarget() {
@@ -39,12 +32,12 @@ public class UserDamageEntityEvent extends Event implements Cancellable {
 		return damage;
 	}
 	
-	public boolean doesIgnoreArmor() {
-		return ignoreArmor;
+	public AbilityInstance getInstance() {
+		return source;
 	}
 	
-	public AbilityInstance getSource() {
-		return source;
+	public boolean doesIgnoreArmor() {
+		return ignoreArmor;
 	}
 	
 	public void setDamage(double damage) {

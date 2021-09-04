@@ -10,12 +10,13 @@ import java.util.Optional;
 import java.util.Queue;
 import java.util.Set;
 
+import org.bukkit.configuration.file.FileConfiguration;
 import org.bukkit.event.Event;
 
 import com.projectkorra.core.ProjectKorra;
-import com.projectkorra.core.event.ability.AbilityInstanceStartEvent;
-import com.projectkorra.core.event.ability.AbilityInstanceStopEvent;
-import com.projectkorra.core.event.ability.AbilityInstanceStopEvent.Reason;
+import com.projectkorra.core.event.ability.InstanceStartEvent;
+import com.projectkorra.core.event.ability.InstanceStopEvent;
+import com.projectkorra.core.event.ability.InstanceStopEvent.Reason;
 import com.projectkorra.core.event.user.UserActivationEvent;
 import com.projectkorra.core.system.ability.activation.Activation;
 import com.projectkorra.core.system.ability.activation.SequenceInfo;
@@ -25,7 +26,7 @@ import com.projectkorra.core.system.ability.type.Combo;
 import com.projectkorra.core.system.ability.type.ExpanderInstance;
 import com.projectkorra.core.system.ability.type.Passive;
 import com.projectkorra.core.system.skill.Skill;
-import com.projectkorra.core.util.EventUtil;
+import com.projectkorra.core.util.Events;
 import com.projectkorra.core.util.configuration.Config;
 import com.projectkorra.core.util.reflection.ReflectionUtil;
 
@@ -155,8 +156,8 @@ public final class AbilityManager {
 			}
 			ATTRIBUTES.put(instance, attributes);
 		}
-		
-		return Config.configure(ability);
+
+		return Config.process(Events.register(ability));
 	}
 	
 	/**
@@ -174,13 +175,13 @@ public final class AbilityManager {
 			return false;
 		}
 		
-		Ability ability = user.getCurrentAbility().orElseGet(() -> null);
+		Ability ability = user.getBoundAbility().orElseGet(() -> null);
 		
 		if (ability == null) {
 			return false;
 		}
 		
-		if (EventUtil.call(new UserActivationEvent(user, trigger, provider)).isCancelled()) {
+		if (Events.call(new UserActivationEvent(user, trigger, provider)).isCancelled()) {
 			return false;
 		}
 		
@@ -189,7 +190,7 @@ public final class AbilityManager {
 	}
 	
 	/**
-	 * Attempts to start the given AbilityInstance. At this stage: an {@link AbilityInstanceStartEvent} will be called,
+	 * Attempts to start the given AbilityInstance. At this stage: an {@link InstanceStartEvent} will be called,
 	 * an {@link ExpanderInstance} will have their abilities bound, 
 	 * @param instance what to start
 	 * @return false if user or instance is null or the event is cancelled
@@ -197,7 +198,7 @@ public final class AbilityManager {
 	public static boolean start(AbilityInstance instance) {
 		if (instance == null || instance.getUser() == null) {
 			return false;
-		} else if (EventUtil.call(new AbilityInstanceStartEvent(instance)).isCancelled()) {
+		} else if (Events.call(new InstanceStartEvent(instance)).isCancelled()) {
 			return false;
 		} else if (instance instanceof ExpanderInstance) {
 			if (!USER_INFO.get(instance.getUser()).expand((ExpanderInstance) instance)) {
@@ -244,7 +245,7 @@ public final class AbilityManager {
 	}
 	
 	private static void stop(AbilityInstance instance, Reason reason) {
-		EventUtil.call(new AbilityInstanceStopEvent(instance, reason));
+		Events.call(new InstanceStopEvent(instance, reason));
 		USER_INFO.get(instance.getUser()).removeInstance(instance);
 		instance.stop();
 	}

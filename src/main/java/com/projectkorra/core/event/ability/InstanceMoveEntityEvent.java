@@ -1,4 +1,6 @@
-package com.projectkorra.core.event.user;
+package com.projectkorra.core.event.ability;
+
+import com.projectkorra.core.system.ability.AbilityInstance;
 
 import org.bukkit.entity.LivingEntity;
 import org.bukkit.event.Cancellable;
@@ -6,33 +8,25 @@ import org.bukkit.event.Event;
 import org.bukkit.event.HandlerList;
 import org.bukkit.util.Vector;
 
-import com.projectkorra.core.system.ability.AbilityInstance;
-import com.projectkorra.core.system.ability.AbilityUser;
-
-public class UserKnockbackEntityEvent extends Event implements Cancellable {
+public class InstanceMoveEntityEvent extends Event implements Cancellable {
 
 	private static final HandlerList HANDLERS = new HandlerList();
 	
 	private boolean cancelled = false;
-	private AbilityUser user;
 	private LivingEntity target;
 	private Vector direction;
-	private boolean resetFallDistance;
+	private boolean knockback, resetFallDistance;
 	private AbilityInstance source;
 	
-	public UserKnockbackEntityEvent(AbilityUser user, LivingEntity target, Vector direction, boolean resetFallDistance, AbilityInstance source) {
-		this.user = user;
+	public InstanceMoveEntityEvent(LivingEntity target, Vector direction, AbilityInstance source, boolean knockback, boolean resetFallDistance) {
 		this.target = target;
 		this.direction = direction;
-		this.resetFallDistance = resetFallDistance;
 		this.source = source;
+		this.knockback = knockback;
+		this.resetFallDistance = resetFallDistance;
 	}
-	
-	public AbilityUser getUser() {
-		return user;
-	}
-	
-	public AbilityInstance getSource() {
+
+	public AbilityInstance getInstance() {
 		return source;
 	}
 	
@@ -43,12 +37,16 @@ public class UserKnockbackEntityEvent extends Event implements Cancellable {
 	public Vector getDirection() {
 		return direction;
 	}
+
+	public boolean isKnockback() {
+		return knockback;
+	}
 	
 	public boolean doesResetFallDistance() {
 		return resetFallDistance;
 	}
 	
-	public void setResetFallDistance(boolean resetFallDistance) {
+	public void doesResetFallDistance(boolean resetFallDistance) {
 		this.resetFallDistance = resetFallDistance;
 	}
 	
