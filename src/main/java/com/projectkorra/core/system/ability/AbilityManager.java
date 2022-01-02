@@ -10,9 +10,6 @@ import java.util.Optional;
 import java.util.Queue;
 import java.util.Set;
 
-import org.bukkit.configuration.file.FileConfiguration;
-import org.bukkit.event.Event;
-
 import com.projectkorra.core.ProjectKorra;
 import com.projectkorra.core.event.ability.InstanceStartEvent;
 import com.projectkorra.core.event.ability.InstanceStopEvent;
@@ -25,10 +22,14 @@ import com.projectkorra.core.system.ability.attribute.Modifier;
 import com.projectkorra.core.system.ability.type.Combo;
 import com.projectkorra.core.system.ability.type.ExpanderInstance;
 import com.projectkorra.core.system.ability.type.Passive;
+import com.projectkorra.core.system.ability.type.SourcedAbility;
 import com.projectkorra.core.system.skill.Skill;
 import com.projectkorra.core.util.Events;
 import com.projectkorra.core.util.configuration.Config;
+import com.projectkorra.core.util.configuration.Configure;
 import com.projectkorra.core.util.reflection.ReflectionUtil;
+
+import org.bukkit.event.Event;
 
 public final class AbilityManager {
 	
@@ -179,6 +180,10 @@ public final class AbilityManager {
 		
 		if (ability == null) {
 			return false;
+		}
+
+		if (ability instanceof SourcedAbility) {
+			user.putSource(trigger, ((SourcedAbility) ability).selectSource(user, trigger));
 		}
 		
 		if (Events.call(new UserActivationEvent(user, trigger, provider)).isCancelled()) {

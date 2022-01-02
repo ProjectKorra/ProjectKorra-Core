@@ -22,15 +22,16 @@ public abstract class User<T extends LivingEntity> extends AbilityUser {
 		this.entity = entity;
 	}
 	
-	public abstract void sendMessage(String message);
-	public abstract boolean hasPermission(String perm);
-	
 	public T getEntity() {
+		return entity;
+	}
+
+	public LivingEntity getLivingEntity() {
 		return entity;
 	}
 	
 	public boolean canBind(Ability ability) {
-		return ability instanceof Bindable && this.hasPermission("bending.ability." + ability.getName());
+		return ability instanceof Bindable && hasPermission("bending.ability." + ability.getName());
 	}
 	
 	@Override

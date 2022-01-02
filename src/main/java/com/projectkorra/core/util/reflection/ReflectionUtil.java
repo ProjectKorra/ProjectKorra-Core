@@ -703,7 +703,7 @@ public class ReflectionUtil {
 		T value;
 
 		try {
-			boolean access = field.canAccess(instance);
+			boolean access = field.isAccessible();
 			field.setAccessible(true);
 			value = type.cast(field.get(instance));
 			field.setAccessible(access);
@@ -725,7 +725,7 @@ public class ReflectionUtil {
 		Object value;
 
 		try {
-			boolean access = field.canAccess(instance);
+			boolean access = field.isAccessible();
 			field.setAccessible(true);
 			value = field.get(instance);
 			field.setAccessible(access);
@@ -807,7 +807,7 @@ public class ReflectionUtil {
 	 */
 	public static void setValueSafely(final Object instance, final Field field, final Object value) {
 		try {
-			boolean access = field.canAccess(instance);
+			boolean access = field.isAccessible();
 			field.setAccessible(true);
 			field.set(instance, value);
 			field.setAccessible(access);

@@ -1,10 +1,11 @@
 package com.projectkorra.core.util;
 
-import org.apache.commons.lang.Validate;
+import java.util.Optional;
+
+import com.projectkorra.core.util.math.AngleType;
+
 import org.bukkit.Location;
 import org.bukkit.util.Vector;
-
-import com.projectkorra.core.util.math.UnitVector;
 
 public class Vectors {
 
@@ -19,35 +20,34 @@ public class Vectors {
 	public static Vector direction(Location from, Location to) {
 		return new Vector(to.getX() - from.getX(), to.getY() - from.getY(), to.getZ() - from.getZ());
 	}
-	
+
 	/**
-	 * Calculates an orthogonal vector from the given axis that points to the righthand side of the axis
-	 * when viewed in the direction of the axis.
+	 * Calculates an orthogonal unit vector from the given axis that points to the righthand 
+	 * side when viewed in the direction of the axis.
 	 * @param axis vector to be orthogonal of
-	 * @param length magnitude of the orthogonal vector
-	 * @return an orthogonal vector
+	 * @return optional of an orthogonal vector or empty when axis is null/zero
 	 */
-	public static Vector orthogonal(Vector axis, double length) {
-		return orthogonal(axis, length, 0);
+	public static Optional<Vector> orthogonal(Vector axis) {
+		return orthogonal(axis, AngleType.RADIANS, 0);
 	}
 
 	/**
-	 * Calculates an orthogonal vector from the given axis and then rotates it from the initial righthand
-	 * side the given rotation angle when viewed in the direction of the axis.
+	 * Calculates an orthogonal unit vector from the given axis and then rotates it counterclockwise 
+	 * from the righthand side when viewed in the direction of the axis.
 	 * @param axis vector to be orthogonal of
-	 * @param length magnitude of orthogonal vector
 	 * @param rotation counterclockwise rotation in radians, 0 = righthand side of the axis
-	 * @return an orthogonal vector
-	 * @throws IllegalArgumentException when the axis vector is zero
+	 * @return optional of an orthogonal vector or empty when axis is null/zero
 	 */
-	public static Vector orthogonal(Vector axis, double length, double rotation) throws IllegalArgumentException {
-		Validate.isTrue(!axis.equals(UnitVector.ZERO.normal()), "Axis direction cannot be the zero vector!");
+	public static Optional<Vector> orthogonal(Vector axis, AngleType angle, double rotation) {
+		if (axis == null || axis.lengthSquared() == 0) {
+			return Optional.empty();
+		}
 
 		double yaw = Math.toRadians(getYaw(axis));
 		Vector other = new Vector(-Math.sin(yaw), axis.getY() - 1, Math.cos(yaw));
 		Vector third = getPitch(other) > getPitch(axis) ? other.getCrossProduct(axis) : axis.getCrossProduct(other);
 
-		return rotate(third.normalize().multiply(length), axis, rotation);
+		return Optional.of(rotate(third.normalize(), axis, angle, rotation));
 	}
 	
 	/**
@@ -57,8 +57,8 @@ public class Vectors {
 	 * @param rotation angle to rotate in radians
 	 * @return rotated vector, <b>not a new vector</b>
 	 */
-	public static Vector rotate(Vector rotator, Vector axis, double rotation) {
-		return rotator.rotateAroundAxis(axis, -rotation);
+	public static Vector rotate(Vector rotator, Vector axis, AngleType angle, double rotation) {
+		return rotator.rotateAroundAxis(axis, angle.toRadians(-rotation));
 	}
 	
 	/**
@@ -73,9 +73,8 @@ public class Vectors {
 		if (x == 0 && z == 0) {
 		    return vector.getY() > 0 ? -90 : 90;
 		}
-		
-		double xz = Math.sqrt(x * x + z * z);
-		return (float) Math.toDegrees(Math.atan(-vector.getY() / xz));
+
+		return (float) Math.toDegrees(Math.atan(-vector.getY() / Math.sqrt(x * x + z * z)));
 	}
 	
 	/**
@@ -85,8 +84,6 @@ public class Vectors {
 	 * @return yaw of the vector
 	 */
 	public static float getYaw(Vector vector) {
-		double _2PI = 2 * Math.PI;
-		double theta = Math.atan2(-vector.getX(), vector.getZ());
-		return (float) Math.toDegrees((theta + _2PI) % _2PI);
+		return (float) Math.toDegrees((Math.atan2(-vector.getX(), vector.getZ()) + 2 * Math.PI) % 2 * Math.PI);
 	}
 }
