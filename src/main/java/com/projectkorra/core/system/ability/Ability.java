@@ -66,6 +66,7 @@ public abstract class Ability implements Configurable, Listener {
 	public abstract boolean uses(Activation trigger);
 	public abstract ImmutableSet<Class<? extends AbilityInstance>> instanceClasses();
 	public abstract ImmutableSet<String> getCooldownTags();
+	public abstract boolean allowSourcing();
 	
 	public boolean canActivate(AbilityUser user, Activation trigger) {
 		return uses(trigger) && user.hasSkill(getSkill());

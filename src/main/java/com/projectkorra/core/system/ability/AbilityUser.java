@@ -10,6 +10,7 @@ import java.util.UUID;
 import com.projectkorra.core.event.user.UserBindChangeEvent;
 import com.projectkorra.core.event.user.UserBindCopyEvent;
 import com.projectkorra.core.event.user.UserCooldownStartEvent;
+import com.projectkorra.core.system.ability.activation.Activation;
 import com.projectkorra.core.system.skill.Skill;
 import com.projectkorra.core.system.skill.SkillHolder;
 import com.projectkorra.core.util.Events;
@@ -18,12 +19,13 @@ import org.bukkit.Location;
 import org.bukkit.util.Vector;
 
 /**
- * Interface for identifying something that can activate abilities
+ * Class for identifying something that can activate abilities
  */
 public abstract class AbilityUser extends SkillHolder {
 	
 	private AbilityBinds binds = new AbilityBinds();
 	private Map<Ability, Cooldown> cooldowns = new HashMap<>();
+	private Map<Activation, SourceInstance> sources = new HashMap<>();
 	
 	public boolean immune = false;
 	
@@ -39,6 +41,9 @@ public abstract class AbilityUser extends SkillHolder {
 		super(skills, toggled);
 		this.binds.copy(binds);
 	}
+
+	public abstract void sendMessage(String message);
+	public abstract boolean hasPermission(String permission);
 	
 	/**
 	 * Binds the given ability to the specified slot
@@ -200,6 +205,14 @@ public abstract class AbilityUser extends SkillHolder {
 
 	public final void removeCooldown(Ability ability) {
 		cooldowns.remove(ability);
+	}
+
+	public SourceInstance getSource(Activation trigger) {
+		return sources.get(trigger);
+	}
+
+	void putSource(Activation trigger, SourceInstance instance) {
+		sources.put(trigger, instance);
 	}
 	
 	/**
