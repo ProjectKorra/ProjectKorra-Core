@@ -1,7 +1,7 @@
 package com.projectkorra.core.event.user;
 
-import com.projectkorra.core.system.ability.AbilityBinds;
-import com.projectkorra.core.system.ability.AbilityUser;
+import com.projectkorra.core.ability.AbilityBinds;
+import com.projectkorra.core.ability.AbilityUser;
 
 import org.bukkit.event.Cancellable;
 import org.bukkit.event.Event;

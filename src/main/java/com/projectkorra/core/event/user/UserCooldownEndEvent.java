@@ -1,7 +1,7 @@
 package com.projectkorra.core.event.user;
 
-import com.projectkorra.core.system.ability.AbilityUser;
-import com.projectkorra.core.system.ability.Cooldown;
+import com.projectkorra.core.ability.AbilityUser;
+import com.projectkorra.core.ability.Cooldown;
 
 import org.bukkit.event.Event;
 import org.bukkit.event.HandlerList;

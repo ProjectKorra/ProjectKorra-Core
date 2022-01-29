@@ -3,7 +3,7 @@ package com.projectkorra.core.event.ability;
 import org.bukkit.event.Event;
 import org.bukkit.event.HandlerList;
 
-import com.projectkorra.core.system.ability.AbilityInstance;
+import com.projectkorra.core.ability.AbilityInstance;
 
 public class InstanceStopEvent extends Event {
 	

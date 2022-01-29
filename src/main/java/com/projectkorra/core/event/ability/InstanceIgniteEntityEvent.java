@@ -1,6 +1,6 @@
 package com.projectkorra.core.event.ability;
 
-import com.projectkorra.core.system.ability.AbilityInstance;
+import com.projectkorra.core.ability.AbilityInstance;
 
 import org.bukkit.entity.LivingEntity;
 import org.bukkit.event.Cancellable;

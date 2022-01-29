@@ -1,7 +1,6 @@
 package com.projectkorra.core.event.user;
 
-import com.projectkorra.core.system.ability.Ability;
-import com.projectkorra.core.system.ability.AbilityUser;
+import com.projectkorra.core.ability.AbilityUser;
 
 import org.bukkit.event.Cancellable;
 import org.bukkit.event.Event;
@@ -13,12 +12,12 @@ public class UserCooldownStartEvent extends Event implements Cancellable {
 
     private boolean cancelled = false;
     private AbilityUser user;
-    private Ability ability;
+    private String tag;
     private long duration;
 
-    public UserCooldownStartEvent(AbilityUser user, Ability ability, long duration) {
+    public UserCooldownStartEvent(AbilityUser user, String tag, long duration) {
         this.user = user;
-        this.ability = ability;
+        this.tag = tag;
         this.duration = duration;
     }
 
@@ -26,8 +25,8 @@ public class UserCooldownStartEvent extends Event implements Cancellable {
         return user;
     }
 
-    public Ability getAbility() {
-        return ability;
+    public String getTag() {
+        return tag;
     }
 
     public long getDuration() {

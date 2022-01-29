@@ -4,8 +4,8 @@ import org.bukkit.event.Cancellable;
 import org.bukkit.event.Event;
 import org.bukkit.event.HandlerList;
 
-import com.projectkorra.core.system.ability.AbilityUser;
-import com.projectkorra.core.system.ability.activation.Activation;
+import com.projectkorra.core.ability.AbilityUser;
+import com.projectkorra.core.ability.activation.Activation;
 
 public class UserActivationEvent extends Event implements Cancellable {
 
