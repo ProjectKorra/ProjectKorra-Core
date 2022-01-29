@@ -1,18 +1,42 @@
 package com.projectkorra.core;
 
+import java.sql.ResultSet;
 import java.util.HashMap;
-import java.util.Iterator;
+import java.util.HashSet;
 import java.util.Map;
-import java.util.Map.Entry;
+import java.util.Optional;
+import java.util.Set;
 import java.util.UUID;
+import java.util.function.Function;
+import java.util.stream.Collectors;
 
-import org.apache.commons.lang.Validate;
+import com.projectkorra.core.ability.Ability;
+import com.projectkorra.core.ability.AbilityManager;
+import com.projectkorra.core.ability.AbilityUser;
+import com.projectkorra.core.entity.PlayerUser;
+import com.projectkorra.core.event.user.UserCreationEvent;
+import com.projectkorra.core.skill.Skill;
+import com.projectkorra.core.util.Events;
 
-import com.projectkorra.core.system.ability.AbilityUser;
+import org.bukkit.entity.Player;
 
 public final class UserManager {
 
 	private static final Map<UUID, AbilityUser> USERS = new HashMap<>();
+	private static boolean init = false;
+
+	public static void init(ProjectKorra plugin) {
+		if (init) return;
+
+		init = true;
+		plugin.getServer().getScheduler().scheduleSyncRepeatingTask(plugin, UserManager::cooldowns, 1, 1);
+	}
+
+	private static void cooldowns() {
+		for (AbilityUser user : USERS.values()) {
+			user.progressCooldowns();
+		}
+	}
 	
 	public static boolean register(AbilityUser user) {
 		if (user.getUniqueID() == null || !USERS.containsKey(user.getUniqueID())) {
@@ -32,10 +56,7 @@ public final class UserManager {
 	 * @return AbilityUser of the given type
 	 */
 	public static <T extends AbilityUser> T get(UUID uuid, Class<T> clazz) {
-		Validate.notNull(uuid, "Ability user cannot have a null unique id");
-		Validate.notNull(clazz, "User class cannot be null");
-		
-		if (!USERS.containsKey(uuid)) {
+		if (uuid == null || clazz == null || !USERS.containsKey(uuid)) {
 			return null;
 		}
 		
@@ -54,17 +75,102 @@ public final class UserManager {
 	 * @return an AbilityUser from the given id
 	 */
 	public static AbilityUser get(UUID uuid) {
-		Validate.notNull(uuid, "Ability user cannot have a null unique id");
 		return USERS.get(uuid);
 	}
-	
-	static void tick() {
-		Iterator<Entry<UUID, AbilityUser>> iter = USERS.entrySet().iterator();
-		while (iter.hasNext()) {
-			Entry<UUID, AbilityUser> next = iter.next();
-			if (next.getValue().shouldRemove()) {
-				iter.remove();
-			}
+
+	public static AbilityUser get(Player player) {
+		if (player == null) {
+			return null;
 		}
+
+		return USERS.get(player.getUniqueId());
+	}
+
+	public static AbilityUser load(Player player) {
+		PlayerUser user = new PlayerUser(player);
+
+		try {
+			if (ProjectKorra.database().read("SELECT * FROM t_pk_player WHERE uuid = '" + player.getUniqueId() + "'").next()) {
+				ResultSet skillQuery = ProjectKorra.database().read("SELECT * FROM t_pk_player_skills WHERE uuid = '" + player.getUniqueId() + "'");
+				while (skillQuery.next()) {
+					Optional<Skill> skill = Skill.of(skillQuery.getString("skill_name"));
+
+					if (!skill.isPresent()) {
+						continue;
+					}
+
+					user.addSkill(skill.get());
+					if (skillQuery.getInt("toggled") != 0) {
+						user.toggle(skill.get());
+					}
+				}
+
+				ResultSet abilityQuery = ProjectKorra.database().read("SELECT * FROM t_pk_player_binds WHERE uuid = '" + player.getUniqueId() + "'");
+				while (abilityQuery.next()) {
+					Optional<Ability> ability = AbilityManager.getAbility(abilityQuery.getString("ability_name"));
+
+					if (!ability.isPresent()) {
+						continue;
+					}
+
+					user.bindAbility(abilityQuery.getInt("bound_slot"), ability.get());
+				}
+			}
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
+
+		USERS.put(player.getUniqueId(), user);
+		Events.call(new UserCreationEvent(user));
+		return user;
+	}
+
+	public static void save(Player player) {
+		AbilityUser user = get(player);
+		if (user == null) {
+			return;
+		}
+
+		try {
+			if (ProjectKorra.database().read("SELECT * FROM t_pk_player WHERE uuid = '" + player.getUniqueId() + "'").next()) {
+				//update eventually when t_pk_player has more columns
+			} else {
+				ProjectKorra.database().modify("INSERT INTO t_pk_player VALUES ('" + player.getUniqueId() + "')");
+			}
+
+			for (Skill skill : Skill.values()) {
+				if (!user.hasSkill(skill)) {
+					ProjectKorra.database().modify("DELETE FROM t_pk_player_skills WHERE uuid = '" + player.getUniqueId() + "' AND skill_name = '" + skill.getInternalName() + "'");
+				} else if (ProjectKorra.database().read("SELECT * FROM t_pk_player_skills WHERE uuid = '" + player.getUniqueId() + "' AND skill_name = '" + skill.getInternalName() + "'").next()) {
+					ProjectKorra.database().modify("UPDATE t_pk_player_skills SET toggled = " + (user.isToggled(skill) ? 1 : 0) + " WHERE uuid = '" + player.getUniqueId() + "' AND skill_name = '" + skill.getInternalName() + "'");
+				} else {
+					ProjectKorra.database().modify("INSERT INTO t_pk_player_skills VALUES ('" + player.getUniqueId() + "', '" + skill.getInternalName() + "', " + (user.isToggled(skill) ? 1 : 0) + ")");
+				}
+			}
+
+			int slot = -1;
+			for (Ability ability : user.getBinds()) {
+				++slot;
+				if (ability == null) {
+					ProjectKorra.database().modify("DELETE FROM t_pk_player_binds WHERE uuid = '" + player.getUniqueId() + "' AND bound_slot = " + slot);
+				} else if (ProjectKorra.database().read("SELECT * FROM t_pk_player_binds WHERE uuid = '" + player.getUniqueId() + "' AND bound_slot = " + slot).next()) {
+					ProjectKorra.database().modify("UPDATE t_pk_player_binds SET ability_name = '" + ability.getName() + "' WHERE uuid = '" + player.getUniqueId() + "' AND bound_slot = " + slot);
+				} else {
+					ProjectKorra.database().modify("INSERT INTO t_pk_player_binds VALUES ('" + player.getUniqueId() + "', " + slot + ", '" + ability.getName() + "')");
+				}
+			}
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
+
+		USERS.remove(player.getUniqueId());
+	}
+
+	public static <T> Set<T> collect(Function<AbilityUser, T> map) {
+		return USERS.values().stream().map(map).collect(Collectors.toSet());
+	}
+
+	public static Set<AbilityUser> online() {
+		return new HashSet<>(USERS.values());
 	}
 }

@@ -12,7 +12,7 @@ import org.bukkit.event.block.BlockPlaceEvent;
 import org.bukkit.inventory.EquipmentSlot;
 import org.bukkit.inventory.ItemStack;
 
-import com.projectkorra.core.system.ability.AbilityUser;
+import com.projectkorra.core.ability.AbilityUser;
 
 public final class Regions {
 

@@ -5,7 +5,7 @@ plugins {
 	id 'java'
 
 	// Generates the plugin.yml, allows easier access to common plugin libraries, and facilitates the test server tasks.
-	id 'kr.entree.spigradle' version '2.2.3'
+	id 'kr.entree.spigradle' version '2.3.4'
 
 	// Allows us to shade libraries into the build plugin.
 	id 'com.github.johnrengelman.shadow' version '5.2.0'
@@ -16,18 +16,15 @@ repositories {
 	mavenCentral()
 
 	spigot()
-	paper()
 }
 
 dependencies {
 	compileOnly spigot(project.property('mcVersion'))
-	compileOnly paper(project.property('mcVersion'))
 
 	implementation 'com.google.guava:guava:28.2-jre'
 
 	testImplementation platform('org.junit:junit-bom:5.7.0')
 	testImplementation 'org.junit.jupiter:junit-jupiter'
-	testImplementation mockBukkit()
 }
 
 test {
@@ -69,10 +66,11 @@ spigot {
 	apiVersion = project.property('apiVersion')
 	load = STARTUP
 
-	debug {
-		eula = true
-		buildVersion = project.property('mcVersion')
-		args = project.property('debugServerArgs').split(/(,\s*|\s+)/)
-		jvmArgs = project.property('debugServerJvmArgs').split(/(,\s*|\s+)/)
+	commands {
+		create('projectkorra') {
+			aliases = ['pk', 'korra', 'b', 'bending']
+			description = 'Access projectkorra commands'
+			usage = '/<command>'
+		}
 	}
 }

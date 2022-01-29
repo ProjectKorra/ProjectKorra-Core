@@ -4,8 +4,8 @@ import java.util.List;
 import java.util.Set;
 import java.util.UUID;
 
-import com.projectkorra.core.system.ability.AbilityInstance;
-import com.projectkorra.core.system.ability.AbilityUser;
+import com.projectkorra.core.ability.AbilityInstance;
+import com.projectkorra.core.ability.AbilityUser;
 
 import org.bukkit.EntityEffect;
 import org.bukkit.Location;
@@ -135,4 +135,11 @@ public class AbilityDamage implements Entity {
     @Override @Deprecated public BlockFace getFacing() { throw new UnsupportedOperationException(); }
     @Override @Deprecated public Pose getPose() { throw new UnsupportedOperationException(); }
     @Override @Deprecated public Spigot spigot() { throw new UnsupportedOperationException(); }
+    @Override @Deprecated public boolean isInWater() { throw new UnsupportedOperationException(); }
+    @Override @Deprecated public void setVisualFire(boolean fire) { throw new UnsupportedOperationException(); }
+    @Override @Deprecated public boolean isVisualFire() { throw new UnsupportedOperationException(); }
+    @Override @Deprecated public int getFreezeTicks() { throw new UnsupportedOperationException(); }
+    @Override @Deprecated public int getMaxFreezeTicks() { throw new UnsupportedOperationException(); }
+    @Override @Deprecated public void setFreezeTicks(int ticks) { throw new UnsupportedOperationException(); }
+    @Override @Deprecated public boolean isFrozen() { throw new UnsupportedOperationException(); }
 }

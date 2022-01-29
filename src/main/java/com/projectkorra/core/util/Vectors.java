@@ -84,6 +84,6 @@ public class Vectors {
 	 * @return yaw of the vector
 	 */
 	public static float getYaw(Vector vector) {
-		return (float) Math.toDegrees((Math.atan2(-vector.getX(), vector.getZ()) + 2 * Math.PI) % 2 * Math.PI);
+		return (float) Math.toDegrees((Math.atan2(-vector.getX(), vector.getZ()) + 2 * Math.PI) % (2 * Math.PI));
 	}
 }

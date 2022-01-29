@@ -8,7 +8,6 @@ import java.util.function.BiFunction;
 import java.util.function.Function;
 
 import com.projectkorra.core.ProjectKorra;
-import com.projectkorra.core.util.reflection.ReflectionUtil;
 
 import org.bukkit.configuration.file.FileConfiguration;
 import org.bukkit.configuration.file.YamlConfiguration;
@@ -16,20 +15,18 @@ import org.bukkit.plugin.java.JavaPlugin;
 
 public class Config {
 	
-	private static final Map<Configurable, Config> CACHE = new HashMap<>();
+	private static final Map<String, Config> CACHE = new HashMap<>();
 
 	private File file;
 	private FileConfiguration config;
 	
-	public Config(File file) {
+	private Config(File file) {
 		this.file = file;
-		this.config = YamlConfiguration.loadConfiguration(file);
-		this.reload();
 	}
 	
-	public void reload() {
+	public Config reload() {
 		if (!file.getParentFile().exists()) {
-			file.getParentFile().mkdir();
+			file.getParentFile().mkdirs();
 		}
 		
 		if (!file.exists()) {
@@ -39,6 +36,10 @@ public class Config {
 				e.printStackTrace();
 			}
 		}
+		
+		this.config = YamlConfiguration.loadConfiguration(file);
+		this.load();
+		return this;
 	}
 
 	public boolean load() {
@@ -52,6 +53,7 @@ public class Config {
 	
 	public boolean save() {
 		try {
+			config.options().copyDefaults(true);
 			config.save(file);
 			return true;
 		} catch (Exception e) {
@@ -96,7 +98,21 @@ public class Config {
 	 * @return config of the configurable object
 	 */
 	public static Config from(Configurable object) {
-		return CACHE.computeIfAbsent(object, (o) -> new Config(o.getFile()));
+		return from(object.getFileName(), object.getFolderName());
+	}
+
+	public static Config from(String fileName, String folderName) {
+		return CACHE.computeIfAbsent(folderName + "/" + fileName, Config::create);
+	}
+
+	private static Config create(String path) {
+		if (path.isEmpty() || path == null) {
+			return null;
+		} else if (!path.endsWith(".yml")) {
+			path += ".yml";
+		}
+
+		return new Config(new File(JavaPlugin.getPlugin(ProjectKorra.class).getDataFolder(), "/configuration/" + path)).reload();
 	}
 	
 	/**
@@ -108,18 +124,28 @@ public class Config {
 	 * @return the configured object
 	 */
 	public static <T extends Configurable> T process(T object) {
+		Config config = from(object);
 		for (Field field : object.getClass().getDeclaredFields()) {
 			if (field.isAnnotationPresent(Configure.class)) {
+				String path = field.getAnnotation(Configure.class).value();
 				try {
-					from(object).addDefault(field.getAnnotation(Configure.class).value(), field.get(object));
-					ReflectionUtil.setValueSafely(object, field, from(object).getValue(field.getAnnotation(Configure.class).value()));
+					boolean access = field.isAccessible();
+					field.setAccessible(true);
+					if (!config.get().contains(path)) {
+						config.addDefault(path, field.get(object));
+					} else {
+						field.set(object, config.getValue(path));
+					}
+					field.setAccessible(access);
 				} catch (Exception e) {
 					e.printStackTrace();
-					JavaPlugin.getPlugin(ProjectKorra.class).getLogger().warning("Unable to set config value of " + field.getName() + " for " + object.getFile().getName());
+					JavaPlugin.getPlugin(ProjectKorra.class).getLogger().warning("Unable to set config value of " + field.getName() + " for " + object.getFileName());
 				}
 			}
 		}
 
+		config.save();
+		object.postProcessed();
 		return object;
 	}
 }

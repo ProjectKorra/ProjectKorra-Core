@@ -8,6 +8,7 @@ import org.bukkit.Location;
 import org.bukkit.Material;
 import org.bukkit.Particle;
 import org.bukkit.Particle.DustOptions;
+import org.bukkit.Particle.DustTransition;
 import org.bukkit.World;
 import org.bukkit.block.data.BlockData;
 import org.bukkit.inventory.ItemStack;
@@ -16,6 +17,8 @@ import org.bukkit.util.Vector;
 public class Particles {
 	
 	private static final Map<Particle, Object> DEFAULT_DATAS = new HashMap<>();
+	private static final DustOptions AIR_DUST = new DustOptions(Color.fromRGB(148, 207, 224), 0.5f);
+	private static final DustTransition LIGHTNING_DUST = new DustTransition(Color.fromRGB(158, 255, 251), Color.fromRGB(0, 199, 191), 1.2f);
 	
 	static {
 		DEFAULT_DATAS.put(Particle.REDSTONE, new DustOptions(Color.RED, 0.8f));
@@ -109,6 +112,18 @@ public class Particles {
 		}
 		
 		loc.getWorld().spawnParticle(particle, loc, amount, offsetX, offsetY, offsetZ, extra, data);
+	}
+
+	public static void airbending(Location loc, int amount, double offsetX, double offsetY, double offsetZ) {
+		loc.getWorld().spawnParticle(Particle.REDSTONE, loc, amount, offsetX, offsetY, offsetZ, AIR_DUST);
+	}
+
+	public static void firebending(Location loc, int amount, double offsetX, double offsetY, double offsetZ) {
+		loc.getWorld().spawnParticle(Particle.FLAME, loc, amount, offsetX, offsetY, offsetZ, 0.025);
+	}
+
+	public static void lightning(Location loc, int amount, double offsetX, double offsetY, double offsetZ) {
+		loc.getWorld().spawnParticle(Particle.DUST_COLOR_TRANSITION, loc, amount, offsetX, offsetY, offsetZ, 0.6, LIGHTNING_DUST);
 	}
 
 	/**
