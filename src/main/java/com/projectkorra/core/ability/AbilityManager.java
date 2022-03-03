@@ -286,13 +286,10 @@ public final class AbilityManager {
 	
 	static void tick() {
 		double timeDelta = (System.currentTimeMillis() - prev) / 1000D;
-		Iterator<AbilityInstance> iter = ACTIVE.iterator();
 		
-		while (iter.hasNext()) {
-			AbilityInstance instance = iter.next();
-			
+		for (AbilityInstance instance : new HashSet<AbilityInstance>(ACTIVE)) {
 			if (!instance.update(timeDelta)) {
-				iter.remove();
+				ACTIVE.remove(instance);
 				stop(instance, Reason.NATURAL);
 				continue;
 			}

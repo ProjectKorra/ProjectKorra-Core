@@ -14,17 +14,17 @@ import org.bukkit.event.Event;
 public class BlazingArcAbility extends Ability implements Bindable {
 
     @Configure("speed")
-    private double speed = 30;
+    double speed = 30;
     @Configure("range")
-    private double range = 15;
+    double range = 15;
     @Configure("damage")
-    private double damage = 1;
+    double damage = 1;
     @Configure("cooldown")
-    private long cooldown = 3000;
+    long cooldown = 3000;
     @Configure("knockback")
-    private double knockback = 0.7;
+    double knockback = 0.7;
     @Configure("delay")
-    private long delay = 200;
+    long delay = 200;
 
     public BlazingArcAbility() {
         super("BlazingArc", "Create a arcing blaze in front of you", "ProjectKorra", "CORE", Skill.FIREBENDING);
@@ -45,7 +45,7 @@ public class BlazingArcAbility extends Ability implements Bindable {
         }
 
         if (trigger == Activation.LEFT_CLICK) {
-            return new BlazingArcInstance(this, user, damage, range, speed, cooldown, knockback, delay);
+            return new BlazingArcInstance(this, user);
         }
 
         return null;

@@ -1,6 +1,5 @@
 package com.projectkorra.core.game.firebending.firejet;
 
-import com.projectkorra.core.ability.Ability;
 import com.projectkorra.core.ability.AbilityInstance;
 import com.projectkorra.core.ability.AbilityUser;
 import com.projectkorra.core.ability.attribute.Attribute;
@@ -17,10 +16,10 @@ public class JetJumpInstance extends AbilityInstance {
     @Attribute(Attribute.COOLDOWN)
     private long cooldown;
 
-    public JetJumpInstance(Ability provider, AbilityUser user, double speed, long cooldown) {
+    public JetJumpInstance(FireJetAbility provider, AbilityUser user) {
         super(provider, user);
-        this.speed = speed;
-        this.cooldown = cooldown;
+        this.speed = provider.jumpSpeed;
+        this.cooldown = provider.jumpCooldown;
     }
 
     @Override

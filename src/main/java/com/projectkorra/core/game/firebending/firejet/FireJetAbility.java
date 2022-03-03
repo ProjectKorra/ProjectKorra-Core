@@ -15,21 +15,21 @@ import org.bukkit.event.Event;
 public class FireJetAbility extends Ability implements Bindable {
 
     @Configure("jet.maxSpeed")
-    private double speed = 20;
+    double speed = 20;
     @Configure("jet.duration")
-    private long duration = 3000;
+    long duration = 3000;
     @Configure("jet.cooldown")
-    private long cooldown = 6000;
+    long cooldown = 6000;
     @Configure("jet.acceleration")
-    private double acceleration = 4;
+    double acceleration = 4;
     @Configure("dash.speed")
-    private double dashSpeed = 0.9;
+    double dashSpeed = 0.9;
     @Configure("dash.cooldown")
-    private long dashCooldown = 4000;
+    long dashCooldown = 4000;
     @Configure("jump.speed")
-    private double jumpSpeed = 1.1;
+    double jumpSpeed = 1.1;
     @Configure("jump.cooldown")
-    private long jumpCooldown = 7000;
+    long jumpCooldown = 7000;
 
     public FireJetAbility() {
         super("FireJet", "Use firebending to create jet propulsion from your hands and feet.", "ProjectKorra", "CORE", Skill.FIREBENDING);
@@ -46,14 +46,14 @@ public class FireJetAbility extends Ability implements Bindable {
     @Override
     protected AbilityInstance activate(AbilityUser user, Activation trigger, Event provider) {
         if (trigger == Activation.LEFT_CLICK && !user.isOnCooldown("JetExtra")) {
-            return new JetDashInstance(this, user, dashSpeed, dashCooldown);
+            return new JetDashInstance(this, user);
         }
 
         if (trigger == Activation.SNEAK_DOWN) {
             if (user.getEntity().isOnGround() && !user.isOnCooldown("JetExtra")) {
-                return new JetJumpInstance(this, user, jumpSpeed, jumpCooldown);
+                return new JetJumpInstance(this, user);
             } else if (!user.isOnCooldown(this)) {
-                return new FireJetInstance(this, user, speed, duration, cooldown, acceleration);
+                return new FireJetInstance(this, user);
             }
         } 
         

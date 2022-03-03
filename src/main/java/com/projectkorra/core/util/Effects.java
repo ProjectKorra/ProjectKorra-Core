@@ -4,7 +4,6 @@ import com.projectkorra.core.ability.AbilityInstance;
 import com.projectkorra.core.event.ability.InstanceDamageEntityEvent;
 import com.projectkorra.core.event.ability.InstanceIgniteEntityEvent;
 import com.projectkorra.core.event.ability.InstanceMoveEntityEvent;
-import com.projectkorra.core.util.data.AbilityDamage;
 
 import org.bukkit.Location;
 import org.bukkit.Sound;
@@ -44,29 +43,6 @@ public final class Effects {
 
 		target.damage(damage, source.getUser().getEntity());
     }
-
-	/**
-	 * Checks the given damage event to see if the damage was caused by an ability instance
-	 * @param damageEvent The damage event to check
-	 * @return true if the damage was caused by an ability instance
-	 */
-	public static boolean isAbilityDamage(EntityDamageByEntityEvent damageEvent) {
-		return damageEvent.getDamager() instanceof AbilityDamage;
-	}
-
-	/**
-	 * Checks the given damage event to see if it was caused by the specified ability instance
-	 * @param damageEvent The damage event to check
-	 * @param clazz The class of the ability instance to check for
-	 * @return true if the damage was caused by the specific ability instance
-	 */
-	public static boolean isAbilityDamage(EntityDamageByEntityEvent damageEvent, Class<? extends AbilityInstance> clazz) {
-		if (damageEvent == null || clazz == null) {
-			return false;
-		}
-
-		return damageEvent.getDamager() instanceof AbilityDamage && clazz.isInstance(((AbilityDamage) damageEvent.getDamager()).getInstance());
-	}
 
 	/**
 	 * Apply movement to the target entity in the given direction from the ability source,
