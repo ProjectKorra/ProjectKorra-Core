@@ -1,11 +1,8 @@
 package com.projectkorra.core.game.firebending.firejet;
 
-import com.projectkorra.core.ability.Ability;
 import com.projectkorra.core.ability.AbilityInstance;
-import com.projectkorra.core.ability.AbilityManager;
 import com.projectkorra.core.ability.AbilityUser;
 import com.projectkorra.core.ability.attribute.Attribute;
-import com.projectkorra.core.game.firebending.passives.charging.ChargingInstance;
 import com.projectkorra.core.util.Effects;
 import com.projectkorra.core.util.Particles;
 
@@ -24,12 +21,12 @@ public class FireJetInstance extends AbilityInstance {
     @Attribute("acceleration")
     private double acceleration;
 
-    public FireJetInstance(Ability provider, AbilityUser user, double maxSpeed, long duration, long cooldown, double acceleration) {
+    public FireJetInstance(FireJetAbility provider, AbilityUser user) {
         super(provider, user);
-        this.maxSpeed = maxSpeed;
-        this.duration = duration;
-        this.cooldown = cooldown;
-        this.acceleration = acceleration;
+        this.maxSpeed = provider.speed;
+        this.duration = provider.duration;
+        this.cooldown = provider.cooldown;
+        this.acceleration = provider.acceleration;
     }
 
     @Override
@@ -47,7 +44,6 @@ public class FireJetInstance extends AbilityInstance {
             return false;
         }
 
-        AbilityManager.getInstance(user, ChargingInstance.class).ifPresent(a -> a.haltCharge());
         Vector velocity = user.getDirection().multiply(acceleration * timeDelta);
         velocity.setY(velocity.getY() * 0.8);
         velocity.add(user.getEntity().getVelocity());

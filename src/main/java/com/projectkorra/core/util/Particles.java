@@ -2,6 +2,7 @@ package com.projectkorra.core.util;
 
 import java.util.HashMap;
 import java.util.Map;
+import java.util.concurrent.ThreadLocalRandom;
 
 import org.bukkit.Color;
 import org.bukkit.Location;
@@ -18,7 +19,7 @@ public class Particles {
 	
 	private static final Map<Particle, Object> DEFAULT_DATAS = new HashMap<>();
 	private static final DustOptions AIR_DUST = new DustOptions(Color.fromRGB(148, 207, 224), 0.5f);
-	private static final DustTransition LIGHTNING_DUST = new DustTransition(Color.fromRGB(158, 255, 251), Color.fromRGB(0, 199, 191), 1.2f);
+	private static final DustTransition LIGHTNING_DUST = new DustTransition(Color.fromRGB(220, 255, 252), Color.fromRGB(0, 199, 191), 0.9f);
 	
 	static {
 		DEFAULT_DATAS.put(Particle.REDSTONE, new DustOptions(Color.RED, 0.8f));
@@ -115,7 +116,7 @@ public class Particles {
 	}
 
 	public static void airbending(Location loc, int amount, double offsetX, double offsetY, double offsetZ) {
-		loc.getWorld().spawnParticle(Particle.REDSTONE, loc, amount, offsetX, offsetY, offsetZ, AIR_DUST);
+		loc.getWorld().spawnParticle(Particle.REDSTONE, loc, amount, offsetX, offsetY, offsetZ, 0.5, AIR_DUST);
 	}
 
 	public static void firebending(Location loc, int amount, double offsetX, double offsetY, double offsetZ) {

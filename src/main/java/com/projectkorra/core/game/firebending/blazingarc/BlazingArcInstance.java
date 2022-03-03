@@ -1,8 +1,7 @@
 package com.projectkorra.core.game.firebending.blazingarc;
 
-import java.util.Arrays;
+import java.util.Optional;
 
-import com.projectkorra.core.ability.Ability;
 import com.projectkorra.core.ability.AbilityInstance;
 import com.projectkorra.core.ability.AbilityUser;
 import com.projectkorra.core.ability.attribute.Attribute;
@@ -33,25 +32,22 @@ public class BlazingArcInstance extends AbilityInstance {
     @Attribute("Delay")
     private long delay;
 
-    private Location[] locs;
+    private Location[] locs = new Location[3];
     private Location start;
-    private Vector[] dirs; // 0 left, 1 mid, 2 right
+    private Vector[] dirs = new Vector[3]; // 0 left, 1 mid, 2 right
     private double currRange = 0;
     private double angle;
     private boolean started = false;
-    private boolean[] blocked = new boolean[21];
+    private boolean[] blocked = new boolean[51];
 
-    public BlazingArcInstance(Ability provider, AbilityUser user, double damage, double range, double speed, long cooldown, double knockback, long delay) {
+    public BlazingArcInstance(BlazingArcAbility provider, AbilityUser user) {
         super(provider, user);
-        this.damage = damage;
-        this.range = range;
-        this.speed = speed;
-        this.cooldown = cooldown;
-        this.knockback = knockback;
-        this.delay = delay;
-        dirs = new Vector[3];
-        locs = new Location[3];
-        Arrays.fill(blocked, false);
+        this.damage = provider.damage;
+        this.range = provider.range;
+        this.speed = provider.speed;
+        this.cooldown = provider.cooldown;
+        this.knockback = provider.knockback;
+        this.delay = provider.delay;
     }
 
     @Override
@@ -70,6 +66,7 @@ public class BlazingArcInstance extends AbilityInstance {
             for (int i = 0; i < 3; ++i) {
                 locs[i] = start.clone();
             }
+
             dirs[2] = user.getDirection();
             dirs[1] = dirs[0].clone().add(dirs[2]);
             angle = dirs[0].angle(dirs[2]);
@@ -81,29 +78,21 @@ public class BlazingArcInstance extends AbilityInstance {
         }
 
         for (int i = 0; i < 3; ++i) {
-            locs[i].add(dirs[i].multiply(speed * timeDelta));
+            locs[i].add(dirs[i].multiply(speed * timeDelta * (i % 2 == 0 ? 0.7 : 1)));
         }
 
         Effects.playSound(locs[1], Sound.BLOCK_FIRE_AMBIENT, 1f, 1.8f);
-        for (double t = 0; t <= 1; t += 0.25 / (angle * currRange)) {
+        double increment = 0.25 / (angle * currRange);
+        for (double t = 0; t <= 1; t += increment) {
             if (blocked[(int) Math.round(t * (blocked.length - 1))]) {
                 continue;
             }
             
             Location display = bezier(t);
-            display.setDirection(Vectors.direction(start,  display));
-            Particles.firebending(display, 2, 0.05, 0.05, 0.05);
-
-            RayTraceResult ray = display.getWorld().rayTrace(display, display.getDirection(), speed * timeDelta, FluidCollisionMode.ALWAYS, true, 0.4, null);
-            if (ray != null) {
-                if (ray.getHitEntity() != null && !Velocity.isAffected(ray.getHitEntity()) && ray.getHitEntity() instanceof LivingEntity && !ray.getHitEntity().getUniqueId().equals(user.getUniqueID())) {
-                    Effects.damage((LivingEntity) ray.getHitEntity(), damage, this, false);
-                    Velocity.apply(ray.getHitEntity(), display.getDirection().setY(0).multiply(knockback), this);
-                }
-
-                if (ray.getHitBlock() != null) {
-                    blocked[(int) Math.round(t * (blocked.length - 1))] = true;
-                }
+            display.setDirection(Vectors.direction(start, display));
+            Particles.firebending(display, 1, 0, 0, 0);
+            if (rayCast(display, speed * timeDelta)) {
+                blocked[(int) Math.round(t * (blocked.length - 1))] = true;
             }
         }
 
@@ -132,5 +121,18 @@ public class BlazingArcInstance extends AbilityInstance {
     // t is between 0 and 1
     private Location bezier(double t) {
         return locs[1].clone().add(locs[0].clone().subtract(locs[1]).multiply((1 - t) * (1 - t))).add(locs[2].clone().subtract(locs[1]).multiply(t * t));
+    }
+
+    private boolean rayCast(Location loc, double dist) {
+        Vector kb = loc.getDirection().setY(0).multiply(knockback);
+        Optional.ofNullable(loc.getWorld().rayTrace(loc, loc.getDirection(), dist, FluidCollisionMode.NEVER, true, 0.4, null))
+        .map(RayTraceResult::getHitEntity)
+        .filter(e -> e instanceof LivingEntity && !e.getUniqueId().equals(user.getUniqueID()) && !Velocity.isAffected(e))
+        .ifPresent(e -> {
+            Effects.damage((LivingEntity) e, damage, this, false);
+            Velocity.apply(e, kb, this);
+        });
+
+        return Optional.ofNullable(loc.getWorld().rayTraceBlocks(loc, loc.getDirection(), dist, FluidCollisionMode.ALWAYS)).filter(ray -> ray.getHitBlock() != null).isPresent();    
     }
 }
