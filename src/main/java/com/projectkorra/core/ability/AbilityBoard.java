@@ -21,75 +21,75 @@ public class AbilityBoard {
 
     private static Map<PlayerUser, AbilityBoard> CACHE = new HashMap<>();
     private static Map<String, ChatColor> TRACKED = new HashMap<>();
-    
+
     private static class BoardSlot {
-		
-		private Scoreboard board;
-		private Objective obj;
-		private int slot;
-		private Team team;
-		private String entry, tag;
-		private Optional<BoardSlot> next = Optional.empty(), prev = Optional.empty();
-		
+
+        private Scoreboard board;
+        private Objective obj;
+        private int slot;
+        private Team team;
+        private String entry, tag;
+        private Optional<BoardSlot> next = Optional.empty(), prev = Optional.empty();
+
         public BoardSlot(Scoreboard board, Objective obj, int slot) {
             this(board, obj, slot, "slot" + slot);
         }
 
         @SuppressWarnings("deprecation")
-		public BoardSlot(Scoreboard board, Objective obj, int slot, String tag) {
-			this.board = board;
-			this.obj = obj;
-			this.slot = slot + 1;
+        public BoardSlot(Scoreboard board, Objective obj, int slot, String tag) {
+            this.board = board;
+            this.obj = obj;
+            this.slot = slot + 1;
             this.tag = tag;
-			
-			this.team = board.registerNewTeam(this.tag);
-			this.entry = ChatColor.values()[slot % 10] + "" + ChatColor.values()[slot % 16];
-			
-			team.addEntry(entry);
-		}
-		
-		private void set() {
-			obj.getScore(entry).setScore(-slot);
-		}
-		
-		public void update(String prefix, String name) {
-			team.setPrefix(prefix);
-			team.setSuffix(name);
-			set();
-		}
-		
-		public void decreaseSlot() {
-			--this.slot;
+
+            this.team = board.registerNewTeam(this.tag);
+            this.entry = ChatColor.values()[slot % 10] + "" + ChatColor.values()[slot % 16];
+
+            team.addEntry(entry);
+        }
+
+        private void set() {
+            obj.getScore(entry).setScore(-slot);
+        }
+
+        public void update(String prefix, String name) {
+            team.setPrefix(prefix);
+            team.setSuffix(name);
+            set();
+        }
+
+        public void decreaseSlot() {
+            --this.slot;
             board.resetScores(entry);
-			this.set();
+            this.set();
             prev.ifPresent(b -> {
                 if (next.isPresent()) {
                     b.setNext(next.get());
                 }
             });
-			next.ifPresent(BoardSlot::decreaseSlot);
-		}
-		
-		public void clear() {
-			board.resetScores(entry);
-			team.unregister();
+            next.ifPresent(BoardSlot::decreaseSlot);
+        }
+
+        public void clear() {
+            board.resetScores(entry);
+            team.unregister();
             prev.ifPresent(b -> {
                 if (next.isPresent()) {
                     b.setNext(next.get());
                 }
             });
-			next.ifPresent(BoardSlot::decreaseSlot);
-		}
-		
-		private void setNext(BoardSlot slot) {
+            next.ifPresent(BoardSlot::decreaseSlot);
+        }
+
+        private void setNext(BoardSlot slot) {
             if (next == null) {
                 return;
             }
 
-			this.next = Optional.of(slot);
+            this.next = Optional.of(slot);
             slot.prev = Optional.of(this);
-		}
-	}
+        }
+    }
 
     private BoardSlot[] slots = new BoardSlot[9];
     private BoardSlot miscTail = null;
@@ -133,7 +133,7 @@ public class AbilityBoard {
         slots[slot].update(color + "> ", ability == null ? color + "empty" : ability.getDisplay());
         if (ability != null && user.isOnCooldown(ability)) {
             bindCooldown(slot, true);
-        } 
+        }
     }
 
     public void switchSlot(int newSlot) {
@@ -152,7 +152,7 @@ public class AbilityBoard {
                     bindCooldown(slot, added);
                 }
                 return;
-            } 
+            }
         }
 
         miscCooldown(tag, added);
@@ -160,7 +160,8 @@ public class AbilityBoard {
 
     public void bindCooldown(int slot, boolean added) {
         user.getBinds().get(slot).ifPresent((ability) -> {
-            slots[slot].team.setSuffix(added ? ability.getDisplayColor() + (ChatColor.STRIKETHROUGH + ability.getName()) : ability.getDisplay());
+            slots[slot].team.setSuffix(added ? ability.getDisplayColor() + (ChatColor.STRIKETHROUGH + ability.getName())
+                    : ability.getDisplay());
         });
     }
 
@@ -169,7 +170,7 @@ public class AbilityBoard {
             if (misc.containsKey(tag)) {
                 return;
             }
-            
+
             BoardSlot slot = new BoardSlot(board, obj, misc.size() + 10, tag);
             misc.put(tag, slot);
             ChatColor color = TRACKED.getOrDefault(tag, ChatColor.WHITE);

@@ -1,13 +1,11 @@
 package com.projectkorra.core.util;
 
-import org.apache.commons.lang.Validate;
+import com.projectkorra.core.ProjectKorra;
 
-import org.bukkit.Bukkit;
+import org.apache.commons.lang.Validate;
 import org.bukkit.plugin.java.JavaPlugin;
 import org.bukkit.scheduler.BukkitRunnable;
 import org.bukkit.scheduler.BukkitTask;
-
-import com.projectkorra.core.ProjectKorra;
 
 /**
 * A utility class to provide simple and uniform ways to schedule {@link java.lang.Runnable Runnables} and {@link org.bukkit.scheduler.BukkitRunnable BukkitRunnables}.
