@@ -2,7 +2,6 @@ package com.projectkorra.core.util;
 
 import java.util.HashMap;
 import java.util.Map;
-import java.util.concurrent.ThreadLocalRandom;
 
 import org.bukkit.Color;
 import org.bukkit.Location;
