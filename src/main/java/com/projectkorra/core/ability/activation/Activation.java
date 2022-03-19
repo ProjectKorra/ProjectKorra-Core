@@ -31,7 +31,7 @@ public class Activation {
 		return display;
 	}
 
-	public boolean isComboAble() {
+	public boolean canCombo() {
 		return comboable;
 	}
 	

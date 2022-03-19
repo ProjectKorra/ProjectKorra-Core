@@ -57,7 +57,7 @@ public class RedirectionPassive extends Ability implements Passive {
             return;
         }
 
-        PlayerUser user = UserManager.get(event.getTarget().getUniqueId(), PlayerUser.class);
+        PlayerUser user = UserManager.getAs(event.getTarget().getUniqueId(), PlayerUser.class);
         if (user == null) {
             return;
         }
@@ -76,7 +76,7 @@ public class RedirectionPassive extends Ability implements Passive {
             return;
         }
 
-        PlayerUser user = UserManager.get(event.getEntity().getUniqueId(), PlayerUser.class);
+        PlayerUser user = UserManager.getAs(event.getEntity().getUniqueId(), PlayerUser.class);
         if (user == null) {
             return;
         }

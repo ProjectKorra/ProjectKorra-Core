@@ -1,10 +1,9 @@
 package com.projectkorra.core.ability;
 
 import java.util.HashMap;
-import java.util.Iterator;
 import java.util.Map;
-import java.util.Map.Entry;
 import java.util.Optional;
+import java.util.PriorityQueue;
 import java.util.Set;
 import java.util.UUID;
 
@@ -27,6 +26,7 @@ public abstract class AbilityUser extends SkillHolder {
 	
 	private AbilityBinds binds = new AbilityBinds();
 	private Map<String, Cooldown> cooldowns = new HashMap<>();
+	private PriorityQueue<Cooldown> cdQueue = new PriorityQueue<>(32, (a, b) -> (int) (a.getEndTime() - b.getEndTime()));
 	private Map<Activation, SourceInstance> sources = new HashMap<>();
 	private LivingEntity entity;
 
@@ -192,18 +192,19 @@ public abstract class AbilityUser extends SkillHolder {
 			return false;
 		}
 
-		cooldowns.computeIfAbsent(tag, Cooldown::new).addDuration(event.getDuration());
+		Cooldown cd = cooldowns.computeIfAbsent(tag, Cooldown::new);
+		cd.addDuration(event.getDuration());
+		cdQueue.add(cd);
 		return true;
 	}
 
 	public final void progressCooldowns() {
-		Iterator<Entry<String, Cooldown>> iter = cooldowns.entrySet().iterator();
-		while (iter.hasNext()) {
-			Entry<String, Cooldown> entry = iter.next();
-			if (entry.getValue().getRemaining() <= 0) {
-				endCooldown(entry.getValue());
-				iter.remove();
+		while (cdQueue.peek() != null) {
+			if (cdQueue.peek().getRemaining() >= 0) {
+				break;
 			}
+
+			removeCooldown(cdQueue.poll().getTag());
 		}
 	}
 
@@ -230,12 +231,8 @@ public abstract class AbilityUser extends SkillHolder {
 			return;
 		}
 
-		endCooldown(cooldowns.get(tag));
-		cooldowns.remove(tag);
-	}
-
-	private void endCooldown(Cooldown cooldown) {
-		Events.call(new UserCooldownEndEvent(this, cooldown));
+		Cooldown cd = cooldowns.remove(tag);
+		Events.call(new UserCooldownEndEvent(this, cd));
 	}
 
 	public SourceInstance getSource(Activation trigger) {

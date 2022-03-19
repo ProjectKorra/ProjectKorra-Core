@@ -42,7 +42,7 @@ public class WhoCommand extends PKSubCommand {
             return;
         }
 
-        PlayerUser user = UserManager.get(player.getUniqueId(), PlayerUser.class);
+        PlayerUser user = UserManager.getAs(player.getUniqueId(), PlayerUser.class);
         if (user == null) {
             sender.sendMessage(ChatColor.RED + "Error occured while retrieving user!");
             return;

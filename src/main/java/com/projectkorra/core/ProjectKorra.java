@@ -53,7 +53,7 @@ public class ProjectKorra extends JavaPlugin {
 	@Override
 	public void onDisable() {
 		for (Player player : Bukkit.getOnlinePlayers()) {
-			AbilityManager.removeAll(UserManager.get(player));
+			AbilityManager.removeAll(UserManager.from(player));
 			UserManager.save(player);
 		}
 	}

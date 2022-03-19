@@ -31,7 +31,7 @@ public class BindCommand extends PKSubCommand {
         }
 
         Player player = (Player) sender;
-        PlayerUser user = UserManager.get(player.getUniqueId(), PlayerUser.class);
+        PlayerUser user = UserManager.getAs(player.getUniqueId(), PlayerUser.class);
         if (user == null) {
             sender.sendMessage(ChatColor.RED + "Something went wrong retrieving your user!");
             return;

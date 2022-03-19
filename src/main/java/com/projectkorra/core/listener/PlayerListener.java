@@ -3,11 +3,14 @@ package com.projectkorra.core.listener;
 import com.projectkorra.core.ProjectKorra;
 import com.projectkorra.core.UserManager;
 import com.projectkorra.core.ability.AbilityBoard;
+import com.projectkorra.core.ability.AbilityManager;
+import com.projectkorra.core.ability.AbilityUser;
 import com.projectkorra.core.entity.PlayerUser;
 import com.projectkorra.core.event.user.UserBindChangeEvent;
 import com.projectkorra.core.event.user.UserCooldownEndEvent;
 import com.projectkorra.core.event.user.UserCooldownStartEvent;
 
+import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
 import org.bukkit.event.player.PlayerItemHeldEvent;
@@ -35,14 +38,24 @@ public class PlayerListener implements Listener {
         }.runTaskLater(JavaPlugin.getPlugin(ProjectKorra.class), 2);
     }
 
+    private void playerLeave(Player player) {
+        AbilityUser user = UserManager.from(player);
+        if (user == null) {
+            return;
+        }
+        
+        AbilityManager.removeAll(user);
+        UserManager.save(player);
+    }
+
     @EventHandler
     public void onPlayerQuit(PlayerQuitEvent event) {
-        UserManager.save(event.getPlayer());
+        playerLeave(event.getPlayer());
     }
 
     @EventHandler
     public void onPlayerKick(PlayerKickEvent event) {
-        UserManager.save(event.getPlayer());
+        playerLeave(event.getPlayer());
     }
 
     @EventHandler

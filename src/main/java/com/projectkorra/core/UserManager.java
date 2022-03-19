@@ -18,6 +18,7 @@ import com.projectkorra.core.event.user.UserCreationEvent;
 import com.projectkorra.core.skill.Skill;
 import com.projectkorra.core.util.Events;
 
+import org.bukkit.entity.LivingEntity;
 import org.bukkit.entity.Player;
 
 public final class UserManager {
@@ -55,7 +56,7 @@ public final class UserManager {
 	 * @param clazz what to return the AbilityUser as
 	 * @return AbilityUser of the given type
 	 */
-	public static <T extends AbilityUser> T get(UUID uuid, Class<T> clazz) {
+	public static <T extends AbilityUser> T getAs(UUID uuid, Class<T> clazz) {
 		if (uuid == null || clazz == null || !USERS.containsKey(uuid)) {
 			return null;
 		}
@@ -78,12 +79,12 @@ public final class UserManager {
 		return USERS.get(uuid);
 	}
 
-	public static AbilityUser get(Player player) {
-		if (player == null) {
+	public static AbilityUser from(LivingEntity lent) {
+		if (lent == null) {
 			return null;
 		}
 
-		return USERS.get(player.getUniqueId());
+		return USERS.get(lent.getUniqueId());
 	}
 
 	public static AbilityUser load(Player player) {
@@ -126,7 +127,7 @@ public final class UserManager {
 	}
 
 	public static void save(Player player) {
-		AbilityUser user = get(player);
+		AbilityUser user = from(player);
 		if (user == null) {
 			return;
 		}

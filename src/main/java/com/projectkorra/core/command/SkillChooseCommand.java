@@ -40,7 +40,7 @@ public class SkillChooseCommand extends PKSubCommand {
                 return;
             }
 
-            user = UserManager.get(Bukkit.getPlayer(args[1]));
+            user = UserManager.from(Bukkit.getPlayer(args[1]));
 
             if (user == null) {
                 sender.sendMessage(ChatColor.RED + "No player found by name '" + ChatColor.GOLD + args[1] + ChatColor.RED + "'");
@@ -52,7 +52,7 @@ public class SkillChooseCommand extends PKSubCommand {
                 return;
             }
 
-            user = UserManager.get((Player) sender);
+            user = UserManager.from((Player) sender);
         }
 
         if (!user.getSkills().isEmpty() && !hasPermission(sender, "rechoose")) {
