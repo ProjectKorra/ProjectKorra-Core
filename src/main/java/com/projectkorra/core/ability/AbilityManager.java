@@ -202,7 +202,7 @@ public final class AbilityManager {
 			user.putSource(trigger, ((SourcedAbility) ability).selectSource(user, trigger));
 		}
 		
-		if (trigger.isComboAble()) {
+		if (trigger.canCombo()) {
 			ComboAgent combo = USER_INFO.computeIfAbsent(user, (u) -> new ActiveInfo(u)).updateCombos(ability, trigger);
 			if (combo != null) {
 				ability = COMBOS.get(SequenceInfo.stringify(combo.getSequence()));

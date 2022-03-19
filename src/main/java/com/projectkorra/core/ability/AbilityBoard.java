@@ -204,10 +204,10 @@ public class AbilityBoard {
     }
 
     public static Optional<AbilityBoard> from(Player player) {
-        if (UserManager.get(player) == null) {
+        if (UserManager.from(player) == null) {
             return Optional.empty();
         }
 
-        return from(UserManager.get(player.getUniqueId(), PlayerUser.class));
+        return from(UserManager.getAs(player.getUniqueId(), PlayerUser.class));
     }
 }
