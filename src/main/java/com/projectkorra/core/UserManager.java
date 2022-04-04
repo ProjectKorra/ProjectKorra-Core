@@ -25,18 +25,24 @@ public final class UserManager {
 
 	private static final Map<UUID, AbilityUser> USERS = new HashMap<>();
 	private static boolean init = false;
+	private static long prevTime = System.currentTimeMillis();
 
 	public static void init(ProjectKorra plugin) {
 		if (init) return;
 
 		init = true;
-		plugin.getServer().getScheduler().scheduleSyncRepeatingTask(plugin, UserManager::cooldowns, 1, 1);
+		plugin.getServer().getScheduler().scheduleSyncRepeatingTask(plugin, UserManager::updateUsers, 1, 1);
 	}
 
-	private static void cooldowns() {
+	private static void updateUsers() {
+		double deltaTime = (System.currentTimeMillis() - prevTime) / 1000D;
+
 		for (AbilityUser user : USERS.values()) {
+			user.getStamina().regen(deltaTime);
 			user.progressCooldowns();
 		}
+		
+		prevTime = System.currentTimeMillis();
 	}
 	
 	public static boolean register(AbilityUser user) {

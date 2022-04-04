@@ -119,7 +119,7 @@ public class Particles {
 	}
 
 	public static void firebending(Location loc, int amount, double offsetX, double offsetY, double offsetZ) {
-		loc.getWorld().spawnParticle(Particle.FLAME, loc, amount, offsetX, offsetY, offsetZ, 0.025);
+		loc.getWorld().spawnParticle(Particle.FLAME, loc, amount, offsetX, offsetY, offsetZ, 0.02);
 	}
 
 	public static void lightning(Location loc, int amount, double offsetX, double offsetY, double offsetZ) {

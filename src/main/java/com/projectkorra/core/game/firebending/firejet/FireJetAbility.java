@@ -22,14 +22,22 @@ public class FireJetAbility extends Ability implements Bindable {
     long cooldown = 6000;
     @Configure("jet.acceleration")
     double acceleration = 4;
+    @Configure("jet.staminaCost")
+    double jetStamina = 200;
+    @Configure("jet.staminaDrain")
+    double jetDrain = 50;
     @Configure("dash.speed")
     double dashSpeed = 0.9;
     @Configure("dash.cooldown")
     long dashCooldown = 4000;
+    @Configure("dash.staminaCost")
+    double dashStamina = 400;
     @Configure("jump.speed")
     double jumpSpeed = 1.1;
     @Configure("jump.cooldown")
     long jumpCooldown = 7000;
+    @Configure("jump.staminaCost")
+    double jumpStamina = 1000;
 
     public FireJetAbility() {
         super("FireJet", "Use firebending to create jet propulsion from your hands and feet.", "ProjectKorra", "CORE", Skill.FIREBENDING);
@@ -45,12 +53,12 @@ public class FireJetAbility extends Ability implements Bindable {
 
     @Override
     protected AbilityInstance activate(AbilityUser user, Activation trigger, Event provider) {
-        if (trigger == Activation.LEFT_CLICK && !user.isOnCooldown("JetExtra")) {
+        if (trigger == Activation.LEFT_CLICK && !user.isOnCooldown("JetExtra") && user.getStamina().consume(dashStamina)) {
             return new JetDashInstance(this, user);
         }
 
         if (trigger == Activation.SNEAK_DOWN) {
-            if (user.getEntity().isOnGround() && !user.isOnCooldown("JetExtra")) {
+            if (user.getEntity().isOnGround() && !user.isOnCooldown("JetExtra") && user.getStamina().consume(jumpStamina)) {
                 return new JetJumpInstance(this, user);
             } else if (!user.isOnCooldown(this)) {
                 return new FireJetInstance(this, user);

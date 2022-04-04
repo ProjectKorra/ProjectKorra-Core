@@ -1,13 +1,18 @@
 package com.projectkorra.core.entity;
 
+import java.util.Optional;
 import java.util.UUID;
+import java.util.function.Predicate;
 
 import com.projectkorra.core.ability.Ability;
 import com.projectkorra.core.ability.AbilityUser;
 import com.projectkorra.core.ability.type.Bindable;
 
+import org.bukkit.FluidCollisionMode;
 import org.bukkit.Location;
+import org.bukkit.entity.Entity;
 import org.bukkit.entity.LivingEntity;
+import org.bukkit.util.RayTraceResult;
 import org.bukkit.util.Vector;
 
 public abstract class User<T extends LivingEntity> extends AbilityUser {
@@ -45,5 +50,11 @@ public abstract class User<T extends LivingEntity> extends AbilityUser {
 	@Override
 	public Vector getDirection() {
 		return typed.getLocation().getDirection();
+	}
+
+	@Override
+	public Optional<Entity> getTargetEntity(double range, double raySize, FluidCollisionMode fluid, Predicate<Entity> filter) {
+		Location eye = getEyeLocation();
+		return Optional.ofNullable(eye.getWorld().rayTrace(eye, eye.getDirection(), range, fluid, true, raySize, filter)).map(RayTraceResult::getHitEntity);
 	}
 }

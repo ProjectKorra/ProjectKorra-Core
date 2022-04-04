@@ -27,6 +27,8 @@ public class FireballAbility extends Ability implements Bindable, Combo, Passive
     double blastDamage = 2;
     @Configure("blast.cooldown")
     long blastCooldown = 2000;
+    @Configure
+    double staminaCost = 100;
 
     public FireballAbility() {
         super("Fireball", "Throw fireballs!", "ProjectKorra", "CORE", Skill.FIREBENDING);
@@ -37,11 +39,11 @@ public class FireballAbility extends Ability implements Bindable, Combo, Passive
 
     @Override
     protected AbilityInstance activate(AbilityUser user, Activation trigger, Event provider) {
-        if (!user.isOnCooldown(this) && trigger == Activation.LEFT_CLICK) {
+        if (!user.isOnCooldown(this) && trigger == Activation.LEFT_CLICK && user.getStamina().consume(staminaCost)) {
             return new FireballBlast(this, user);
         }
         
-        if (!user.isOnCooldown("FireballCombo") && trigger == Activation.COMBO) {
+        if (!user.isOnCooldown("FireballCombo") && trigger == Activation.COMBO && user.getStamina().consume(staminaCost)) {
             user.addCooldown("FireballCombo", blastCooldown);
             return new FireballBlast(this, user);
         }

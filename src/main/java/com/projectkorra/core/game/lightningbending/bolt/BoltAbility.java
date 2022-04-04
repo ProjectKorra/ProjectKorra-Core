@@ -34,6 +34,8 @@ public class BoltAbility extends Ability implements Bindable {
     double subarcSpeed = 50;
     @Configure("subarc.range")
     double subarcRange = 10;
+    @Configure
+    double staminaCost = 500;
 
     public BoltAbility() {
         super("Bolt", "Shoot a lightning bolt!", "ProjectKorra", "CORE", Skill.LIGHTNINGBENDING);
@@ -49,18 +51,21 @@ public class BoltAbility extends Ability implements Bindable {
 
     @Override
     protected AbilityInstance activate(AbilityUser user, Activation trigger, Event provider) {
-        if (user.isOnCooldown(this)) {
-            return null;
-        }
-
         if (trigger == Activation.DAMAGED) {
+            user.sendMessage("a");
             if (AbilityManager.hasInstance(user, BoltInstance.class)) {
+                user.sendMessage("b");
                 AbilityManager.getInstance(user, BoltInstance.class).ifPresent(BoltInstance::charge);
             } else {
+                user.sendMessage("c");
                 BoltInstance bolt = new BoltInstance(this, user, false);
                 bolt.charge();
                 return bolt;
             }
+        }
+        
+        if (user.isOnCooldown(this)) {
+            return null;
         }
 
         if (trigger == Activation.SNEAK_DOWN) {

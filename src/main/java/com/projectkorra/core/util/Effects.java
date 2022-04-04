@@ -1,5 +1,8 @@
 package com.projectkorra.core.util;
 
+import java.util.function.Consumer;
+import java.util.function.Predicate;
+
 import com.projectkorra.core.ability.AbilityInstance;
 import com.projectkorra.core.event.ability.InstanceDamageEntityEvent;
 import com.projectkorra.core.event.ability.InstanceIgniteEntityEvent;
@@ -8,6 +11,7 @@ import com.projectkorra.core.event.ability.InstanceMoveEntityEvent;
 import org.bukkit.Location;
 import org.bukkit.Sound;
 import org.bukkit.attribute.Attribute;
+import org.bukkit.entity.Entity;
 import org.bukkit.entity.LivingEntity;
 import org.bukkit.util.Vector;
 
@@ -81,5 +85,9 @@ public final class Effects {
 
 	public static void playSound(Location loc, Sound sound, float volume, float pitch) {
 		loc.getWorld().playSound(loc, sound, volume, pitch);
+	}
+
+	public static void forNearbyEntities(Location loc, double range, Predicate<Entity> filter, Consumer<Entity> effect) {
+		loc.getWorld().getNearbyEntities(loc, range, range, range, filter).forEach(effect);
 	}
 }

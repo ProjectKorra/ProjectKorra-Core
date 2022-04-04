@@ -8,6 +8,7 @@ import com.projectkorra.core.util.Particles;
 
 import org.bukkit.FluidCollisionMode;
 import org.bukkit.Sound;
+import org.bukkit.util.RayTraceResult;
 import org.bukkit.util.Vector;
 
 public class FireJetInstance extends AbilityInstance {
@@ -20,6 +21,8 @@ public class FireJetInstance extends AbilityInstance {
     private long cooldown;
     @Attribute("acceleration")
     private double acceleration;
+    @Attribute("stamina_cost")
+    private double staminaCost;
 
     public FireJetInstance(FireJetAbility provider, AbilityUser user) {
         super(provider, user);
@@ -27,6 +30,7 @@ public class FireJetInstance extends AbilityInstance {
         this.duration = provider.duration;
         this.cooldown = provider.cooldown;
         this.acceleration = provider.acceleration;
+        this.staminaCost = provider.jetDrain;
     }
 
     @Override
@@ -36,7 +40,7 @@ public class FireJetInstance extends AbilityInstance {
 
     @Override
     protected boolean onUpdate(double timeDelta) {
-        if (this.timeLived() >= duration) {
+        if (!user.getStamina().consume(timeDelta * staminaCost)) {
             return false;
         } else if (user.getLocation().getBlock().isLiquid()) {
             return false;
@@ -51,19 +55,22 @@ public class FireJetInstance extends AbilityInstance {
             velocity.normalize().multiply(maxSpeed * timeDelta);
         }
 
-        if (user.getLocation().getWorld().rayTraceBlocks(user.getLocation(), new Vector(0, -1, 0), 0.5, FluidCollisionMode.NEVER) != null) {
+        RayTraceResult ray = user.getLocation().getWorld().rayTraceBlocks(user.getLocation(), new Vector(0, -1, 0), 1.3, FluidCollisionMode.ALWAYS, true);
+        if (ray != null) {
             Particles.firebending(user.getLocation(), 13, 0.4, 0.1, 0.4);
-            velocity.setY(0.5 * (0.4 - (user.getLocation().getY() - user.getLocation().getBlockY())));
+            velocity.setY(0.5 * (1.1 - (user.getLocation().getY() - ray.getHitBlock().getY() - 1)));
         }
 
         user.getEntity().setVelocity(velocity);
         user.getEntity().setFallDistance(0);
         Particles.firebending(user.getLocation(), 7, 0.2, 0.2, 0.2);
+        Effects.playSound(user.getLocation(), Sound.BLOCK_FIRE_AMBIENT, 1f, 1.8f);
         return true;
     }
 
     @Override
-    protected void postUpdate() {}
+    protected void postUpdate() {
+    }
 
     @Override
     protected void onStop() {

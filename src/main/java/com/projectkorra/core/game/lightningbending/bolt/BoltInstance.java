@@ -36,6 +36,8 @@ public class BoltInstance extends AbilityInstance {
     private long cooldown;
     @Attribute("subarc_chance")
     private double subarcChance;
+    @Attribute("stamina_cost")
+    private double staminaCost;
     
     private boolean shot = false;
     private Location loc;
@@ -50,6 +52,7 @@ public class BoltInstance extends AbilityInstance {
         this.minChargeTime = subArc ? 0 : provider.minChargeTime;
         this.maxChargeTime = subArc ? 0 : provider.maxChargeTime;
         this.subarcChance = subArc ? 0 : provider.subarcChance;
+        this.staminaCost = subArc ? 0 : provider.staminaCost;
         this.maxRange = this.range;
     }
 
@@ -154,7 +157,7 @@ public class BoltInstance extends AbilityInstance {
     }
 
     private boolean ray(double timeDelta) {
-        RayTraceResult ray = loc.getWorld().rayTrace(loc, loc.getDirection(), speed / 2 * timeDelta, FluidCollisionMode.ALWAYS, true, 0.5, null);
+        RayTraceResult ray = loc.getWorld().rayTrace(loc, loc.getDirection(), speed / 2 * timeDelta, FluidCollisionMode.ALWAYS, true, 0.8, null);
         if (ray != null) {
             if (ray.getHitEntity() != null && ray.getHitEntity() instanceof LivingEntity  && !ray.getHitEntity().getUniqueId().equals(user.getUniqueID())) {
                 Particles.spawn(Particle.EXPLOSION_LARGE, loc);
@@ -181,7 +184,7 @@ public class BoltInstance extends AbilityInstance {
     }
 
     public void releaseSneak() {
-        if (!shot && this.timeLived() >= minChargeTime) {
+        if (!shot && this.timeLived() >= minChargeTime && user.getStamina().consume(staminaCost)) {
             this.shoot();
         } else {
             AbilityManager.remove(this);
@@ -189,9 +192,7 @@ public class BoltInstance extends AbilityInstance {
     }
 
     public void charge() {
-        if (!shot) {
-            this.minChargeTime = 0;
-        }
+        this.minChargeTime = 0;
     }
 
     public boolean canRedirect() {

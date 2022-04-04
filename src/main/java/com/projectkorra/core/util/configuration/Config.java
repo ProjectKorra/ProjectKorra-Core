@@ -2,16 +2,18 @@ package com.projectkorra.core.util.configuration;
 
 import java.io.File;
 import java.lang.reflect.Field;
+import java.util.Arrays;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 import java.util.function.BiFunction;
 import java.util.function.Function;
 
-import com.projectkorra.core.ProjectKorra;
-
 import org.bukkit.configuration.file.FileConfiguration;
 import org.bukkit.configuration.file.YamlConfiguration;
 import org.bukkit.plugin.java.JavaPlugin;
+
+import com.projectkorra.core.ProjectKorra;
 
 public class Config {
 	
@@ -128,14 +130,30 @@ public class Config {
 		for (Field field : object.getClass().getDeclaredFields()) {
 			if (field.isAnnotationPresent(Configure.class)) {
 				String path = field.getAnnotation(Configure.class).value();
+				String comment = field.getAnnotation(Configure.class).comment();
+				
+				if (path.isEmpty()) {
+					path = field.getName();
+				}
+				
+				List<String> comments = null;
+				
+				if (!comment.isEmpty()) {
+					comments = Arrays.asList(comment);
+				}
+				
+				config.get().setComments(path, comments);
+				
 				try {
 					boolean access = field.isAccessible();
 					field.setAccessible(true);
+					
 					if (!config.get().contains(path)) {
 						config.addDefault(path, field.get(object));
 					} else {
 						field.set(object, config.getValue(path));
 					}
+
 					field.setAccessible(access);
 				} catch (Exception e) {
 					e.printStackTrace();

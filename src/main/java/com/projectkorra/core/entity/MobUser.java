@@ -40,5 +40,4 @@ public class MobUser extends User<Mob> {
 	public boolean checkDefaultProtections(Location loc) {
 		return false;
 	}
-
 }

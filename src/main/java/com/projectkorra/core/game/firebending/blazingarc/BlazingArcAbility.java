@@ -23,8 +23,10 @@ public class BlazingArcAbility extends Ability implements Bindable {
     long cooldown = 3000;
     @Configure("knockback")
     double knockback = 0.7;
-    @Configure("delay")
+    @Configure(comment = "How long the user has to swipe their cursor to make the arc")
     long delay = 200;
+    @Configure
+    double staminaCost = 100;
 
     public BlazingArcAbility() {
         super("BlazingArc", "Create a arcing blaze in front of you", "ProjectKorra", "CORE", Skill.FIREBENDING);
@@ -44,7 +46,7 @@ public class BlazingArcAbility extends Ability implements Bindable {
             return null;
         }
 
-        if (trigger == Activation.LEFT_CLICK) {
+        if (trigger == Activation.LEFT_CLICK && user.getStamina().consume(staminaCost)) {
             return new BlazingArcInstance(this, user);
         }
 

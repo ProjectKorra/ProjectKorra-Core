@@ -8,6 +8,8 @@ import com.projectkorra.core.game.airbending.gust.GustAbility;
 import com.projectkorra.core.game.firebending.blazingarc.BlazingArcAbility;
 import com.projectkorra.core.game.firebending.fireball.FireballAbility;
 import com.projectkorra.core.game.firebending.firejet.FireJetAbility;
+import com.projectkorra.core.game.firebending.flamethrower.Flamethrower;
+import com.projectkorra.core.game.firebending.flamingwall.FlamingWall;
 import com.projectkorra.core.game.firebending.passives.SunlightPassive;
 import com.projectkorra.core.game.lightningbending.bolt.BoltAbility;
 import com.projectkorra.core.game.lightningbending.redirection.RedirectionPassive;
@@ -46,6 +48,8 @@ public class ProjectKorra extends JavaPlugin {
 		AbilityManager.register(new WellbeingPassive());
 		AbilityManager.register(new RedirectionPassive());
 		AbilityManager.register(new LandingPassive());
+		AbilityManager.register(new Flamethrower());
+		AbilityManager.register(new FlamingWall());
 
 		for (Player player : Bukkit.getOnlinePlayers()) {
 			UserManager.load(player);

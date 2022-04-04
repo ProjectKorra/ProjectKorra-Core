@@ -13,6 +13,6 @@ public @interface Configure {
 	 * Gets the config path for the configurable field
 	 * @return config path
 	 */
-	public String value();
-	//public String comment() default "";
+	public String value() default "";
+	public String comment() default "";
 }

@@ -6,6 +6,7 @@ import java.util.Optional;
 import java.util.PriorityQueue;
 import java.util.Set;
 import java.util.UUID;
+import java.util.function.Predicate;
 
 import com.projectkorra.core.ability.activation.Activation;
 import com.projectkorra.core.event.user.UserBindChangeEvent;
@@ -14,8 +15,11 @@ import com.projectkorra.core.event.user.UserCooldownEndEvent;
 import com.projectkorra.core.event.user.UserCooldownStartEvent;
 import com.projectkorra.core.skill.SkillHolder;
 import com.projectkorra.core.util.Events;
+import com.projectkorra.core.util.data.Stamina;
 
+import org.bukkit.FluidCollisionMode;
 import org.bukkit.Location;
+import org.bukkit.entity.Entity;
 import org.bukkit.entity.LivingEntity;
 import org.bukkit.util.Vector;
 
@@ -29,15 +33,21 @@ public abstract class AbilityUser extends SkillHolder {
 	private PriorityQueue<Cooldown> cdQueue = new PriorityQueue<>(32, (a, b) -> (int) (a.getEndTime() - b.getEndTime()));
 	private Map<Activation, SourceInstance> sources = new HashMap<>();
 	private LivingEntity entity;
+	private Stamina stamina; 
 
 	public boolean immune = false;
 
 	public AbilityUser(LivingEntity entity) {
 		this.entity = entity;
+		this.stamina = new Stamina(this, 1000, 100);
 	}
 
 	public LivingEntity getEntity() {
 		return entity;
+	}
+
+	public final Stamina getStamina() {
+		return stamina;
 	}
 	
 	/**
@@ -277,6 +287,8 @@ public abstract class AbilityUser extends SkillHolder {
 	 * @return The ability starting direction of this user
 	 */
 	public abstract Vector getDirection();
+
+	public abstract Optional<Entity> getTargetEntity(double range, double raySize, FluidCollisionMode fluid, Predicate<Entity> filter);
 	
 	/**
 	 * Gets the unique id for this user

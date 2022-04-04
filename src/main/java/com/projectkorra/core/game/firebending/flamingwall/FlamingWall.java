@@ -1,94 +1,86 @@
 package com.projectkorra.core.game.firebending.flamingwall;
 
+import com.google.common.collect.ImmutableSet;
 import com.projectkorra.core.ability.Ability;
 import com.projectkorra.core.ability.AbilityInstance;
 import com.projectkorra.core.ability.AbilityManager;
 import com.projectkorra.core.ability.AbilityUser;
-import com.projectkorra.core.ability.attribute.Attribute;
+import com.projectkorra.core.ability.activation.Activation;
+import com.projectkorra.core.ability.type.Bindable;
+import com.projectkorra.core.skill.Skill;
+import com.projectkorra.core.util.Blocks;
+import com.projectkorra.core.util.Vectors;
+import com.projectkorra.core.util.configuration.Configure;
 
-import org.bukkit.Location;
-import org.bukkit.util.Vector;
+import org.bukkit.event.Event;
 
-public class FlamingWall extends AbilityInstance {
+public class FlamingWall extends Ability implements Bindable {
 
-    @Attribute(Attribute.DAMAGE)
-    private double damage;
-    @Attribute("raise_radius")
-    private double raiseRadius;
-    @Attribute("shove_range")
-    private double shoveRange;
-    @Attribute(Attribute.WIDTH)
-    private double width;
-    @Attribute(Attribute.HEIGHT)
-    private double height;
-    @Attribute("shove_knockback")
-    private double shoveKnockback;
-    @Attribute(Attribute.COOLDOWN)
-    private long cooldown;
-    @Attribute("shove_speed")
-    private double shoveSpeed;
+    @Configure("raise.radius")
+    double raiseRadius = 4;
+    @Configure("shove.range")
+    double shoveRange = 6;
+    @Configure("width")
+    double width = 6;
+    @Configure("height")
+    double height = 4;
+    @Configure("shove.knockback") 
+    double shoveKnockback = 0.8;
+    @Configure("damage") 
+    double damage = 0.5;
+    @Configure("shove.speed")
+    double shoveSpeed = 15;
+    @Configure("cooldown")
+    long cooldown = 5000;
+    @Configure("duration")
+    long duration = 5000;
+    @Configure("raise.speed")
+    double raiseSpeed = 8;
+    @Configure
+    double staminaCost = 100;
+    @Configure
+    double staminaDrain = 25;
 
-    private Location loc, shoveStart;
-    private Vector dir;
-    private boolean shoved = false;
-
-    public FlamingWall(Ability provider, AbilityUser user, double damage, double raiseRadius, double width, double height, double shoveRange, double shoveSpeed, double shoveKnockback, long cooldown) {
-        super(provider, user);
-        this.damage = damage;
-        this.raiseRadius = raiseRadius;
-        this.width = width;
-        this.height = height;
-        this.shoveRange = shoveRange;
-        this.shoveSpeed = shoveSpeed;
-        this.shoveKnockback = shoveKnockback;
-        this.cooldown = cooldown;
+    public FlamingWall() {
+        super("FlamingWall", "Create a blazing wall that prevents enemies from passing through", "ProjectKorra", "CORE", Skill.FIREBENDING);
     }
 
     @Override
-    protected void onStart() {
-        this.loc = user.getLocation();
-        this.dir = user.getDirection();
-    }
+    public void postProcessed() {}
 
     @Override
-    protected boolean onUpdate(double timeDelta) {
-        if (shoved) {
-            if (shoveStart.distanceSquared(loc) >= shoveRange * shoveRange) {
-                return false;
-            }
+    protected AbilityInstance activate(AbilityUser user, Activation trigger, Event provider) {
+        if (user.isOnCooldown(this)) {
+            return null;
         }
-        return true;
+
+        if (!AbilityManager.hasInstance(user, FlamingWallInstance.class) && trigger == Activation.LEFT_CLICK && user.getStamina().consume(staminaCost) && !Blocks.getTop(user.getLocation().add(Vectors.direction(user.getLocation().getYaw(), 0)), height).isEmpty()) {
+            return new FlamingWallInstance(this, user);
+        } else if (trigger == Activation.SNEAK_DOWN) {
+            AbilityManager.getInstance(user, FlamingWallInstance.class).ifPresent(FlamingWallInstance::shove);
+        } else if (trigger == Activation.SNEAK_UP) {
+            AbilityManager.getInstance(user, FlamingWallInstance.class).ifPresent(FlamingWallInstance::unshove);
+        }
+
+        return null;
     }
 
     @Override
-    protected void postUpdate() {
-        
+    protected void onRegister() {}
+
+    @Override
+    public boolean uses(Activation trigger) {
+        return trigger == Activation.SNEAK_DOWN || trigger == Activation.SNEAK_UP || trigger == Activation.LEFT_CLICK;
     }
 
     @Override
-    protected void onStop() {
-        user.addCooldown(this.getProvider(), cooldown);
+    public ImmutableSet<Class<? extends AbilityInstance>> instanceClasses() {
+        return ImmutableSet.of(FlamingWallInstance.class);
     }
 
     @Override
-    public String getName() {
-        return provider.getName();
+    public String getInstructions() {
+        return "Hold sneak to raise a wall of flames in front of you, or click to raise it parallel to you";
     }
     
-    public void click() {
-        if (shoved) {
-            return;
-        }
-
-        shoved = true;
-
-    }
-
-    public void releaseSneak() {
-        if (shoved) {
-            return;
-        }
-
-        AbilityManager.remove(this);
-    }
 }

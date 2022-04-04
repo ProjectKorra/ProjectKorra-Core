@@ -18,6 +18,7 @@ import org.bukkit.event.Event;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.entity.EntityDamageByEntityEvent;
 import org.bukkit.event.entity.EntityDamageEvent.DamageCause;
+import org.bukkit.util.Vector;
 
 public class RedirectionPassive extends Ability implements Passive {
 
@@ -60,12 +61,14 @@ public class RedirectionPassive extends Ability implements Passive {
         PlayerUser user = UserManager.getAs(event.getTarget().getUniqueId(), PlayerUser.class);
         if (user == null) {
             return;
-        }
-
-        if (!user.getEntity().isSneaking() || !user.getBoundAbility().filter((a) -> a instanceof BoltAbility).isPresent()) {
+        } else if (!user.getEntity().isSneaking() || !user.getBoundAbility().filter((a) -> a instanceof BoltAbility).isPresent()) {
+            return;
+        } else if (AbilityManager.hasInstance(user, BoltInstance.class) && !AbilityManager.getInstance(user, BoltInstance.class).get().canRedirect()) {
             return;
         }
 
+        event.setCancelled(true);
+        user.getEntity().setVelocity(new Vector(0, 0, 0));
         user.removeCooldown(AbilityManager.getAbility(BoltAbility.class).get());
         AbilityManager.activate(user, Activation.DAMAGED, event);
     }
@@ -79,9 +82,7 @@ public class RedirectionPassive extends Ability implements Passive {
         PlayerUser user = UserManager.getAs(event.getEntity().getUniqueId(), PlayerUser.class);
         if (user == null) {
             return;
-        }
-
-        if (!user.getEntity().isSneaking() || !user.getBoundAbility().filter((a) -> a instanceof BoltAbility).isPresent()) {
+        } else if (!user.getEntity().isSneaking() || !user.getBoundAbility().filter((a) -> a instanceof BoltAbility).isPresent()) {
             return;
         } else if (AbilityManager.hasInstance(user, BoltInstance.class) && !AbilityManager.getInstance(user, BoltInstance.class).get().canRedirect()) {
             return;

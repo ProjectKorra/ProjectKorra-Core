@@ -22,6 +22,18 @@ public class Vectors {
 	}
 
 	/**
+	 * Get the direction for which the given yaw and pitch point in
+	 * @param yaw
+	 * @param pitch
+	 * @return
+	 */
+	public static Vector direction(float yaw, float pitch) {
+		double yawRad = Math.toRadians(yaw), pitchRad = Math.toRadians(pitch);
+		double xz = Math.cos(pitchRad);
+		return new Vector(-xz * Math.sin(yawRad), Math.sin(pitchRad), xz * Math.cos(yawRad));
+	}
+
+	/**
 	 * Calculates an orthogonal unit vector from the given axis that points to the righthand 
 	 * side when viewed in the direction of the axis.
 	 * @param axis vector to be orthogonal of
