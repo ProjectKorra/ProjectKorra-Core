@@ -3,7 +3,7 @@ package com.projectkorra.core.collision.effect;
 import org.bukkit.Particle;
 
 import com.projectkorra.core.event.BendingCollisionEvent;
-import com.projectkorra.core.util.ParticleUtil;
+import com.projectkorra.core.util.Particles;
 import com.projectkorra.core.util.data.Pairing;
 
 public class CollisionParticles extends CollisionEffect {
@@ -18,9 +18,9 @@ public class CollisionParticles extends CollisionEffect {
 		try {
 			particle = Particle.valueOf(((String) args[0]).toUpperCase());
 		} catch (Exception e) {
-			particle = Particle.BARRIER;
+			particle = Particle.BLOCK_MARKER;
 		}
 		
-		ParticleUtil.spawn(particle, event.getCenter(), (int)args[1], (double)args[2], 0, null);
+		Particles.spawn(particle, event.getCenter(), (int)args[1], (double)args[2], 0, null);
 	}
 }

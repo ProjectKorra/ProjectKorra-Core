@@ -1,18 +1,22 @@
 package com.projectkorra.core.game.firebending.fireball;
 
+import com.projectkorra.core.ability.AbilityManager;
 import com.projectkorra.core.ability.AbilityUser;
 import com.projectkorra.core.ability.attribute.Attribute;
 import com.projectkorra.core.ability.type.BlastInstance;
+import com.projectkorra.core.collision.Collidable;
 import com.projectkorra.core.util.Effects;
 import com.projectkorra.core.util.Particles;
 
 import org.bukkit.FluidCollisionMode;
 import org.bukkit.Particle;
 import org.bukkit.Sound;
+import org.bukkit.World;
 import org.bukkit.entity.LivingEntity;
+import org.bukkit.util.BoundingBox;
 import org.bukkit.util.RayTraceResult;
 
-public class FireballBlast extends BlastInstance {
+public class FireballBlast extends BlastInstance implements Collidable {
 
     @Attribute(Attribute.RANGE)
     private double range;
@@ -78,6 +82,26 @@ public class FireballBlast extends BlastInstance {
     @Override
     public String getName() {
         return provider.getName() + "Blast";
+    }
+
+    @Override
+    public String getTag() {
+        return provider.getName();
+    }
+
+    @Override
+    public BoundingBox getHitbox() {
+        return BoundingBox.of(location, size, size, size);
+    }
+
+    @Override
+    public World getWorld() {
+        return location.getWorld();
+    }
+
+    @Override
+    public void remove() {
+        AbilityManager.remove(this);
     }
     
 }

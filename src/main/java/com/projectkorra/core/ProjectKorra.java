@@ -3,6 +3,7 @@ package com.projectkorra.core;
 import java.io.File;
 
 import com.projectkorra.core.ability.AbilityManager;
+import com.projectkorra.core.collision.CollisionManager;
 import com.projectkorra.core.command.CommandRegistry;
 import com.projectkorra.core.game.airbending.gust.GustAbility;
 import com.projectkorra.core.game.firebending.blazingarc.BlazingArcAbility;
@@ -35,6 +36,7 @@ public class ProjectKorra extends JavaPlugin {
 	public void onEnable() {
 		instance = this;
 		AbilityManager.init(this);
+		CollisionManager.init(this);
 		this.setupDatabase();
 		CommandRegistry.init(this);
 		UserManager.init(this);

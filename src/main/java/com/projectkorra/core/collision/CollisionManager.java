@@ -6,9 +6,6 @@ import java.util.HashSet;
 import java.util.Map;
 import java.util.Set;
 
-import org.bukkit.plugin.java.JavaPlugin;
-import org.bukkit.util.BoundingBox;
-
 import com.projectkorra.core.ProjectKorra;
 import com.projectkorra.core.collision.effect.CollisionEffect;
 import com.projectkorra.core.event.BendingCollisionEvent;
@@ -16,7 +13,12 @@ import com.projectkorra.core.util.CollisionUtil;
 import com.projectkorra.core.util.data.Pair;
 import com.projectkorra.core.util.data.Pairing;
 
-public class CollisionManager {
+import org.bukkit.plugin.java.JavaPlugin;
+import org.bukkit.util.BoundingBox;
+
+public final class CollisionManager {
+
+	private CollisionManager() {}
 	
 	private static final ProjectKorra PLUGIN = JavaPlugin.getPlugin(ProjectKorra.class);
 	
@@ -25,26 +27,26 @@ public class CollisionManager {
 	private static final int BOUNDING_MAX = 29999984;
 	private static final CollisionFile COLLISIONS = new CollisionFile(new File(PLUGIN.getDataFolder(), "collisions.txt"));
 	
-	private CollisionTree tree;
-	private Set<Collidable> instances, removal, handled;
-	private Map<Pair<String, String>, CollisionData> valids;
-	
-	public CollisionManager() {
-		tree = new CollisionTree(new BoundingBox(BOUNDING_MIN, BOUNDING_MIN, BOUNDING_MIN, BOUNDING_MAX, BOUNDING_MAX, BOUNDING_MAX), 5); //create a tree with the max world size
-		instances = new HashSet<>();
-		removal = new HashSet<>();
-		handled = new HashSet<>();
-		valids = new HashMap<>();
-		
+	private static CollisionTree tree = new CollisionTree(new BoundingBox(BOUNDING_MIN, BOUNDING_MIN, BOUNDING_MIN, BOUNDING_MAX, BOUNDING_MAX, BOUNDING_MAX), 5);
+	private static Set<Collidable> instances = new HashSet<>(), removal = new HashSet<>(), handled = new HashSet<>();
+	private static Map<Pair<String, String>, CollisionData> valids = new HashMap<>();
+	private static boolean init = false;
+
+	public static void init(ProjectKorra plugin) {
+		if (init) {
+			return;
+		}
+
+		init = true;
 		COLLISIONS.readAnd((cd) -> valids.put(Pairing.of(cd.getLeft().toLowerCase(), cd.getSecond().toLowerCase()), cd));
+		plugin.getServer().getScheduler().scheduleSyncRepeatingTask(plugin, CollisionManager::tick, 1, 1);
 	}
 	
-	public void tick() {
+	public static void tick() {
 		for (Collidable obj : instances) {
 			handled.add(obj);
 			
 			for (Collidable other : tree.query(obj.getHitbox(), (c) -> handled.contains(c))) {
-				
 				if (!obj.getWorld().equals(other.getWorld())) {
 					continue;
 				}
@@ -95,13 +97,13 @@ public class CollisionManager {
 	}
 
 	//call this after the progress method for Collidable abilities
-	public void addCollidable(Collidable obj) {
+	public static void addCollidable(Collidable obj) {
 		if (tree.insert(obj)) {
 			instances.add(obj);
 		}
 	}
 	
-	public void reload() {
+	public static void reload() {
 		tree.reset();
 		instances.clear();
 	}
@@ -112,11 +114,11 @@ public class CollisionManager {
 	 * @param second another collidable
 	 * @return true if valid collision found
 	 */
-	public boolean validCollisionExists(Collidable first, Collidable second) {
+	public static boolean validCollisionExists(Collidable first, Collidable second) {
 		return first != null && second != null && valids.containsKey(CollisionUtil.pairTags(first, second));
 	}
 	
-	public boolean addValidCollision(Collidable first, Collidable second, CollisionOperator op) {
+	public static boolean addValidCollision(Collidable first, Collidable second, CollisionOperator op) {
 		return addValidCollision(first, second, op, null, null);
 	}
 	
@@ -131,7 +133,7 @@ public class CollisionManager {
 	 * @param args effect parameters
 	 * @return false if valid collision exists
 	 */
-	public boolean addValidCollision(Collidable first, Collidable second, CollisionOperator op, String effect[], String[][] args) {
+	public static boolean addValidCollision(Collidable first, Collidable second, CollisionOperator op, String effect[], String[][] args) {
 		if (first == null || second == null || validCollisionExists(first, second)) {
 			return false;
 		}
