@@ -2,14 +2,6 @@ package com.projectkorra.core.game.firebending.blazingarc;
 
 import java.util.Optional;
 
-import com.projectkorra.core.ability.AbilityInstance;
-import com.projectkorra.core.ability.AbilityUser;
-import com.projectkorra.core.ability.attribute.Attribute;
-import com.projectkorra.core.util.Effects;
-import com.projectkorra.core.util.Particles;
-import com.projectkorra.core.util.Vectors;
-import com.projectkorra.core.util.Velocity;
-
 import org.bukkit.FluidCollisionMode;
 import org.bukkit.Location;
 import org.bukkit.Sound;
@@ -17,7 +9,14 @@ import org.bukkit.entity.LivingEntity;
 import org.bukkit.util.RayTraceResult;
 import org.bukkit.util.Vector;
 
-public class BlazingArcInstance extends AbilityInstance {
+import com.projectkorra.core.ability.AbilityUser;
+import com.projectkorra.core.ability.attribute.Attribute;
+import com.projectkorra.core.game.firebending.FireAbilityInstance;
+import com.projectkorra.core.util.Effects;
+import com.projectkorra.core.util.Vectors;
+import com.projectkorra.core.util.Velocity;
+
+public class BlazingArcInstance extends FireAbilityInstance {
 
     @Attribute(Attribute.DAMAGE)
     private double damage;
@@ -29,14 +28,12 @@ public class BlazingArcInstance extends AbilityInstance {
     private long cooldown;
     @Attribute(Attribute.KNOCKBACK)
     private double knockback;
-    @Attribute("Delay")
-    private long delay;
 
     private Location[] locs = new Location[3];
     private Location start;
     private Vector[] dirs = new Vector[3]; // 0 left, 1 mid, 2 right
     private double currRange = 0;
-    private double angle;
+    private double angle, delay;
     private boolean started = false;
     private boolean[] blocked = new boolean[51];
 
@@ -83,14 +80,14 @@ public class BlazingArcInstance extends AbilityInstance {
 
         Effects.playSound(locs[1], Sound.BLOCK_FIRE_AMBIENT, 1f, 1.8f);
         double increment = 0.25 / (angle * currRange);
-        for (double t = 0; t <= 1; t += increment) {
+        for (double t = 0; t <= 1; t += Math.min(1.0 / blocked.length, increment)) {
             if (blocked[(int) Math.round(t * (blocked.length - 1))]) {
                 continue;
             }
             
             Location display = bezier(t);
             display.setDirection(Vectors.direction(start, display));
-            Particles.firebending(display, 1, 0, 0, 0);
+            particles(display, 1, 0, 0, 0);
             if (rayCast(display, speed * timeDelta)) {
                 blocked[(int) Math.round(t * (blocked.length - 1))] = true;
             }

@@ -1,5 +1,11 @@
 package com.projectkorra.core.game.lightningbending.redirection;
 
+import org.bukkit.event.Event;
+import org.bukkit.event.EventHandler;
+import org.bukkit.event.entity.EntityDamageByEntityEvent;
+import org.bukkit.event.entity.EntityDamageEvent.DamageCause;
+import org.bukkit.util.Vector;
+
 import com.google.common.collect.ImmutableSet;
 import com.projectkorra.core.UserManager;
 import com.projectkorra.core.ability.Ability;
@@ -13,14 +19,13 @@ import com.projectkorra.core.event.ability.InstanceDamageEntityEvent;
 import com.projectkorra.core.game.lightningbending.bolt.BoltAbility;
 import com.projectkorra.core.game.lightningbending.bolt.BoltInstance;
 import com.projectkorra.core.skill.Skill;
-
-import org.bukkit.event.Event;
-import org.bukkit.event.EventHandler;
-import org.bukkit.event.entity.EntityDamageByEntityEvent;
-import org.bukkit.event.entity.EntityDamageEvent.DamageCause;
-import org.bukkit.util.Vector;
+import com.projectkorra.core.util.configuration.Configure;
 
 public class RedirectionPassive extends Ability implements Passive {
+	
+	public static final Activation TRIGGER = Activation.of("redirection_trigger", "Redirection", false);
+	
+	@Configure double staminaCost = 0.1;
 
     public RedirectionPassive() {
         super("Redirection", "Lightningbenders can take in lightning and release it again!", "ProjectKorra", "CORE", Skill.LIGHTNINGBENDING);
@@ -65,12 +70,14 @@ public class RedirectionPassive extends Ability implements Passive {
             return;
         } else if (AbilityManager.hasInstance(user, BoltInstance.class) && !AbilityManager.getInstance(user, BoltInstance.class).get().canRedirect()) {
             return;
+        } else if (!user.getStamina().consume(staminaCost)) {
+        	return;
         }
 
         event.setCancelled(true);
         user.getEntity().setVelocity(new Vector(0, 0, 0));
         user.removeCooldown(AbilityManager.getAbility(BoltAbility.class).get());
-        AbilityManager.activate(user, Activation.DAMAGED, event);
+        AbilityManager.activate(user, TRIGGER, event);
     }
     
     @EventHandler
@@ -86,10 +93,12 @@ public class RedirectionPassive extends Ability implements Passive {
             return;
         } else if (AbilityManager.hasInstance(user, BoltInstance.class) && !AbilityManager.getInstance(user, BoltInstance.class).get().canRedirect()) {
             return;
+        } else if (!user.getStamina().consume(staminaCost)) {
+        	return;
         }
 
         event.setCancelled(true);
         user.removeCooldown(AbilityManager.getAbility(BoltAbility.class).get());
-        AbilityManager.activate(user, Activation.DAMAGED, event);
+        AbilityManager.activate(user, TRIGGER, event);
     }
 }

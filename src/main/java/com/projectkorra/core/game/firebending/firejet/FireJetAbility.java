@@ -15,29 +15,27 @@ import org.bukkit.event.Event;
 public class FireJetAbility extends Ability implements Bindable {
 
     @Configure("jet.maxSpeed")
-    double speed = 20;
-    @Configure("jet.duration")
-    long duration = 3000;
+    double speed = 18;
     @Configure("jet.cooldown")
-    long cooldown = 6000;
+    long cooldown = 3000;
     @Configure("jet.acceleration")
-    double acceleration = 4;
+    double acceleration = 3.3;
     @Configure("jet.staminaCost")
-    double jetStamina = 200;
+    double jetStamina = 0.05;
     @Configure("jet.staminaDrain")
-    double jetDrain = 50;
+    double jetDrain = 0.2;
     @Configure("dash.speed")
-    double dashSpeed = 0.9;
+    double dashSpeed = 1.1;
     @Configure("dash.cooldown")
     long dashCooldown = 4000;
     @Configure("dash.staminaCost")
-    double dashStamina = 400;
+    double dashStamina = 0.05;
     @Configure("jump.speed")
-    double jumpSpeed = 1.1;
+    double jumpSpeed = 1.0;
     @Configure("jump.cooldown")
     long jumpCooldown = 7000;
     @Configure("jump.staminaCost")
-    double jumpStamina = 1000;
+    double jumpStamina = 0.1;
 
     public FireJetAbility() {
         super("FireJet", "Use firebending to create jet propulsion from your hands and feet.", "ProjectKorra", "CORE", Skill.FIREBENDING);

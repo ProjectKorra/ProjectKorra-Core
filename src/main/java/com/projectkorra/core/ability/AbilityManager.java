@@ -1,8 +1,12 @@
 package com.projectkorra.core.ability;
 
+import java.io.File;
 import java.lang.reflect.Field;
+import java.net.URL;
+import java.net.URLDecoder;
 import java.util.ArrayList;
 import java.util.Collections;
+import java.util.Enumeration;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.LinkedList;
@@ -11,6 +15,11 @@ import java.util.Map;
 import java.util.Map.Entry;
 import java.util.Optional;
 import java.util.Set;
+import java.util.jar.JarEntry;
+import java.util.jar.JarFile;
+
+import org.bukkit.event.Event;
+import org.bukkit.plugin.java.JavaPlugin;
 
 import com.projectkorra.core.ProjectKorra;
 import com.projectkorra.core.ability.activation.Activation;
@@ -21,6 +30,8 @@ import com.projectkorra.core.ability.type.Combo;
 import com.projectkorra.core.ability.type.ExpanderInstance;
 import com.projectkorra.core.ability.type.Passive;
 import com.projectkorra.core.ability.type.SourcedAbility;
+import com.projectkorra.core.collision.Collidable;
+import com.projectkorra.core.collision.CollisionManager;
 import com.projectkorra.core.event.ability.InstanceStartEvent;
 import com.projectkorra.core.event.ability.InstanceStopEvent;
 import com.projectkorra.core.event.ability.InstanceStopEvent.Reason;
@@ -30,8 +41,6 @@ import com.projectkorra.core.util.Events;
 import com.projectkorra.core.util.configuration.Config;
 import com.projectkorra.core.util.configuration.Configure;
 import com.projectkorra.core.util.reflection.ReflectionUtil;
-
-import org.bukkit.event.Event;
 
 public final class AbilityManager {
 	
@@ -173,6 +182,43 @@ public final class AbilityManager {
 		return Config.process(Events.register(ability));
 	}
 	
+	public static void registerFrom(JavaPlugin plugin, String path) {
+		if (plugin == null || path == null) {
+			ProjectKorra.warnConsole("Cannot find abilities from null values");
+			return;
+		}
+		
+		ClassLoader loader = plugin.getClass().getClassLoader();
+		
+		try {
+			Enumeration<URL> resources = loader.getResources(path.replace('.', '/'));
+			String jarLoc = resources.nextElement().getPath();
+			JarFile jar = new JarFile(new File(URLDecoder.decode(jarLoc.substring(5, jarLoc.length() - path.length() - 2), "UTF-8")));
+			Enumeration<JarEntry> entries = jar.entries();
+			
+			while (entries.hasMoreElements()) {
+				JarEntry entry = entries.nextElement();
+				if (!entry.getName().endsWith(".class") || entry.getName().contains("$")) {
+					continue;
+				}
+				
+				String className = entry.getName().replace('/', '.').substring(0, entry.getName().length() - 6);
+				if (!className.startsWith(path)) {
+					continue;
+				}
+				
+				Class<?> clazz = Class.forName(className, true, loader);
+				if (!Ability.class.isAssignableFrom(clazz) || clazz.isInterface() || java.lang.reflect.Modifier.isAbstract(clazz.getModifiers())) {
+					continue;
+				}
+				
+				register((Ability) clazz.getDeclaredConstructor().newInstance());
+			}
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
+	}
+	
 	/**
 	 * Calls activation for the given user, checking for a valid
 	 * combo that they can activate with their bound ability and 
@@ -180,7 +226,7 @@ public final class AbilityManager {
 	 * if nonnull
 	 * @param user who to activate for
 	 * @param trigger how to activate
-	 * @param provider the event providing this activation (nullable)
+	 * @param provider the event providing this activation (nullable, but some may not activate without)
 	 * @return false if null or event is cancelled, otherwise passed to {@link #start(AbilityUser, AbilityInstance)}
 	 */
 	public static boolean activate(AbilityUser user, Activation trigger, Event provider) {
@@ -294,6 +340,9 @@ public final class AbilityManager {
 			}
 			
 			instance.postUpdate();
+			if (instance instanceof Collidable) {
+				CollisionManager.addCollidable((Collidable) instance);
+			}
 		}
 		
 		prev = System.currentTimeMillis();

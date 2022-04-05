@@ -1,7 +1,9 @@
 package com.projectkorra.core.collision;
 
+import java.io.BufferedReader;
 import java.io.File;
 import java.io.FileNotFoundException;
+import java.io.FileReader;
 import java.io.FileWriter;
 import java.io.IOException;
 import java.util.HashSet;
@@ -71,20 +73,19 @@ public class CollisionFile {
 	 * @param consumer what to do with the valid parsed CollisionData
 	 */
 	public void readAnd(Consumer<CollisionData> consumer) {
-		try {
-			Scanner reader = new Scanner(file);
-			while (reader.hasNextLine()) {
+		try (BufferedReader reader = new BufferedReader(new FileReader(file))) {
+			String line;
+			while ((line = reader.readLine()) != null) {
 				CollisionData data;
 				try {
-					data = CollisionUtil.parse(reader.nextLine());
+					data = CollisionUtil.parse(line);
 				} catch (CollisionParseException e) {
 					e.printStackTrace();
 					continue;
 				}
 				consumer.accept(data);
 			}
-			reader.close();
-		} catch (FileNotFoundException e) {
+		} catch (Exception e) {
 			e.printStackTrace();
 		}
 	}

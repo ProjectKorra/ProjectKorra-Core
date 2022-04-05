@@ -4,6 +4,8 @@ import java.util.HashSet;
 import java.util.Set;
 import java.util.function.Predicate;
 
+import com.projectkorra.core.physics.Collider;
+
 import org.bukkit.util.BoundingBox;
 
 public class CollisionTree {
@@ -40,15 +42,19 @@ public class CollisionTree {
 	}
 	
 	void reset() {
-		for (CollisionTree branch : children) {
-			branch.reset();
+		if (children != null) {
+			for (CollisionTree branch : children) {
+				branch.reset();
+			}
+
+			children = null;
 		}
-		children = null;
+
 		contents.clear();
 	}
 	
 	public boolean insert(Collidable obj) {
-		if (!bounds.contains(obj.getHitbox().getCenterX(), obj.getHitbox().getCenterY(), obj.getHitbox().getCenterZ())) {
+		if (!bounds.contains(obj.getLocation().toVector())) {
 			return false;
 		}
 		
@@ -71,10 +77,9 @@ public class CollisionTree {
 		}
 	}
 	
-	public Set<Collidable> query(BoundingBox range, Predicate<Collidable> filter) {
+	public Set<Collidable> query(Collider range, Predicate<Collidable> filter) {
 		Set<Collidable> found = new HashSet<>();
-		
-		if (bounds.overlaps(range)) {
+		if (!range.overlaps(bounds)) {
 			return found;
 		}
 		
@@ -84,7 +89,7 @@ public class CollisionTree {
 			}
 		} else {
 			for (Collidable obj : contents) {
-				if (range.overlaps(obj.getHitbox()) && !filter.test(obj)) {
+				if (range.intersects(obj.getHitbox()) && filter.test(obj)) {
 					found.add(obj);
 				}
 			}

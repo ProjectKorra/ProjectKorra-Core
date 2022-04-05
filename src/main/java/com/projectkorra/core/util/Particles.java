@@ -118,10 +118,6 @@ public class Particles {
 		loc.getWorld().spawnParticle(Particle.REDSTONE, loc, amount, offsetX, offsetY, offsetZ, 0.5, AIR_DUST);
 	}
 
-	public static void firebending(Location loc, int amount, double offsetX, double offsetY, double offsetZ) {
-		loc.getWorld().spawnParticle(Particle.FLAME, loc, amount, offsetX, offsetY, offsetZ, 0.02);
-	}
-
 	public static void lightning(Location loc, int amount, double offsetX, double offsetY, double offsetZ) {
 		loc.getWorld().spawnParticle(Particle.DUST_COLOR_TRANSITION, loc, amount, offsetX, offsetY, offsetZ, 0.6, LIGHTNING_DUST);
 	}

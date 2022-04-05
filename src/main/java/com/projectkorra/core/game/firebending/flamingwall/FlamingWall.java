@@ -19,27 +19,27 @@ public class FlamingWall extends Ability implements Bindable {
     @Configure("raise.radius")
     double raiseRadius = 4;
     @Configure("shove.range")
-    double shoveRange = 6;
+    double shoveRange = 15;
     @Configure("width")
     double width = 6;
     @Configure("height")
-    double height = 4;
+    double height = 5;
     @Configure("shove.knockback") 
     double shoveKnockback = 0.8;
     @Configure("damage") 
     double damage = 0.5;
     @Configure("shove.speed")
-    double shoveSpeed = 15;
+    double shoveSpeed = 10;
     @Configure("cooldown")
-    long cooldown = 5000;
+    long cooldown = 3000;
     @Configure("duration")
-    long duration = 5000;
+    long duration = 7000;
     @Configure("raise.speed")
     double raiseSpeed = 8;
     @Configure
-    double staminaCost = 100;
+    double staminaCost = 0.01;
     @Configure
-    double staminaDrain = 25;
+    double staminaDrain = 0.01;
 
     public FlamingWall() {
         super("FlamingWall", "Create a blazing wall that prevents enemies from passing through", "ProjectKorra", "CORE", Skill.FIREBENDING);

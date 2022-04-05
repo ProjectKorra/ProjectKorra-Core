@@ -1,26 +1,32 @@
 package com.projectkorra.core.game.lightningbending.bolt;
 
+import java.util.HashSet;
+import java.util.Set;
 import java.util.concurrent.ThreadLocalRandom;
+
+import org.bukkit.FluidCollisionMode;
+import org.bukkit.Location;
+import org.bukkit.Particle;
+import org.bukkit.Sound;
+import org.bukkit.World;
+import org.bukkit.entity.LivingEntity;
+import org.bukkit.util.BoundingBox;
+import org.bukkit.util.RayTraceResult;
+import org.bukkit.util.Vector;
 
 import com.projectkorra.core.ability.AbilityInstance;
 import com.projectkorra.core.ability.AbilityManager;
 import com.projectkorra.core.ability.AbilityUser;
 import com.projectkorra.core.ability.attribute.Attribute;
+import com.projectkorra.core.collision.Collidable;
+import com.projectkorra.core.physics.Collider;
 import com.projectkorra.core.util.Effects;
 import com.projectkorra.core.util.Particles;
 import com.projectkorra.core.util.Vectors;
 import com.projectkorra.core.util.Velocity;
 import com.projectkorra.core.util.math.AngleType;
 
-import org.bukkit.FluidCollisionMode;
-import org.bukkit.Location;
-import org.bukkit.Particle;
-import org.bukkit.Sound;
-import org.bukkit.entity.LivingEntity;
-import org.bukkit.util.RayTraceResult;
-import org.bukkit.util.Vector;
-
-public class BoltInstance extends AbilityInstance {
+public class BoltInstance extends AbilityInstance implements Collidable {
 
     @Attribute(Attribute.CHARGE_DURATION + "_max")
     private long maxChargeTime;
@@ -42,6 +48,8 @@ public class BoltInstance extends AbilityInstance {
     private boolean shot = false;
     private Location loc;
     private double maxRange;
+    private Collider collider;
+    private Set<BoundingBox> hitboxes = new HashSet<>();
 
     public BoltInstance(BoltAbility provider, AbilityUser user, boolean subArc) {
         super(provider, user);
@@ -57,7 +65,9 @@ public class BoltInstance extends AbilityInstance {
     }
 
     @Override
-    protected void onStart() {}
+    protected void onStart() {
+    	collider = new Collider(user.getLocation());
+    }
 
     @Override
     protected boolean onUpdate(double timeDelta) {
@@ -93,6 +103,8 @@ public class BoltInstance extends AbilityInstance {
             if ((range -= speed * timeDelta) <= 0) {
                 return false; 
             }
+            
+            collider.clear();
 
             double zag = 0.2 + Math.random() * 0.3;
             Vector ortho = Vectors.orthogonal(loc.getDirection(), AngleType.RADIANS, Math.random() * Math.PI * 2).get().multiply(zag);
@@ -112,6 +124,7 @@ public class BoltInstance extends AbilityInstance {
                     Effects.playSound(loc, Sound.ENTITY_DRAGON_FIREBALL_EXPLODE, 1f, 0.4f);
                     return false;
                 }
+                hitboxes.add(BoundingBox.of(loc.clone(), 1 + size, 1 + size, 1 + size));
             }
 
             if (ThreadLocalRandom.current().nextInt(100) < subarcChance * 100) {
@@ -120,6 +133,8 @@ public class BoltInstance extends AbilityInstance {
                 subArc.loc = loc.clone().setDirection(out.add(ortho.multiply(0.2)));
                 AbilityManager.start(subArc);    
             }
+            
+            collider.shift(loc);
 
             for (double d = 0; d <= len; d += 0.1) {
                 loc.add(in);
@@ -128,7 +143,10 @@ public class BoltInstance extends AbilityInstance {
                     Effects.playSound(loc, Sound.ENTITY_DRAGON_FIREBALL_EXPLODE, 1f, 0.4f);
                     return false;
                 }
+                hitboxes.add(BoundingBox.of(loc.clone(), 1 + size, 1 + size, 1 + size));
             }
+            
+            collider.set(hitboxes);
 
             if (ThreadLocalRandom.current().nextInt(100) < subarcChance * 100) {
                 BoltInstance subArc = new BoltInstance((BoltAbility) provider, user, true);
@@ -142,11 +160,7 @@ public class BoltInstance extends AbilityInstance {
     }
 
     @Override
-    protected void postUpdate() {
-        if (!shot) {
-            return;
-        }
-    }
+    protected void postUpdate() {}
 
     @Override
     protected void onStop() {}
@@ -163,7 +177,7 @@ public class BoltInstance extends AbilityInstance {
                 Particles.spawn(Particle.EXPLOSION_LARGE, loc);
                 Particles.lightning(loc, 30, 0.9, 0.9, 0.9);
                 Effects.damage((LivingEntity) ray.getHitEntity(), damage, this, true);
-                Velocity.apply(ray.getHitEntity(), loc.getDirection().setY(0), this);
+                Velocity.apply(ray.getHitEntity(), loc.getDirection().setY(0).multiply(0.7), this);
                 return true;
             } else if (ray.getHitBlock() != null) {
                 Particles.spawn(Particle.EXPLOSION_LARGE, loc);
@@ -180,6 +194,7 @@ public class BoltInstance extends AbilityInstance {
         this.shot = true;
         this.loc = user.getEyeLocation();
         this.user.addCooldown(provider, cooldown);
+        this.user.getStamina().pauseRegen(this);
         Effects.playSound(loc, Sound.ENTITY_LIGHTNING_BOLT_THUNDER, 1f, 1.5f);
     }
 
@@ -198,4 +213,24 @@ public class BoltInstance extends AbilityInstance {
     public boolean canRedirect() {
         return this.timeLived() < minChargeTime;
     }
+
+	@Override
+	public String getTag() {
+		return provider.getName();
+	}
+
+	@Override
+	public Collider getHitbox() {
+		return collider;
+	}
+
+	@Override
+	public World getWorld() {
+		return loc.getWorld();
+	}
+
+	@Override
+	public void remove() {
+		AbilityManager.remove(this);
+	}
 }

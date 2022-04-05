@@ -20,15 +20,15 @@ import org.bukkit.event.Event;
 public class FireballAbility extends Ability implements Bindable, Combo, Passive {
 
     @Configure("blast.range")
-    double blastRange = 15;
+    double blastRange = 20;
     @Configure("blast.speed")
-    double blastSpeed = 25;
+    double blastSpeed = 30;
     @Configure("blast.damage")
     double blastDamage = 2;
     @Configure("blast.cooldown")
-    long blastCooldown = 2000;
+    long blastCooldown = 1500;
     @Configure
-    double staminaCost = 100;
+    double staminaCost = 0.05;
 
     public FireballAbility() {
         super("Fireball", "Throw fireballs!", "ProjectKorra", "CORE", Skill.FIREBENDING);
@@ -78,5 +78,4 @@ public class FireballAbility extends Ability implements Bindable, Combo, Passive
     public Activation getTrigger() {
         return Activation.PASSIVE;
     }
-
 }

@@ -1,5 +1,7 @@
 package com.projectkorra.core.game.lightningbending.bolt;
 
+import org.bukkit.event.Event;
+
 import com.google.common.collect.ImmutableSet;
 import com.projectkorra.core.ability.Ability;
 import com.projectkorra.core.ability.AbilityInstance;
@@ -7,10 +9,9 @@ import com.projectkorra.core.ability.AbilityManager;
 import com.projectkorra.core.ability.AbilityUser;
 import com.projectkorra.core.ability.activation.Activation;
 import com.projectkorra.core.ability.type.Bindable;
+import com.projectkorra.core.game.lightningbending.redirection.RedirectionPassive;
 import com.projectkorra.core.skill.Skill;
 import com.projectkorra.core.util.configuration.Configure;
-
-import org.bukkit.event.Event;
 
 public class BoltAbility extends Ability implements Bindable {
 
@@ -19,23 +20,23 @@ public class BoltAbility extends Ability implements Bindable {
     @Configure("maxChargeTime")
     long maxChargeTime = 5500;
     @Configure("damage")
-    double damage = 6;
+    double damage = 9;
     @Configure("speed")
     double speed = 70;
     @Configure("range")
     double range = 40;
     @Configure("cooldown")
-    long cooldown = 8000;
+    long cooldown = 3500;
     @Configure("subarc.chance")
-    double subarcChance = 0.3;
+    double subarcChance = 0.75;
     @Configure("subarc.damage")
-    double subarcDamage = 1;
+    double subarcDamage = 2;
     @Configure("subarc.speed")
-    double subarcSpeed = 50;
+    double subarcSpeed = 40;
     @Configure("subarc.range")
-    double subarcRange = 10;
+    double subarcRange = 7;
     @Configure
-    double staminaCost = 500;
+    double staminaCost = 0.4;
 
     public BoltAbility() {
         super("Bolt", "Shoot a lightning bolt!", "ProjectKorra", "CORE", Skill.LIGHTNINGBENDING);
@@ -46,18 +47,15 @@ public class BoltAbility extends Ability implements Bindable {
 
     @Override
     public String getInstructions() {
-        return "Hold sneak to charge a lightning bolt, and release it quick or deal damage to yourself!";
+        return "Hold sneak to charge a lightning bolt, and release it quick or it will backfire!";
     }
 
     @Override
     protected AbilityInstance activate(AbilityUser user, Activation trigger, Event provider) {
-        if (trigger == Activation.DAMAGED) {
-            user.sendMessage("a");
+        if (trigger == RedirectionPassive.TRIGGER) {
             if (AbilityManager.hasInstance(user, BoltInstance.class)) {
-                user.sendMessage("b");
                 AbilityManager.getInstance(user, BoltInstance.class).ifPresent(BoltInstance::charge);
             } else {
-                user.sendMessage("c");
                 BoltInstance bolt = new BoltInstance(this, user, false);
                 bolt.charge();
                 return bolt;
@@ -84,13 +82,11 @@ public class BoltAbility extends Ability implements Bindable {
 
     @Override
     public boolean uses(Activation trigger) {
-        return trigger == Activation.SNEAK_DOWN || trigger == Activation.SNEAK_UP || trigger == Activation.LEFT_CLICK;
+        return trigger == Activation.SNEAK_DOWN || trigger == Activation.SNEAK_UP || trigger == Activation.LEFT_CLICK || trigger == RedirectionPassive.TRIGGER;
     }
 
     @Override
     public ImmutableSet<Class<? extends AbilityInstance>> instanceClasses() {
         return ImmutableSet.of(BoltInstance.class);
     }
-    
-    
 }

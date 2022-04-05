@@ -2,20 +2,18 @@ package com.projectkorra.core.game.firebending.flamethrower;
 
 import org.bukkit.FluidCollisionMode;
 import org.bukkit.Location;
-import org.bukkit.Material;
 import org.bukkit.Sound;
 import org.bukkit.entity.Entity;
 import org.bukkit.entity.LivingEntity;
 import org.bukkit.util.RayTraceResult;
 import org.bukkit.util.Vector;
 
-import com.projectkorra.core.ability.AbilityInstance;
 import com.projectkorra.core.ability.AbilityUser;
 import com.projectkorra.core.ability.attribute.Attribute;
+import com.projectkorra.core.game.firebending.FireAbilityInstance;
 import com.projectkorra.core.util.Effects;
-import com.projectkorra.core.util.Particles;
 
-public class FlamethrowerInstance extends AbilityInstance {
+public class FlamethrowerInstance extends FireAbilityInstance {
 
 	@Attribute(Attribute.DAMAGE)
 	private double damage;
@@ -44,6 +42,7 @@ public class FlamethrowerInstance extends AbilityInstance {
 
 	@Override
 	protected void onStart() {
+		user.getStamina().pauseRegen(this);
 	}
 
 	@Override
@@ -65,7 +64,7 @@ public class FlamethrowerInstance extends AbilityInstance {
 		for (double d = 0; d < currRange; d += inc) {
 			currRadius = (d / range) * radius;
 			loc.add(dir);
-			Particles.firebending(loc, (int) Math.floor(1 + currRadius / 40), currRadius * 0.6, currRadius * 0.6, currRadius * 0.6);
+			this.particles(loc, (int) Math.floor(1 + currRadius / 40), currRadius * 0.6, currRadius * 0.6, currRadius * 0.6);
 			RayTraceResult ray = loc.getWorld().rayTrace(loc, dir, inc, FluidCollisionMode.ALWAYS, true, currRadius, null);
 			if (ray != null) {
 				boolean br = false;
@@ -77,7 +76,7 @@ public class FlamethrowerInstance extends AbilityInstance {
 				if (ray.getHitBlock() != null) {
 					if (ray.getHitBlock().getType().isSolid()) {
 						if (ray.getHitBlock().getRelative(ray.getHitBlockFace()).isEmpty()) {
-							ray.getHitBlock().getRelative(ray.getHitBlockFace()).setType(Material.FIRE);
+							ray.getHitBlock().getRelative(ray.getHitBlockFace()).setBlockData(getFireType().createBlockData(), false);
 						}
 					}
 					

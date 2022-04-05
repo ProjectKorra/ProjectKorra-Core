@@ -2,13 +2,19 @@ package com.projectkorra.core;
 
 import java.io.File;
 
+import org.bukkit.Bukkit;
+import org.bukkit.entity.Player;
+import org.bukkit.plugin.PluginDescriptionFile;
+import org.bukkit.plugin.java.JavaPlugin;
+import org.bukkit.plugin.java.JavaPluginLoader;
+
 import com.projectkorra.core.ability.AbilityManager;
 import com.projectkorra.core.collision.CollisionManager;
 import com.projectkorra.core.command.CommandRegistry;
-import com.projectkorra.core.game.airbending.gust.GustAbility;
 import com.projectkorra.core.game.firebending.blazingarc.BlazingArcAbility;
 import com.projectkorra.core.game.firebending.fireball.FireballAbility;
 import com.projectkorra.core.game.firebending.firejet.FireJetAbility;
+import com.projectkorra.core.game.firebending.flameguard.FlameShield;
 import com.projectkorra.core.game.firebending.flamethrower.Flamethrower;
 import com.projectkorra.core.game.firebending.flamingwall.FlamingWall;
 import com.projectkorra.core.game.firebending.passives.SunlightPassive;
@@ -20,12 +26,6 @@ import com.projectkorra.core.listener.ActivationListener;
 import com.projectkorra.core.listener.PlayerListener;
 import com.projectkorra.core.util.storage.DBConnection;
 import com.projectkorra.core.util.storage.SQLiteDatabase;
-
-import org.bukkit.Bukkit;
-import org.bukkit.entity.Player;
-import org.bukkit.plugin.PluginDescriptionFile;
-import org.bukkit.plugin.java.JavaPlugin;
-import org.bukkit.plugin.java.JavaPluginLoader;
 
 public class ProjectKorra extends JavaPlugin {
 
@@ -41,17 +41,22 @@ public class ProjectKorra extends JavaPlugin {
 		CommandRegistry.init(this);
 		UserManager.init(this);
 		this.registerListeners();
-		AbilityManager.register(new GustAbility());
-		AbilityManager.register(new FireballAbility());
+		
+		AbilityManager.registerFrom(this, "com.projectkorra.core.game");
+		
+		/*
+		AbilityManager.register(new WellbeingPassive());
+		AbilityManager.register(new LandingPassive());
 		AbilityManager.register(new SunlightPassive());
+		AbilityManager.register(new FireballAbility());
 		AbilityManager.register(new FireJetAbility());
 		AbilityManager.register(new BlazingArcAbility());
-		AbilityManager.register(new BoltAbility());
-		AbilityManager.register(new WellbeingPassive());
-		AbilityManager.register(new RedirectionPassive());
-		AbilityManager.register(new LandingPassive());
 		AbilityManager.register(new Flamethrower());
 		AbilityManager.register(new FlamingWall());
+		AbilityManager.register(new Flameguard());
+		AbilityManager.register(new BoltAbility());
+		AbilityManager.register(new RedirectionPassive());
+		*/
 
 		for (Player player : Bukkit.getOnlinePlayers()) {
 			UserManager.load(player);

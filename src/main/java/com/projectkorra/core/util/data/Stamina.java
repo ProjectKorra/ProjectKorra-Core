@@ -1,10 +1,9 @@
 package com.projectkorra.core.util.data;
 
+import java.util.HashSet;
+import java.util.Iterator;
 import java.util.Optional;
-
-import com.projectkorra.core.ability.AbilityUser;
-import com.projectkorra.core.event.stamina.StaminaChangeEvent;
-import com.projectkorra.core.util.Events;
+import java.util.Set;
 
 import org.bukkit.Bukkit;
 import org.bukkit.boss.BarColor;
@@ -12,16 +11,22 @@ import org.bukkit.boss.BarStyle;
 import org.bukkit.boss.BossBar;
 import org.bukkit.entity.Player;
 
+import com.projectkorra.core.ability.AbilityInstance;
+import com.projectkorra.core.ability.AbilityUser;
+import com.projectkorra.core.event.stamina.StaminaChangeEvent;
+import com.projectkorra.core.util.Events;
+
 public final class Stamina {
     
     private AbilityUser user;
-    private double current, max, regen;
+    private double current = 1.0, regen;
     private Optional<BossBar> bar;
+    private Set<AbilityInstance> paused = new HashSet<>();
+    private Set<AbilityInstance> onRemove = new HashSet<>();
 
-    public Stamina(AbilityUser user, int max, int regen) {
+    public Stamina(AbilityUser user, double regenPercent) {
         this.user = user;
-        this.current = this.max = max;
-        this.regen = regen;
+        this.regen = regenPercent;
         this.bar = Optional.of(Bukkit.createBossBar("Bending Stamina", BarColor.GREEN, BarStyle.SOLID));
 
         if (user.getEntity() instanceof Player) {
@@ -33,8 +38,8 @@ public final class Stamina {
         return user;
     }
 
-    public boolean consume(double amount) {
-        StaminaChangeEvent event = Events.call(new StaminaChangeEvent(this, Math.abs(amount), true));
+    public boolean consume(double percent) {
+        StaminaChangeEvent event = Events.call(new StaminaChangeEvent(this, Math.abs(percent), true));
         if (event.isCancelled()) {
             return false;
         }
@@ -48,18 +53,46 @@ public final class Stamina {
         return true;
     }
 
-    public void restore(double amount) {
-        StaminaChangeEvent event = Events.call(new StaminaChangeEvent(this, Math.abs(amount), false));
+    public void restore(double percent) {
+        StaminaChangeEvent event = Events.call(new StaminaChangeEvent(this, Math.abs(percent), false));
         if (event.isCancelled()) {
             return;
         }
 
-        this.current = Math.min(this.max, this.current + Math.abs(event.getAmount()));
+        this.current = Math.min(1.0, this.current + Math.abs(event.getAmount()));
     }
 
     public void regen(double deltaTime) {
-        this.current = Math.min(this.max, this.current + deltaTime * regen);
+    	Iterator<AbilityInstance> iter = onRemove.iterator();
+    	while (iter.hasNext()) {
+    		AbilityInstance next = iter.next();
+    		if (next.ticksLived() < 0) {
+    			iter.remove();
+    			paused.remove(next);
+    		}
+    	}
+    	
+        if (paused.isEmpty()) {
+            this.current = Math.min(1.0, this.current + deltaTime * regen);
+        }
+
         this.bar.ifPresent(this::updateBar);
+    }
+    
+    public void pauseRegen(AbilityInstance instance) {
+    	this.pauseRegen(instance, true);
+    }
+    
+    public void pauseRegen(AbilityInstance instance, boolean removeUnpauses) {
+        this.paused.add(instance);
+        if (removeUnpauses) {
+        	this.onRemove.add(instance);
+        }
+    }
+
+    public void unpauseRegen(AbilityInstance instance) {
+        this.paused.remove(instance);
+        this.onRemove.remove(instance);
     }
 
     public void modifyRegen(double change) {
@@ -67,11 +100,10 @@ public final class Stamina {
     }
 
     private void updateBar(BossBar bar) {
-        double progress = this.current / this.max;
-        bar.setProgress(progress);
-        if (progress >= 0.5) {
+        bar.setProgress(current);
+        if (current >= 0.5) {
             bar.setColor(BarColor.GREEN);
-        } else if (progress >= 0.1) {
+        } else if (current >= 0.1) {
             bar.setColor(BarColor.YELLOW);
         } else {
             bar.setColor(BarColor.RED);

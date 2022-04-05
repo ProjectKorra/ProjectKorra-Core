@@ -34,7 +34,7 @@ public class CollisionUtil {
 			effects = new String[split.length - 3];
 			args = new String[split.length - 3][];
 			for (int i = 0; i < split.length - 3; ++i) {
-				String[] other = split[i + 3].split("[\\(\\)]");
+				String[] other = split[i + 3].split(":");
 				effects[i] = other[0];
 				args[i] = other[1].split(",");
 			}

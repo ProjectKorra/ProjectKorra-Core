@@ -30,7 +30,7 @@ public class Vectors {
 	public static Vector direction(float yaw, float pitch) {
 		double yawRad = Math.toRadians(yaw), pitchRad = Math.toRadians(pitch);
 		double xz = Math.cos(pitchRad);
-		return new Vector(-xz * Math.sin(yawRad), Math.sin(pitchRad), xz * Math.cos(yawRad));
+		return new Vector(-xz * Math.sin(yawRad), -Math.sin(pitchRad), xz * Math.cos(yawRad));
 	}
 
 	/**

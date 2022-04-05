@@ -32,14 +32,14 @@ public class CollisionData {
 	}
 	
 	public int getEffectAmount() {
-		return effects.length;
+		return effects == null ? 0 : effects.length;
 	}
 	
 	public String getEffect(int index) {
-		return effects[index];
+		return effects == null ? "" : effects[index];
 	}
 	
 	public String[] getArgs(int index) {
-		return args[index];
+		return effects == null ? new String[0] : args[index];
 	}
 }

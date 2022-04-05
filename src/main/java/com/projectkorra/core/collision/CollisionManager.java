@@ -46,12 +46,13 @@ public final class CollisionManager {
 		for (Collidable obj : instances) {
 			handled.add(obj);
 			
-			for (Collidable other : tree.query(obj.getHitbox(), (c) -> handled.contains(c))) {
+			for (Collidable other : tree.query(obj.getHitbox(), (c) -> !handled.contains(c))) {
 				if (!obj.getWorld().equals(other.getWorld())) {
 					continue;
 				}
 				
 				if (validCollisionExists(obj, other)) {
+
 					CollisionData data = valids.get(CollisionUtil.pairTags(obj, other));
 					Collidable first, second;
 					

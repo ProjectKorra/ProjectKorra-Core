@@ -4,23 +4,26 @@ import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.Set;
 
-import com.projectkorra.core.ability.AbilityInstance;
+import org.bukkit.Location;
+import org.bukkit.World;
+import org.bukkit.block.Block;
+import org.bukkit.block.BlockFace;
+import org.bukkit.entity.Entity;
+import org.bukkit.entity.LivingEntity;
+import org.bukkit.util.BoundingBox;
+import org.bukkit.util.Vector;
+
 import com.projectkorra.core.ability.AbilityUser;
 import com.projectkorra.core.ability.attribute.Attribute;
+import com.projectkorra.core.collision.Collidable;
+import com.projectkorra.core.game.firebending.FireAbilityInstance;
+import com.projectkorra.core.physics.Collider;
 import com.projectkorra.core.util.Blocks;
 import com.projectkorra.core.util.Effects;
 import com.projectkorra.core.util.Vectors;
 import com.projectkorra.core.util.Velocity;
 
-import org.bukkit.Location;
-import org.bukkit.Particle;
-import org.bukkit.block.Block;
-import org.bukkit.block.BlockFace;
-import org.bukkit.entity.Entity;
-import org.bukkit.entity.LivingEntity;
-import org.bukkit.util.Vector;
-
-public class FlamingWallInstance extends AbilityInstance {
+public class FlamingWallInstance extends FireAbilityInstance implements Collidable {
 
     @Attribute(Attribute.DAMAGE)
     private double damage;
@@ -51,6 +54,7 @@ public class FlamingWallInstance extends AbilityInstance {
     private double currHeight = 0;
     private ArrayList<Location> locs = new ArrayList<>();
     private Set<Entity> entities = new HashSet<>();
+    private Collider collider;
 
     public FlamingWallInstance(FlamingWall provider, AbilityUser user) {
         super(provider, user);
@@ -70,6 +74,8 @@ public class FlamingWallInstance extends AbilityInstance {
     @Override
     protected void onStart() {
         this.locate();
+        this.collider = new Collider(loc);
+        this.user.getStamina().pauseRegen(this);
     }
 
     @Override
@@ -78,6 +84,8 @@ public class FlamingWallInstance extends AbilityInstance {
             return false;
         }
 
+        collider.clear();
+
         targeted = user.getDirection().angle(Vectors.direction(user.getLocation(), this.loc)) < (Math.PI / 4);
         if (shoved && targeted) {
             if (shoveStart.distanceSquared(loc) >= shoveRange * shoveRange) {
@@ -85,6 +93,7 @@ public class FlamingWallInstance extends AbilityInstance {
             }
 
             this.loc.add(this.dir.clone().multiply(shoveSpeed * timeDelta));
+            this.collider.shift(loc);
         }
 
         currHeight = Math.min(currHeight + timeDelta * raiseSpeed, height);
@@ -94,7 +103,7 @@ public class FlamingWallInstance extends AbilityInstance {
         }
         
         Vector hori = Vectors.orthogonal(this.dir).get();
-        for (double d = -width/2; d <= width/2; d += 0.25) {
+        for (double d = -width/2; d <= width/2; d += 1) {
             Location bot = loc.clone().add(hori.clone().multiply(d));
             Block top = Blocks.getTop(bot, height);
             if (top.isEmpty() || !top.getRelative(BlockFace.UP).isEmpty()) {
@@ -102,18 +111,22 @@ public class FlamingWallInstance extends AbilityInstance {
             }
 
             bot.setY(top.getY() + 1);
-            for (double k = 0; k <= currHeight; k += 0.25) {
+            for (double k = 0; k <= currHeight; k += 1) {
                 Location part = bot.clone().add(0, k, 0);
                 if (!part.getBlock().isPassable() || part.getBlock().isLiquid()) {
                     break;
                 }
 
-                if (Math.random() > 0.9) {
-                    loc.getWorld().spawnParticle(Particle.FLAME, part.getX() + 0.3 * (Math.random() - 0.5), part.getY() + 0.3 * (Math.random() - 0.5), part.getZ() + 0.3 * (Math.random() - 0.5), 0, 0.1 * (Math.random() - 0.5), 0.1, 0.1 * (Math.random() - 0.5));
+                for (int i = 0; i < 2; ++i) {
+                    part.getWorld().spawnParticle(getParticle(), part.getX() + (Math.random() - 0.5), part.getY() + (Math.random() - 0.5), part.getZ() + (Math.random() - 0.5), 0, 0.1 * (Math.random() - 0.5), 0.1, 0.1 * (Math.random() - 0.5));
                 }
-    
+
                 Effects.forNearbyEntities(part, 0.5, (e) -> e instanceof LivingEntity && !e.getUniqueId().equals(user.getUniqueID()), this::affect);
                 locs.add(part);
+                double yaw = Math.toRadians(Vectors.getYaw(dir));
+                double x = Math.cos(yaw) * 0.3 + 0.5;
+                double z = Math.sin(yaw) * 0.3 + 0.5;
+                collider.add(BoundingBox.of(part, x, 1, z));
             }
         }
 
@@ -142,9 +155,7 @@ public class FlamingWallInstance extends AbilityInstance {
     }
 
     @Override
-    protected void postUpdate() {
-        
-    }
+    protected void postUpdate() {}
 
     @Override
     protected void onStop() {
@@ -174,4 +185,22 @@ public class FlamingWallInstance extends AbilityInstance {
 
         shoved = false;
     }
+
+    @Override
+    public String getTag() {
+        return provider.getName();
+    }
+
+    @Override
+    public Collider getHitbox() {
+        return collider;
+    }
+
+    @Override
+    public World getWorld() {
+        return loc.getWorld();
+    }
+
+    @Override
+    public void remove() {}
 }

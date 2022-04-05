@@ -39,7 +39,7 @@ public abstract class AbilityUser extends SkillHolder {
 
 	public AbilityUser(LivingEntity entity) {
 		this.entity = entity;
-		this.stamina = new Stamina(this, 1000, 100);
+		this.stamina = new Stamina(this, 0.1);
 	}
 
 	public LivingEntity getEntity() {

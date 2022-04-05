@@ -22,27 +22,26 @@ public class Skill {
 	public static final Skill FIREBENDING = registerCore("firebending", ChatColor.of("#a10000"));
 	public static final Skill WATERBENDING = registerCore("waterbending", ChatColor.of("#509bcd"));
 
+
+	public static final Skill CHIBLOCKING = registerCore("chiblocking", ChatColor.GRAY);
+	public static final Skill ENERGYBENDING = registerCore("energybending", ChatColor.DARK_PURPLE);
+
+	public static final Skill FLIGHT = registerCore("flight", ChatColor.GRAY, AIRBENDING);
+	public static final Skill SPIRITUAL = registerCore("spiritual", ChatColor.of("#fff2cc"), AIRBENDING);
+
+	public static final Skill LAVABENDING = registerCore("lavabending", ChatColor.of("#ff9900"), EARTHBENDING);
+	public static final Skill METALBENDING = registerCore("metalbending", ChatColor.of("#999999"), EARTHBENDING);
+	public static final Skill SANDBENDING = registerCore("sandbending", ChatColor.of("#ffe599"), EARTHBENDING);
+
+	public static final Skill COMBUSTIONBENDING = registerCore("combustionbending", ChatColor.DARK_RED, FIREBENDING);
 	public static final Skill LIGHTNINGBENDING = registerCore("lightningbending", ChatColor.of("#71d9de"), FIREBENDING);
+	public static final Skill BLUEFIREBENDING = registerCore("bluefirebending", ChatColor.BLUE, FIREBENDING);
 
-	/*
-	public static final Skill CHIBLOCKING = registerCore("chiblocking");
-	public static final Skill ENERGYBENDING = registerCore("energybending");
-
-	public static final Skill FLIGHT = registerCore("flight", AIRBENDING);
-	public static final Skill SPIRITUAL = registerCore("spiritual", AIRBENDING);
-
-	public static final Skill LAVABENDING = registerCore("lavabending", EARTHBENDING);
-	public static final Skill METALBENDING = registerCore("metalbending", EARTHBENDING);
-	public static final Skill SANDBENDING = registerCore("sandbending", EARTHBENDING);
-
-	public static final Skill COMBUSTIONBENDING = registerCore("combustionbending", FIREBENDING);
-
-	public static final Skill BLOODBENDING = registerCore("bloodbending", WATERBENDING);
-	public static final Skill HEALING = registerCore("healing", WATERBENDING);
-	public static final Skill PLANTBENDING = registerCore("plantbending", WATERBENDING);
+	public static final Skill BLOODBENDING = registerCore("bloodbending", ChatColor.of("#e06666"), WATERBENDING);
+	public static final Skill HEALING = registerCore("healing", ChatColor.of("#00ffff"), WATERBENDING);
+	public static final Skill PLANTBENDING = registerCore("plantbending", ChatColor.of("#93c47d"), WATERBENDING);
 	
-	public static final Skill MUDBENDING = registerCore("mudbending", EARTHBENDING, WATERBENDING);
-	*/
+	public static final Skill MUDBENDING = registerCore("mudbending", ChatColor.of("#783f04"), EARTHBENDING, WATERBENDING);
 	public static final Skill PHYSIQUE = registerCore("physique", ChatColor.of("#a64d79"), AIRBENDING, EARTHBENDING, FIREBENDING, WATERBENDING);
 
 	private DisplayVariant display;

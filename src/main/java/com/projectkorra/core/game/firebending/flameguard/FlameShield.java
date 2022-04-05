@@ -1,4 +1,4 @@
-package com.projectkorra.core.game.firebending.flamethrower;
+package com.projectkorra.core.game.firebending.flameguard;
 
 import org.bukkit.event.Event;
 
@@ -12,22 +12,24 @@ import com.projectkorra.core.ability.type.Bindable;
 import com.projectkorra.core.skill.Skill;
 import com.projectkorra.core.util.configuration.Configure;
 
-public class Flamethrower extends Ability implements Bindable {
+public class FlameShield extends Ability implements Bindable {
 
-    @Configure("damage") double damage = 0.5;
-    @Configure("range") double range = 14;
-    @Configure("cooldown") long cooldown = 1500;
-    @Configure("radius") double radius = 1.5;
-    @Configure("speed") double speed = 23;
-    @Configure double staminaCost = 0.02;
-    @Configure double staminaDrain = 0.15;
+    @Configure("radius") double radius = 1.7;
+    @Configure("cooldown") long cooldown = 1000;
+    @Configure("staminaDrain") double staminaDrain = 0.34;
+    @Configure("collisionDamage") double collisionDamage = 0.25;
 
-    public Flamethrower() {
-        super("Flamethrower", "Create large streams of fire.", "ProjectKorra", "CORE", Skill.FIREBENDING);
+    public FlameShield() {
+        super("FlameShield", "A small shield of flames to block basic abilities.", "ProjectKorra", "CORE", Skill.FIREBENDING);
     }
 
     @Override
     public void postProcessed() {}
+
+    @Override
+    public String getInstructions() {
+        return "Hold sneak to create a small shield of flames for a short duration";
+    }
 
     @Override
     protected AbilityInstance activate(AbilityUser user, Activation trigger, Event provider) {
@@ -35,10 +37,10 @@ public class Flamethrower extends Ability implements Bindable {
             return null;
         }
 
-        if (trigger == Activation.SNEAK_DOWN && user.getStamina().consume(staminaCost)) {
-            return new FlamethrowerInstance(this, user);
+        if (trigger == Activation.SNEAK_DOWN && user.getStamina().consume(0.1 * staminaDrain)) {
+        	return new FlameShieldInstance(this, user);
         } else if (trigger == Activation.SNEAK_UP) {
-            AbilityManager.getInstance(user, FlamethrowerInstance.class).ifPresent((inst) -> AbilityManager.remove(inst));
+        	AbilityManager.getInstance(user, FlameShieldInstance.class).ifPresent(AbilityManager::remove);
         }
 
         return null;
@@ -54,12 +56,7 @@ public class Flamethrower extends Ability implements Bindable {
 
     @Override
     public ImmutableSet<Class<? extends AbilityInstance>> instanceClasses() {
-        return ImmutableSet.of(FlamethrowerInstance.class);
+        return ImmutableSet.of(FlameShieldInstance.class);
     }
-
-	@Override
-	public String getInstructions() {
-		return "Hold sneak to create a stream of fire.";
-	}
     
 }

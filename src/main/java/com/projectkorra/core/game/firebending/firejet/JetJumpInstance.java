@@ -1,15 +1,15 @@
 package com.projectkorra.core.game.firebending.firejet;
 
-import com.projectkorra.core.ability.AbilityInstance;
-import com.projectkorra.core.ability.AbilityUser;
-import com.projectkorra.core.ability.attribute.Attribute;
-import com.projectkorra.core.util.Effects;
-import com.projectkorra.core.util.Particles;
-
 import org.bukkit.Particle;
 import org.bukkit.Sound;
 
-public class JetJumpInstance extends AbilityInstance {
+import com.projectkorra.core.ability.AbilityUser;
+import com.projectkorra.core.ability.attribute.Attribute;
+import com.projectkorra.core.game.firebending.FireAbilityInstance;
+import com.projectkorra.core.util.Effects;
+import com.projectkorra.core.util.Particles;
+
+public class JetJumpInstance extends FireAbilityInstance {
 
     @Attribute(Attribute.SPEED)
     private double speed;
@@ -25,7 +25,7 @@ public class JetJumpInstance extends AbilityInstance {
     @Override
     protected void onStart() {
         Effects.playSound(user.getLocation(), Sound.ENTITY_GHAST_SHOOT, 1f, 0.6f);
-        Particles.firebending(user.getLocation(), 30, 0.2, 0.4, 0.2);
+        this.particles(user.getLocation(), 30, 0.2, 0.4, 0.2);
         user.addCooldown("JetExtra", cooldown);
         Particles.spawn(Particle.EXPLOSION_LARGE, user.getLocation());
     }
@@ -38,7 +38,7 @@ public class JetJumpInstance extends AbilityInstance {
             return false;
         }
 
-        Particles.firebending(user.getLocation(), 10, 0.1, 0.1, 0.1);
+        this.particles(user.getLocation(), 10, 0.1, 0.1, 0.1);
         return true;
     }
 

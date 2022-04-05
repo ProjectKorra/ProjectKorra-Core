@@ -1,5 +1,7 @@
 package com.projectkorra.core.collision;
 
+import com.projectkorra.core.physics.Collider;
+
 import org.bukkit.Location;
 import org.bukkit.World;
 import org.bukkit.util.BoundingBox;
@@ -20,7 +22,7 @@ public interface Collidable {
 	 * this method
 	 * @return hitbox
 	 */
-	public BoundingBox getHitbox();
+	public Collider getHitbox();
 	
 	/**
 	 * Get the world this collidable exists in
@@ -40,6 +42,6 @@ public interface Collidable {
 	 * @return center location
 	 */
 	public default Location getLocation() {
-		return new Location(getWorld(), getHitbox().getCenterX(), getHitbox().getCenterY(), getHitbox().getCenterZ());
+		return getHitbox().getLocation();
 	}
 }
