@@ -20,7 +20,7 @@ public class CollisionParticles extends CollisionEffect {
 		} catch (Exception e) {
 			particle = Particle.BLOCK_MARKER;
 		}
-		
-		Particles.spawn(particle, event.getCenter(), (int)args[1], (double)args[2], 0, null);
+
+		Particles.spawn(particle, event.getCenter(), (int) args[1], (double) args[2], 0, null);
 	}
 }

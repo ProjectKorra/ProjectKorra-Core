@@ -9,18 +9,18 @@ import com.projectkorra.core.ability.AbilityInstance;
 public class InstanceStartEvent extends Event implements Cancellable {
 
 	private static final HandlerList HANDLERS = new HandlerList();
-	
+
 	private boolean cancelled = false;
 	private AbilityInstance instance;
-	
+
 	public InstanceStartEvent(AbilityInstance instance) {
 		this.instance = instance;
 	}
-	
+
 	public AbilityInstance getInstance() {
 		return instance;
 	}
-	
+
 	@Override
 	public boolean isCancelled() {
 		return cancelled;

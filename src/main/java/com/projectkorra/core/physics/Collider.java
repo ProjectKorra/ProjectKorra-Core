@@ -4,92 +4,95 @@ import java.util.Collection;
 import java.util.HashSet;
 import java.util.Set;
 
-import com.projectkorra.core.util.Vectors;
-
 import org.bukkit.Location;
 import org.bukkit.util.BoundingBox;
 import org.bukkit.util.Vector;
 
+import com.projectkorra.core.util.Vectors;
+import com.projectkorra.core.util.data.Pair;
+import com.projectkorra.core.util.data.Pairing;
+
 public final class Collider {
-    
-    private Location previous;
-    private Set<BoundingBox> boxes = new HashSet<>();
 
-    public Collider(Location center) {
-        this.previous = center.clone();
-    }
+	private Location previous;
+	private Set<BoundingBox> boxes = new HashSet<>();
 
-    public Location getLocation() {
-        return previous.clone();
-    }
+	public Collider(Location center) {
+		this.previous = center.clone();
+	}
 
-    public void add(BoundingBox box) {
-        this.boxes.add(box);
-    }
+	public Location getLocation() {
+		return previous.clone();
+	}
 
-    public void clear() {
-        this.boxes.clear();
-    }
+	public void add(BoundingBox box) {
+		this.boxes.add(box);
+	}
 
-    public void reset(Collection<BoundingBox> boxes) {
-        this.boxes.clear();
-        this.boxes.addAll(boxes);
-    }
+	public void clear() {
+		this.boxes.clear();
+	}
 
-    public void set(Collection<BoundingBox> boxes) {
-        this.boxes.addAll(boxes);
-    }
+	public void reset(Collection<BoundingBox> boxes) {
+		this.boxes.clear();
+		this.boxes.addAll(boxes);
+	}
 
-    public void shift(Location center) {
-        Vector to = Vectors.direction(previous, center);
-        this.boxes.forEach((b) -> b.shift(to));
-        this.previous = center.clone();
-    }
+	public void set(Collection<BoundingBox> boxes) {
+		this.boxes.addAll(boxes);
+	}
 
-    public boolean intersects(Collider other) {
-        if (this == other) {
-            return true;
-        }
+	public void shift(Location center) {
+		Vector to = Vectors.direction(previous, center);
+		this.boxes.forEach((b) -> b.shift(to));
+		this.previous = center.clone();
+	}
 
-        for (BoundingBox box : boxes) {
-            for (BoundingBox otherBox : other.boxes) {
-                if (box.overlaps(otherBox)) {
-                    return true;
-                }
-            }
-        }
+	public Set<Pair<BoundingBox, BoundingBox>> intersections(Collider other) {
+		if (this == other) {
+			return new HashSet<>();
+		}
 
-        return false;
-    }
+		Set<Pair<BoundingBox, BoundingBox>> inters = new HashSet<>();
+		for (BoundingBox box : boxes) {
+			for (BoundingBox otherBox : other.boxes) {
+				if (box.overlaps(otherBox)) {
+					inters.add(Pairing.of(box, otherBox));
+				}
+			}
+		}
 
-    public boolean overlaps(BoundingBox aabb) {
-        for (BoundingBox box : boxes) {
-            if (box.overlaps(aabb)) {
-                return true;
-            }
-        }
+		return inters;
+	}
 
-        return false;
-    }
+	public boolean overlaps(BoundingBox aabb) {
+		for (BoundingBox box : boxes) {
+			if (box.overlaps(aabb)) {
+				return true;
+			}
+		}
 
-    public double getVolume() {
-        double volume = 0;
-        for (BoundingBox box : boxes) {
-            volume += box.getVolume();
-        }
-        
-        return volume;
-    }
+		return false;
+	}
 
-    public double getCenterX() {
-        return previous.getX();
-    }
+	public double getVolume() {
+		double volume = 0;
+		for (BoundingBox box : boxes) {
+			volume += box.getVolume();
+		}
 
-    public double getCenterY() {
-        return previous.getY();
-    }
+		return volume;
+	}
 
-    public double getCenterZ() {
-        return previous.getZ();
-    }
+	public double getCenterX() {
+		return previous.getX();
+	}
+
+	public double getCenterY() {
+		return previous.getY();
+	}
+
+	public double getCenterZ() {
+		return previous.getZ();
+	}
 }

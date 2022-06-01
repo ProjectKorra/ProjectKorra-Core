@@ -24,69 +24,69 @@ import org.bukkit.scheduler.BukkitRunnable;
  * Listens for events relating to players
  */
 public class PlayerListener implements Listener {
-    
-    @EventHandler
-    public void onPlayerJoin(PlayerJoinEvent event) {
-        PlayerUser user = (PlayerUser) UserManager.load(event.getPlayer());
-        new BukkitRunnable() {
 
-            @Override
-            public void run() {
-                AbilityBoard.from(user).ifPresent(AbilityBoard::show);
-            }
-            
-        }.runTaskLater(JavaPlugin.getPlugin(ProjectKorra.class), 2);
-    }
+	@EventHandler
+	public void onPlayerJoin(PlayerJoinEvent event) {
+		PlayerUser user = (PlayerUser) UserManager.load(event.getPlayer());
+		new BukkitRunnable() {
 
-    private void playerLeave(Player player) {
-        AbilityUser user = UserManager.from(player);
-        if (user == null) {
-            return;
-        }
-        
-        AbilityManager.removeAll(user);
-        UserManager.save(player);
-    }
+			@Override
+			public void run() {
+				AbilityBoard.from(user).ifPresent(AbilityBoard::show);
+			}
 
-    @EventHandler
-    public void onPlayerQuit(PlayerQuitEvent event) {
-        playerLeave(event.getPlayer());
-    }
+		}.runTaskLater(JavaPlugin.getPlugin(ProjectKorra.class), 2);
+	}
 
-    @EventHandler
-    public void onPlayerKick(PlayerKickEvent event) {
-        playerLeave(event.getPlayer());
-    }
+	private void playerLeave(Player player) {
+		AbilityUser user = UserManager.from(player);
+		if (user == null) {
+			return;
+		}
 
-    @EventHandler
-    public void onSlotChange(PlayerItemHeldEvent event) {
-        AbilityBoard.from(event.getPlayer()).ifPresent(b -> b.switchSlot(event.getNewSlot()));
-    }
+		AbilityManager.removeAll(user);
+		UserManager.save(player);
+	}
 
-    @EventHandler
-    public void onCooldownStart(UserCooldownStartEvent event) {
-        if (!(event.getUser() instanceof PlayerUser)) {
-            return;
-        }
+	@EventHandler
+	public void onPlayerQuit(PlayerQuitEvent event) {
+		playerLeave(event.getPlayer());
+	}
 
-        AbilityBoard.from((PlayerUser) event.getUser()).ifPresent(b -> b.cooldown(event.getTag(), true));
-    }
+	@EventHandler
+	public void onPlayerKick(PlayerKickEvent event) {
+		playerLeave(event.getPlayer());
+	}
 
-    @EventHandler
-    public void onCooldownEnd(UserCooldownEndEvent event) {
-        if (!(event.getUser() instanceof PlayerUser)) {
-            return;
-        }
+	@EventHandler
+	public void onSlotChange(PlayerItemHeldEvent event) {
+		AbilityBoard.from(event.getPlayer()).ifPresent(b -> b.switchSlot(event.getNewSlot()));
+	}
 
-        AbilityBoard.from((PlayerUser) event.getUser()).ifPresent(b -> b.cooldown(event.getCooldown().getTag(), false));
-    }
+	@EventHandler
+	public void onCooldownStart(UserCooldownStartEvent event) {
+		if (!(event.getUser() instanceof PlayerUser)) {
+			return;
+		}
 
-    @EventHandler
-    public void onBindChange(UserBindChangeEvent event) {
-        if (!(event.getUser() instanceof PlayerUser)) {
-            return;
-        }
+		AbilityBoard.from((PlayerUser) event.getUser()).ifPresent(b -> b.cooldown(event.getTag(), true));
+	}
 
-        AbilityBoard.from((PlayerUser) event.getUser()).ifPresent(b -> b.updateBind(event.getSlot(), event.getResult()));
-    }
+	@EventHandler
+	public void onCooldownEnd(UserCooldownEndEvent event) {
+		if (!(event.getUser() instanceof PlayerUser)) {
+			return;
+		}
+
+		AbilityBoard.from((PlayerUser) event.getUser()).ifPresent(b -> b.cooldown(event.getCooldown().getTag(), false));
+	}
+
+	@EventHandler
+	public void onBindChange(UserBindChangeEvent event) {
+		if (!(event.getUser() instanceof PlayerUser)) {
+			return;
+		}
+
+		AbilityBoard.from((PlayerUser) event.getUser()).ifPresent(b -> b.updateBind(event.getSlot(), event.getResult()));
+	}
 }

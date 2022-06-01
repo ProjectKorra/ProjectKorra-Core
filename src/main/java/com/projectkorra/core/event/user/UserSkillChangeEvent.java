@@ -11,31 +11,31 @@ import org.bukkit.event.Event;
 import org.bukkit.event.HandlerList;
 
 public class UserSkillChangeEvent extends Event {
-    
-    private static final HandlerList HANDLERS = new HandlerList();
 
-    private SkillHolder holder;
-    private Set<Skill> skills;
+	private static final HandlerList HANDLERS = new HandlerList();
 
-    public UserSkillChangeEvent(SkillHolder holder, Collection<Skill> skills) {
-        this.holder = holder;
-        this.skills = new ImmutableSet.Builder<Skill>().addAll(skills).build();
-    }
+	private SkillHolder holder;
+	private Set<Skill> skills;
 
-    public SkillHolder getHolder() {
-        return holder;
-    }
+	public UserSkillChangeEvent(SkillHolder holder, Collection<Skill> skills) {
+		this.holder = holder;
+		this.skills = new ImmutableSet.Builder<Skill>().addAll(skills).build();
+	}
 
-    public Set<Skill> getSkills() {
-        return skills;
-    }
+	public SkillHolder getHolder() {
+		return holder;
+	}
 
-    @Override
-    public HandlerList getHandlers() {
-        return HANDLERS;
-    }
+	public Set<Skill> getSkills() {
+		return skills;
+	}
 
-    public static HandlerList getHandlerList() {
-        return HANDLERS;
-    }
+	@Override
+	public HandlerList getHandlers() {
+		return HANDLERS;
+	}
+
+	public static HandlerList getHandlerList() {
+		return HANDLERS;
+	}
 }

@@ -28,7 +28,8 @@ public final class UserManager {
 	private static long prevTime = System.currentTimeMillis();
 
 	public static void init(ProjectKorra plugin) {
-		if (init) return;
+		if (init)
+			return;
 
 		init = true;
 		plugin.getServer().getScheduler().scheduleSyncRepeatingTask(plugin, UserManager::updateUsers, 1, 1);
@@ -41,24 +42,25 @@ public final class UserManager {
 			user.getStamina().regen(deltaTime);
 			user.progressCooldowns();
 		}
-		
+
 		prevTime = System.currentTimeMillis();
 	}
-	
+
 	public static boolean register(AbilityUser user) {
 		if (user.getUniqueID() == null || !USERS.containsKey(user.getUniqueID())) {
 			return false;
 		}
-		
+
 		USERS.put(user.getUniqueID(), user);
 		return true;
 	}
-	
+
 	/**
-	 * Return the AbilityUser associated with the given unique id, but
-	 * only if the given class can be cast upon it, or null otherwise.
-	 * @param <T> type of the class to cast
-	 * @param uuid unique id associated with the AbilityUser
+	 * Return the AbilityUser associated with the given unique id, but only if the
+	 * given class can be cast upon it, or null otherwise.
+	 * 
+	 * @param <T>   type of the class to cast
+	 * @param uuid  unique id associated with the AbilityUser
 	 * @param clazz what to return the AbilityUser as
 	 * @return AbilityUser of the given type
 	 */
@@ -66,18 +68,19 @@ public final class UserManager {
 		if (uuid == null || clazz == null || !USERS.containsKey(uuid)) {
 			return null;
 		}
-		
+
 		AbilityUser user = USERS.get(uuid);
 		if (clazz.isInstance(user)) {
 			return clazz.cast(user);
 		}
-		
+
 		return null;
 	}
-	
+
 	/**
-	 * Return the AbilityUser associated with the given unique id, or null
-	 * if not found
+	 * Return the AbilityUser associated with the given unique id, or null if not
+	 * found
+	 * 
 	 * @param uuid unique id of the AbilityUser
 	 * @return an AbilityUser from the given id
 	 */
@@ -140,7 +143,7 @@ public final class UserManager {
 
 		try {
 			if (ProjectKorra.database().read("SELECT * FROM t_pk_player WHERE uuid = '" + player.getUniqueId() + "'").next()) {
-				//update eventually when t_pk_player has more columns
+				// update eventually when t_pk_player has more columns
 			} else {
 				ProjectKorra.database().modify("INSERT INTO t_pk_player VALUES ('" + player.getUniqueId() + "')");
 			}

@@ -19,18 +19,18 @@ import com.projectkorra.core.util.CollisionUtil.CollisionParseException;
 public class CollisionFile {
 
 	private File file;
-	
+
 	public CollisionFile(File file) {
 		Validate.isTrue(file.getName().endsWith(".txt"), "A collision file must have a txt extension!");
 		this.file = file;
 		this.init();
 	}
-	
+
 	private void init() {
 		if (!file.getParentFile().exists()) {
 			file.getParentFile().mkdirs();
 		}
-		
+
 		if (!file.exists()) {
 			try {
 				file.createNewFile();
@@ -39,14 +39,15 @@ public class CollisionFile {
 			}
 		}
 	}
-	
+
 	/**
 	 * Reads through the file for any valid collisions
+	 * 
 	 * @return Set of the valid CollisionData parsed
 	 */
 	public Set<CollisionData> read() {
 		Set<CollisionData> datas = new HashSet<>();
-		
+
 		try {
 			Scanner reader = new Scanner(file);
 			while (reader.hasNextLine()) {
@@ -63,13 +64,14 @@ public class CollisionFile {
 		} catch (FileNotFoundException e) {
 			e.printStackTrace();
 		}
-		
+
 		return datas;
 	}
-	
+
 	/**
-	 * Reads through the file for any valid collisions and
-	 * passes them to the given Consumer
+	 * Reads through the file for any valid collisions and passes them to the given
+	 * Consumer
+	 * 
 	 * @param consumer what to do with the valid parsed CollisionData
 	 */
 	public void readAnd(Consumer<CollisionData> consumer) {
@@ -89,11 +91,12 @@ public class CollisionFile {
 			e.printStackTrace();
 		}
 	}
-	
+
 	/**
 	 * Writes information about a collision to the file
+	 * 
 	 * @param data collision to write
-	 * @return false on IO exception, true otherwise	
+	 * @return false on IO exception, true otherwise
 	 */
 	public boolean write(CollisionData data) {
 		try {
@@ -104,7 +107,7 @@ public class CollisionFile {
 			e.printStackTrace();
 			return false;
 		}
-		
+
 		return true;
 	}
 }

@@ -16,21 +16,21 @@ import org.bukkit.plugin.java.JavaPlugin;
 import com.projectkorra.core.ProjectKorra;
 
 public class Config {
-	
+
 	private static final Map<String, Config> CACHE = new HashMap<>();
 
 	private File file;
 	private FileConfiguration config;
-	
+
 	private Config(File file) {
 		this.file = file;
 	}
-	
+
 	public Config reload() {
 		if (!file.getParentFile().exists()) {
 			file.getParentFile().mkdirs();
 		}
-		
+
 		if (!file.exists()) {
 			try {
 				file.createNewFile();
@@ -38,7 +38,7 @@ public class Config {
 				e.printStackTrace();
 			}
 		}
-		
+
 		this.config = YamlConfiguration.loadConfiguration(file);
 		this.load();
 		return this;
@@ -52,7 +52,7 @@ public class Config {
 			return false;
 		}
 	}
-	
+
 	public boolean save() {
 		try {
 			config.options().copyDefaults(true);
@@ -68,14 +68,18 @@ public class Config {
 	}
 
 	/**
-	 * Uses the given {@link BiFunction} to get a value from the FileConfiguration. An
-	 * example use of this is:
-	 * <pre> {@code 
+	 * Uses the given {@link BiFunction} to get a value from the FileConfiguration.
+	 * An example use of this is:
+	 * 
+	 * <pre>
+	 *  {@code 
 	 * double speed = config.getValue(FileConfiguration::getDouble, "Speed")
-	 * } </pre>
-	 * @param <T> Return type of the getter function
+	 * }
+	 * </pre>
+	 * 
+	 * @param <T>    Return type of the getter function
 	 * @param getter Function to get a value from a FileConfiguration
-	 * @param path Path argument for a configuration path
+	 * @param path   Path argument for a configuration path
 	 * @return a value from the config
 	 */
 	public <T> T getValue(BiFunction<FileConfiguration, String, T> getter, String path) {
@@ -93,9 +97,10 @@ public class Config {
 	public FileConfiguration get() {
 		return config;
 	}
-	
+
 	/**
 	 * Get the config from the configurable object
+	 * 
 	 * @param object the configurable object
 	 * @return config of the configurable object
 	 */
@@ -116,12 +121,13 @@ public class Config {
 
 		return new Config(new File(JavaPlugin.getPlugin(ProjectKorra.class).getDataFolder(), "/configuration/" + path)).reload();
 	}
-	
+
 	/**
-	 * Take the given configurable object and modify any fields with the {@link Configure} annotation
-	 * to match the value in the object's config, or making the value of the field the default if one
-	 * doesn't already exist.
-	 * @param <T> Object type that extends {@link Configurable}
+	 * Take the given configurable object and modify any fields with the
+	 * {@link Configure} annotation to match the value in the object's config, or
+	 * making the value of the field the default if one doesn't already exist.
+	 * 
+	 * @param <T>    Object type that extends {@link Configurable}
 	 * @param object the object to be configured
 	 * @return the configured object
 	 */
@@ -131,23 +137,23 @@ public class Config {
 			if (field.isAnnotationPresent(Configure.class)) {
 				String path = field.getAnnotation(Configure.class).value();
 				String comment = field.getAnnotation(Configure.class).comment();
-				
+
 				if (path.isEmpty()) {
 					path = field.getName();
 				}
-				
+
 				List<String> comments = null;
-				
+
 				if (!comment.isEmpty()) {
 					comments = Arrays.asList(comment);
 				}
-				
+
 				config.get().setComments(path, comments);
-				
+
 				try {
 					boolean access = field.isAccessible();
 					field.setAccessible(true);
-					
+
 					if (!config.get().contains(path)) {
 						config.addDefault(path, field.get(object));
 					} else {

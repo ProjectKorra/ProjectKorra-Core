@@ -9,9 +9,11 @@ import java.lang.annotation.Target;
 @Retention(RUNTIME)
 @Target(FIELD)
 public @interface Attribute {
-	
+
 	public String value();
-	
+
+	public AttributeGroup group();
+
 	public static final String SPEED = "speed";
 	public static final String RANGE = "range";
 	public static final String SELECT_RANGE = "select_range";
@@ -25,4 +27,7 @@ public @interface Attribute {
 	public static final String KNOCKBACK = "knockback";
 	public static final String KNOCKUP = "knockup";
 	public static final String FIRE_TICK = "fireticks";
+	public static final String STAMINA_COST = "stamina_cost";
+	public static final String STAMINA_DRAIN = "stamina_drain";
+
 }

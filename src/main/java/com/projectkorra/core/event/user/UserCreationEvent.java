@@ -7,25 +7,25 @@ import org.bukkit.event.HandlerList;
 
 public class UserCreationEvent extends Event {
 
-    private static final HandlerList HANDLERS = new HandlerList();
+	private static final HandlerList HANDLERS = new HandlerList();
 
-    private AbilityUser user;
+	private AbilityUser user;
 
-    public UserCreationEvent(AbilityUser user) {
-        this.user = user;
-    }
+	public UserCreationEvent(AbilityUser user) {
+		this.user = user;
+	}
 
-    public AbilityUser getUser() {
-        return user;
-    }
+	public AbilityUser getUser() {
+		return user;
+	}
 
-    @Override
-    public HandlerList getHandlers() {
-        return HANDLERS;
-    }
+	@Override
+	public HandlerList getHandlers() {
+		return HANDLERS;
+	}
 
-    public static HandlerList getHandlerList() {
-        return HANDLERS;
-    }
-    
+	public static HandlerList getHandlerList() {
+		return HANDLERS;
+	}
+
 }

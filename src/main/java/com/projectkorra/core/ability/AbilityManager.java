@@ -1,12 +1,8 @@
 package com.projectkorra.core.ability;
 
-import java.io.File;
 import java.lang.reflect.Field;
-import java.net.URL;
-import java.net.URLDecoder;
 import java.util.ArrayList;
 import java.util.Collections;
-import java.util.Enumeration;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.LinkedList;
@@ -15,8 +11,6 @@ import java.util.Map;
 import java.util.Map.Entry;
 import java.util.Optional;
 import java.util.Set;
-import java.util.jar.JarEntry;
-import java.util.jar.JarFile;
 
 import org.bukkit.event.Event;
 import org.bukkit.plugin.java.JavaPlugin;
@@ -25,6 +19,7 @@ import com.projectkorra.core.ProjectKorra;
 import com.projectkorra.core.ability.activation.Activation;
 import com.projectkorra.core.ability.activation.SequenceInfo;
 import com.projectkorra.core.ability.attribute.Attribute;
+import com.projectkorra.core.ability.attribute.AttributeGroup;
 import com.projectkorra.core.ability.attribute.Modifier;
 import com.projectkorra.core.ability.type.Combo;
 import com.projectkorra.core.ability.type.ExpanderInstance;
@@ -40,60 +35,84 @@ import com.projectkorra.core.skill.Skill;
 import com.projectkorra.core.util.Events;
 import com.projectkorra.core.util.configuration.Config;
 import com.projectkorra.core.util.configuration.Configure;
+import com.projectkorra.core.util.data.CollectionUtil;
+import com.projectkorra.core.util.reflection.DynamicLoader;
 import com.projectkorra.core.util.reflection.ReflectionUtil;
 
 public final class AbilityManager {
-	
-	private AbilityManager() {}
 
-	//static ability info
+	private AbilityManager() {
+	}
+
+	// static ability info
 	private static final Map<Class<? extends Ability>, Ability> ABILITIES_BY_CLASS = new HashMap<>();
 	private static final Map<String, Ability> ABILITIES_BY_NAME = new HashMap<>();
 	private static final Map<Skill, Set<Ability>> ABILITIES_BY_SKILL = new HashMap<>();
-	
-	//instance info
+
+	// instance info
 	private static final Set<AbilityInstance> ACTIVE = new HashSet<>(256);
 	private static final Map<Class<? extends AbilityInstance>, Map<String, Field>> ATTRIBUTES = new HashMap<>();
+	private static final Map<Class<? extends AbilityInstance>, Set<Field>[]> ATTR_GROUP = new HashMap<>();
 	private static final Map<AbilityInstance, Map<Field, Modifier>> MODIFIERS = new HashMap<>();
 	private static final Map<AbilityUser, ActiveInfo> USER_INFO = new HashMap<>();
-	
-	//combo management
+
+	// combo management
 	private static final Map<String, Ability> COMBOS = new HashMap<>();
-	
-	//passive management
+
+	// passive management
 	private static final Map<Skill, Map<Activation, Set<Ability>>> PASSIVES = new HashMap<>();
-	
+
 	private static boolean init = false;
 	private static ProjectKorra plugin;
-	
+
 	private static long prev = System.currentTimeMillis();
-	
+
 	public static void init(ProjectKorra pk) {
 		if (init) {
 			return;
 		}
-		
+
 		init = true;
 		plugin = pk;
 		plugin.getServer().getScheduler().scheduleSyncRepeatingTask(plugin, () -> tick(), 0, 1);
 	}
-	
+
 	private static ActiveInfo info(AbilityUser user) {
 		return USER_INFO.computeIfAbsent(user, (u) -> new ActiveInfo(u));
 	}
-	
+
 	public static Optional<Ability> getAbility(String name) {
 		return Optional.ofNullable(ABILITIES_BY_NAME.get(name.toLowerCase()));
 	}
-	
+
 	public static <T extends Ability> Optional<T> getAbility(Class<T> clazz) {
 		return Optional.ofNullable(clazz.cast(ABILITIES_BY_CLASS.get(clazz)));
 	}
-	
+
 	public static Set<Ability> getAbilities(Skill skill) {
+		if (!ABILITIES_BY_SKILL.containsKey(skill)) {
+			return new HashSet<>();
+		}
+		
 		return new HashSet<>(ABILITIES_BY_SKILL.get(skill));
 	}
-	
+
+	public static Set<Ability> getAbilities() {
+		return new HashSet<>(ABILITIES_BY_CLASS.values());
+	}
+
+	public static Set<Ability> getAbilitiesUserCanBind(AbilityUser user) {
+		Set<Ability> abilities = new HashSet<>();
+
+		for (Ability ability : ABILITIES_BY_CLASS.values()) {
+			if (user.canBind(ability)) {
+				abilities.add(ability);
+			}
+		}
+
+		return abilities;
+	}
+
 	public static <T extends AbilityInstance> Optional<T> getInstance(AbilityUser user, Class<T> clazz) {
 		LinkedList<AbilityInstance> instances = info(user).getInstances(clazz);
 		if (instances == null) {
@@ -102,7 +121,7 @@ public final class AbilityManager {
 			return Optional.ofNullable(clazz.cast(instances.peek()));
 		}
 	}
-	
+
 	public static List<AbilityInstance> getInstances(AbilityUser user, Class<? extends AbilityInstance> clazz) {
 		if (!hasInstance(user, clazz)) {
 			return Collections.emptyList();
@@ -114,23 +133,39 @@ public final class AbilityManager {
 	public static boolean hasInstance(AbilityUser user, Class<? extends AbilityInstance> clazz) {
 		return info(user).hasInstance(clazz);
 	}
-	
+
 	public static boolean hasAttribute(AbilityInstance instance, String attribute) {
 		return ATTRIBUTES.containsKey(instance.getClass()) && ATTRIBUTES.get(instance.getClass()).containsKey(attribute.toLowerCase());
 	}
-	
+
+	public static boolean hasAttributeGroup(AbilityInstance instance, AttributeGroup group) {
+		return ATTR_GROUP.containsKey(instance.getClass()) && ATTR_GROUP.get(instance.getClass())[group.ordinal()].isEmpty();
+	}
+
 	public static boolean addModifier(AbilityInstance instance, String attribute, Modifier mod) {
 		if (!hasAttribute(instance, attribute)) {
 			return false;
 		}
-		
+
 		Field field = ATTRIBUTES.get(instance.getClass()).get(attribute.toLowerCase());
 		MODIFIERS.computeIfAbsent(instance, (i) -> new HashMap<>()).merge(field, mod, (a, b) -> a.and(b));
 		return true;
 	}
-	
+
+	public static boolean addModifier(AbilityInstance instance, AttributeGroup group, Modifier mod) {
+		if (!hasAttributeGroup(instance, group)) {
+			return false;
+		}
+
+		for (Field field : ATTR_GROUP.get(instance.getClass())[group.ordinal()]) {
+			MODIFIERS.computeIfAbsent(instance, (i) -> new HashMap<>()).merge(field, mod, (a, b) -> a.and(b));
+		}
+		return true;
+	}
+
 	/**
-	 * Attempts to register the given {@link Ability} into the system. The process of registration goes:
+	 * Attempts to register the given {@link Ability} into the system. The process
+	 * of registration goes:
 	 * <ul>
 	 * <li>Ability is cached by class, name, and skill
 	 * <li>Combos are loaded into the {@link ComboTree}
@@ -139,7 +174,8 @@ public final class AbilityManager {
 	 * <li>The ability is auto-configured using the {@link Configure} annotation
 	 * </ul>
 	 * <br>
-	 * @param <T> Type of the ability
+	 * 
+	 * @param <T>     Type of the ability
 	 * @param ability The ability to register
 	 * @throws IllegalArgumentException if an ability with the given name exists
 	 * @return the successfully registered ability
@@ -150,13 +186,14 @@ public final class AbilityManager {
 		} else if (ABILITIES_BY_CLASS.containsKey(ability.getClass())) {
 			throw new IllegalArgumentException("An Ability from class '" + ability.getClass().getSimpleName() + "' already exists!");
 		}
-		
-		//check if ability is enabled, return if not (exception possibly? or would null work?)
-		
+
+		// check if ability is enabled, return if not (exception possibly? or would null
+		// work?)
+
 		ABILITIES_BY_CLASS.put(ability.getClass(), ability);
 		ABILITIES_BY_NAME.put(ability.getName().toLowerCase(), ability);
 		ABILITIES_BY_SKILL.computeIfAbsent(ability.getSkill(), (s) -> new HashSet<>()).add(ability);
-		
+
 		if (ability instanceof Combo) {
 			try {
 				COMBOS.put(SequenceInfo.stringify(ComboTree.build(((Combo) ability).getSequence())), ability);
@@ -164,78 +201,60 @@ public final class AbilityManager {
 				System.out.println(ability.getName() + " attempted to register a combo sequence which would never be activated!");
 			}
 		}
-		
+
 		if (ability instanceof Passive) {
 			PASSIVES.computeIfAbsent(ability.getSkill(), (s) -> new HashMap<>()).computeIfAbsent(((Passive) ability).getTrigger(), (t) -> new HashSet<>()).add(ability);
-		}
-		
-		for (Class<? extends AbilityInstance> instance : ability.instanceClasses()) {
-			Map<String, Field> attributes = new HashMap<>();
-			for (Field field : instance.getDeclaredFields()) {
-				if (field.isAnnotationPresent(Attribute.class)) {
-					attributes.put(field.getAnnotation(Attribute.class).value().toLowerCase(), field);
-				}
-			}
-			ATTRIBUTES.put(instance, attributes);
 		}
 
 		return Config.process(Events.register(ability));
 	}
-	
+
+	@SuppressWarnings("unchecked")
 	public static void registerFrom(JavaPlugin plugin, String path) {
-		if (plugin == null || path == null) {
-			ProjectKorra.warnConsole("Cannot find abilities from null values");
-			return;
-		}
-		
-		ClassLoader loader = plugin.getClass().getClassLoader();
-		
-		try {
-			Enumeration<URL> resources = loader.getResources(path.replace('.', '/'));
-			String jarLoc = resources.nextElement().getPath();
-			JarFile jar = new JarFile(new File(URLDecoder.decode(jarLoc.substring(5, jarLoc.length() - path.length() - 2), "UTF-8")));
-			Enumeration<JarEntry> entries = jar.entries();
-			
-			while (entries.hasMoreElements()) {
-				JarEntry entry = entries.nextElement();
-				if (!entry.getName().endsWith(".class") || entry.getName().contains("$")) {
-					continue;
+		DynamicLoader.load(plugin, path, (c) -> Ability.class.isAssignableFrom(c) || AbilityInstance.class.isAssignableFrom(c), (clazz) -> {
+			if (Ability.class.isAssignableFrom(clazz)) {
+				try {
+					register((Ability) clazz.getDeclaredConstructor().newInstance());
+				} catch (Exception e) {
+					e.printStackTrace();
 				}
-				
-				String className = entry.getName().replace('/', '.').substring(0, entry.getName().length() - 6);
-				if (!className.startsWith(path)) {
-					continue;
+			} else if (AbilityInstance.class.isAssignableFrom(clazz)) {
+				Class<? extends AbilityInstance> instance = clazz.asSubclass(AbilityInstance.class);
+				Map<String, Field> attributes = new HashMap<>();
+				Set<Field>[] groups = (Set<Field>[]) CollectionUtil.fillArray(new HashSet[AttributeGroup.values().length], (i) -> new HashSet<>());
+
+				for (Field field : clazz.getDeclaredFields()) {
+					if (field.isAnnotationPresent(Attribute.class)) {
+						attributes.put(field.getAnnotation(Attribute.class).value().toLowerCase(), field);
+						groups[field.getAnnotation(Attribute.class).group().ordinal()].add(field);
+					}
 				}
-				
-				Class<?> clazz = Class.forName(className, true, loader);
-				if (!Ability.class.isAssignableFrom(clazz) || clazz.isInterface() || java.lang.reflect.Modifier.isAbstract(clazz.getModifiers())) {
-					continue;
-				}
-				
-				register((Ability) clazz.getDeclaredConstructor().newInstance());
+
+				ATTRIBUTES.put(instance, attributes);
+				ATTR_GROUP.put(instance, groups);
 			}
-		} catch (Exception e) {
-			e.printStackTrace();
-		}
+		});
 	}
-	
+
 	/**
-	 * Calls activation for the given user, checking for a valid
-	 * combo that they can activate with their bound ability and 
-	 * the given activation type, or activates their bound ability
-	 * if nonnull
-	 * @param user who to activate for
-	 * @param trigger how to activate
-	 * @param provider the event providing this activation (nullable, but some may not activate without)
-	 * @return false if null or event is cancelled, otherwise passed to {@link #start(AbilityUser, AbilityInstance)}
+	 * Calls activation for the given user, checking for a valid combo that they can
+	 * activate with their bound ability and the given activation type, or activates
+	 * their bound ability if nonnull
+	 * 
+	 * @param user     who to activate for
+	 * @param trigger  how to activate
+	 * @param provider the event providing this activation (nullable, but some may
+	 *                 not activate without)
+	 * @return false if null or event is cancelled, otherwise passed to
+	 *         {@link #start(AbilityUser, AbilityInstance)}
 	 */
 	public static boolean activate(AbilityUser user, Activation trigger, Event provider) {
 		if (user == null || trigger == null) {
 			return false;
 		}
-		
+
 		Ability ability = user.getBoundAbility().orElseGet(() -> null);
-		
+
 		if (ability == null) {
 			return false;
 		}
@@ -247,7 +266,7 @@ public final class AbilityManager {
 		if (ability instanceof SourcedAbility) {
 			user.putSource(trigger, ((SourcedAbility) ability).selectSource(user, trigger));
 		}
-		
+
 		if (trigger.canCombo()) {
 			ComboAgent combo = USER_INFO.computeIfAbsent(user, (u) -> new ActiveInfo(u)).updateCombos(ability, trigger);
 			if (combo != null) {
@@ -259,10 +278,12 @@ public final class AbilityManager {
 
 		return ability.canActivate(user, trigger) && start(ability.activate(user, trigger, provider));
 	}
-	
+
 	/**
-	 * Attempts to start the given AbilityInstance. At this stage: an {@link InstanceStartEvent} will be called,
-	 * an {@link ExpanderInstance} will have their abilities bound, 
+	 * Attempts to start the given AbilityInstance. At this stage: an
+	 * {@link InstanceStartEvent} will be called, an {@link ExpanderInstance} will
+	 * have their abilities bound,
+	 * 
 	 * @param instance what to start
 	 * @return false if user or instance is null or the event is cancelled
 	 */
@@ -274,26 +295,30 @@ public final class AbilityManager {
 		} else if (!info(instance.getUser()).addInstance(instance)) {
 			return false;
 		}
-		
+
 		if (MODIFIERS.containsKey(instance)) {
 			for (Entry<Field, Modifier> entry : MODIFIERS.get(instance).entrySet()) {
 				try {
 					Object applied = entry.getValue().apply(ReflectionUtil.getValueSafely(instance, entry.getKey(), Object.class));
 					ReflectionUtil.setValueSafely(instance, entry.getKey(), applied);
-				} catch (Exception e) {}
+				} catch (Exception e) {
+				}
 			}
-			
+
 			MODIFIERS.computeIfPresent(instance, (i, v) -> {
 				v.clear();
 				return null;
 			});
 		}
-		
-		ACTIVE.add(instance);
+
+		if (instance.hasUpdate()) {
+			ACTIVE.add(instance);
+		}
+
 		instance.start();
 		return true;
 	}
-	
+
 	public static void refreshPassives(AbilityUser user) {
 		for (Skill skill : user.getSkills()) {
 			if (!PASSIVES.containsKey(skill)) {
@@ -313,38 +338,42 @@ public final class AbilityManager {
 	public static void removeAll(AbilityUser user) {
 		info(user).clear();
 	}
-	
+
 	public static void remove(AbilityInstance instance) {
 		if (instance == null) {
 			return;
 		}
-		
+
 		ACTIVE.remove(instance);
 		stop(instance, Reason.FORCED);
 	}
-	
+
 	private static void stop(AbilityInstance instance, Reason reason) {
 		Events.call(new InstanceStopEvent(instance, reason));
 		USER_INFO.get(instance.getUser()).removeInstance(instance);
 		instance.stop();
 	}
-	
+
 	static void tick() {
 		double timeDelta = (System.currentTimeMillis() - prev) / 1000D;
-		
-		for (AbilityInstance instance : new HashSet<AbilityInstance>(ACTIVE)) {
-			if (!instance.update(timeDelta)) {
-				ACTIVE.remove(instance);
-				stop(instance, Reason.NATURAL);
-				continue;
+
+		loop: for (AbilityInstance instance : new HashSet<AbilityInstance>(ACTIVE)) {
+			instance.preUpdate();
+
+			for (double i = 0; i < instance.interpolationInterval(); i += 1) {
+				if (!instance.update(timeDelta / instance.interpolationInterval())) {
+					ACTIVE.remove(instance);
+					stop(instance, Reason.NATURAL);
+					continue loop;
+				}
 			}
-			
+
 			instance.postUpdate();
 			if (instance instanceof Collidable) {
 				CollisionManager.addCollidable((Collidable) instance);
 			}
 		}
-		
+
 		prev = System.currentTimeMillis();
 	}
 }

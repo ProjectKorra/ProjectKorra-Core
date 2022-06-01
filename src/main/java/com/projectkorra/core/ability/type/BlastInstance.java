@@ -16,7 +16,7 @@ public class BlastInstance {
 	private Predicate<Location> passable;
 	protected Location location;
 	protected double speed;
-	
+
 	public BlastInstance(AbilityUser user, Predicate<Location> passable) {
 		this.passable = passable;
 		this.direction = user.getDirection();
@@ -27,17 +27,19 @@ public class BlastInstance {
 		location.add(direction.clone().multiply(speed * timeDelta));
 		return passable.test(location);
 	}
-	
+
 	/**
 	 * Sets the speed of this blast
+	 * 
 	 * @param speed blocks per second
 	 */
 	public final void setSpeed(double speed) {
 		this.speed = speed;
 	}
-	
+
 	/**
 	 * Sets the direction of this blast without changing the speed
+	 * 
 	 * @param direction blast's new direction
 	 */
 	public final void setDirection(Vector direction) {
@@ -50,15 +52,16 @@ public class BlastInstance {
 	public final Vector getDirection() {
 		return this.direction.clone();
 	}
-	
+
 	public final Location getLocation() {
 		return this.location;
 	}
-	
+
 	/**
-	 * Turns this blast towards the given direction without changing 
-	 * the speed. The length of the given direction will determine how 
-	 * much the blast turns toward it (longer = more turning)
+	 * Turns this blast towards the given direction without changing the speed. The
+	 * length of the given direction will determine how much the blast turns toward
+	 * it (longer = more turning)
+	 * 
 	 * @param direction where to turn towards
 	 */
 	public final void turnTowards(Vector direction) {

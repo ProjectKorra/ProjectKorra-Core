@@ -1,13 +1,14 @@
 package com.projectkorra.core.entity;
 
-import com.projectkorra.core.ProjectKorra;
-
 import org.bukkit.Location;
 import org.bukkit.entity.Mob;
+import org.bukkit.inventory.MainHand;
 import org.bukkit.plugin.java.JavaPlugin;
 
+import com.projectkorra.core.ProjectKorra;
+
 public class MobUser extends User<Mob> {
-	
+
 	private MobSlotAI ai;
 
 	MobUser(Mob entity, MobSlotAI ai) {
@@ -39,5 +40,10 @@ public class MobUser extends User<Mob> {
 	@Override
 	public boolean checkDefaultProtections(Location loc) {
 		return false;
+	}
+
+	@Override
+	public MainHand getMainHand() {
+		return MainHand.RIGHT;
 	}
 }

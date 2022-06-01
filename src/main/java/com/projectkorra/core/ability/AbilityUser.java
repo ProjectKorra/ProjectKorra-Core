@@ -8,7 +8,15 @@ import java.util.Set;
 import java.util.UUID;
 import java.util.function.Predicate;
 
+import org.bukkit.FluidCollisionMode;
+import org.bukkit.Location;
+import org.bukkit.entity.Entity;
+import org.bukkit.entity.LivingEntity;
+import org.bukkit.inventory.MainHand;
+import org.bukkit.util.Vector;
+
 import com.projectkorra.core.ability.activation.Activation;
+import com.projectkorra.core.ability.type.Bindable;
 import com.projectkorra.core.event.user.UserBindChangeEvent;
 import com.projectkorra.core.event.user.UserBindCopyEvent;
 import com.projectkorra.core.event.user.UserCooldownEndEvent;
@@ -17,23 +25,17 @@ import com.projectkorra.core.skill.SkillHolder;
 import com.projectkorra.core.util.Events;
 import com.projectkorra.core.util.data.Stamina;
 
-import org.bukkit.FluidCollisionMode;
-import org.bukkit.Location;
-import org.bukkit.entity.Entity;
-import org.bukkit.entity.LivingEntity;
-import org.bukkit.util.Vector;
-
 /**
  * Class for identifying something that can activate abilities
  */
 public abstract class AbilityUser extends SkillHolder {
-	
+
 	private AbilityBinds binds = new AbilityBinds();
 	private Map<String, Cooldown> cooldowns = new HashMap<>();
 	private PriorityQueue<Cooldown> cdQueue = new PriorityQueue<>(32, (a, b) -> (int) (a.getEndTime() - b.getEndTime()));
 	private Map<Activation, SourceInstance> sources = new HashMap<>();
 	private LivingEntity entity;
-	private Stamina stamina; 
+	private Stamina stamina;
 
 	public boolean immune = false;
 
@@ -49,10 +51,11 @@ public abstract class AbilityUser extends SkillHolder {
 	public final Stamina getStamina() {
 		return stamina;
 	}
-	
+
 	/**
 	 * Binds the given ability to the specified slot
-	 * @param slot Where to bind the ability on the hotbar, slots range [0, 8]
+	 * 
+	 * @param slot    Where to bind the ability on the hotbar, slots range [0, 8]
 	 * @param ability {@link Ability} to bind at the slot
 	 * @return false if the slot is out of bounds or the ability is null
 	 */
@@ -68,10 +71,14 @@ public abstract class AbilityUser extends SkillHolder {
 	/**
 	 * Binds the given abilities to the specified slots, such that elements in slots
 	 * correspond to elements at the same index in abilities
-	 * @param slots Array of slots to bind to
+	 * 
+	 * @param slots     Array of slots to bind to
 	 * @param abilities Array of abilities to bind
-	 * @return empty boolean array if given arrays do not match length, otherwise a boolen array returning the value of
-	 * {@link AbilityUser#bindAbility(int, Ability)} for each pair <code>slots[i], abilities[i]</code> that is the same length as the given arrays
+	 * @return empty boolean array if given arrays do not match length, otherwise a
+	 *         boolean array returning the value of
+	 *         {@link AbilityUser#bindAbility(int, Ability)} for each pair
+	 *         <code>slots[i], abilities[i]</code> that is the same length as the
+	 *         given arrays
 	 */
 	public final boolean[] bindAbilities(int[] slots, Ability[] abilities) {
 		if (slots.length != abilities.length) {
@@ -86,8 +93,14 @@ public abstract class AbilityUser extends SkillHolder {
 		return bools;
 	}
 
+	public final boolean canBind(Ability ability) {
+		return ability instanceof Bindable && hasPermission("bending.ability." + ability.getName()) && this.hasSkill(ability.getSkill());
+	}
+
 	/**
-	 * Clears the bind of the given slot. Silently ignored if slot is out of bounds or no ability is bound
+	 * Clears the bind of the given slot. Silently ignored if slot is out of bounds
+	 * or no ability is bound
+	 * 
 	 * @param slot Where to clear the bind from
 	 */
 	public final void clearBind(int slot) {
@@ -99,10 +112,12 @@ public abstract class AbilityUser extends SkillHolder {
 	}
 
 	/**
-	 * Clears the binds for the given slots, directly calling {@link #clearBind(int)} for each slot.
+	 * Clears the binds for the given slots, directly calling
+	 * {@link #clearBind(int)} for each slot.
+	 * 
 	 * @param slots Slots to be cleared
 	 */
-	public final void clearBinds(int...slots) {
+	public final void clearBinds(int... slots) {
 		for (int slot : slots) {
 			clearBind(slot);
 		}
@@ -110,6 +125,7 @@ public abstract class AbilityUser extends SkillHolder {
 
 	/**
 	 * Copies the binds from another {@link AbilityBinds} object
+	 * 
 	 * @param other Binds to copy
 	 */
 	public final void copyBinds(AbilityBinds other) {
@@ -122,6 +138,7 @@ public abstract class AbilityUser extends SkillHolder {
 
 	/**
 	 * Gets the bound ability using {@link #getCurrentSlot()}
+	 * 
 	 * @return ability bound to the current slot
 	 */
 	public final Optional<Ability> getBoundAbility() {
@@ -130,6 +147,7 @@ public abstract class AbilityUser extends SkillHolder {
 
 	/**
 	 * Gets the ability bound to the given slot
+	 * 
 	 * @param slot ability bind slot
 	 * @return ability bound to the given slot
 	 */
@@ -139,6 +157,7 @@ public abstract class AbilityUser extends SkillHolder {
 
 	/**
 	 * Gets which slots the given ability is bound to
+	 * 
 	 * @param ability Ability to check for
 	 * @return slots the ability is bound to
 	 */
@@ -158,9 +177,12 @@ public abstract class AbilityUser extends SkillHolder {
 	}
 
 	/**
-	 * Returns a copy of the player's current {@link AbilityBinds}. This is a <b>copy</b> and thus changes
-	 * to the returned object will not be reflected in the user's binds. See {@link #copyBinds(AbilityBinds)},
-	 * {@link #bindAbility(int, Ability)}, and {@link #clearBind(int)} to modify the user's binds.
+	 * Returns a copy of the player's current {@link AbilityBinds}. This is a
+	 * <b>copy</b> and thus changes to the returned object will not be reflected in
+	 * the user's binds. See {@link #copyBinds(AbilityBinds)},
+	 * {@link #bindAbility(int, Ability)}, and {@link #clearBind(int)} to modify the
+	 * user's binds.
+	 * 
 	 * @return copy of the player's binds
 	 */
 	public final AbilityBinds getBinds() {
@@ -180,10 +202,13 @@ public abstract class AbilityUser extends SkillHolder {
 	}
 
 	/**
-	 * Adds a cooldown for this user on the given ability, ignored if the tag is null, cooldown is non-positive, or 
-	 * the ability is already on cooldown (and noncumulative)
-	 * @param tag A form of id for the cooldown, usually relating it to an {@link AbilityInstance}
-	 * @param cooldown Duration of the cooldown
+	 * Adds a cooldown for this user on the given ability, ignored if the tag is
+	 * null, cooldown is non-positive, or the ability is already on cooldown (and
+	 * noncumulative)
+	 * 
+	 * @param tag        A form of id for the cooldown, usually relating it to an
+	 *                   {@link AbilityInstance}
+	 * @param cooldown   Duration of the cooldown
 	 * @param cumulative Should the cooldown be added to the existing duration
 	 * @return true if the cooldown was successfully added
 	 */
@@ -219,8 +244,9 @@ public abstract class AbilityUser extends SkillHolder {
 	}
 
 	/**
-	 * Checks if this user has a cooldown for any of the given ability's tags
-	 * from {@link Ability#getCooldownTags()}
+	 * Checks if this user has a cooldown for any of the given ability's tags from
+	 * {@link Ability#getCooldownTags()}
+	 * 
 	 * @param ability Ability to check for cooldowns
 	 * @return true if any of the ability's cooldown tags are found for this user
 	 */
@@ -252,12 +278,14 @@ public abstract class AbilityUser extends SkillHolder {
 	void putSource(Activation trigger, SourceInstance instance) {
 		sources.put(trigger, instance);
 	}
-	
+
 	public abstract void sendMessage(String message);
+
 	public abstract boolean hasPermission(String permission);
-	
+
 	/**
 	 * Checks if this the given location is protected from this {@link AbilityUser}
+	 * 
 	 * @param loc Where to check
 	 * @return true if the location is protected
 	 */
@@ -265,41 +293,51 @@ public abstract class AbilityUser extends SkillHolder {
 
 	/**
 	 * Gets the user's currently hovered slot
+	 * 
 	 * @return Hovered slot
 	 */
 	public abstract int getCurrentSlot();
-	
+
 	/**
-	 * Gets the location of where abilities generally start
-	 * from this user
+	 * Gets the location of where abilities generally start from this user
+	 * 
 	 * @return The ability starting location of this user
 	 */
 	public abstract Location getLocation();
 
 	/**
 	 * Gets the eye level location of this user
+	 * 
 	 * @return eye height location
 	 */
 	public abstract Location getEyeLocation();
-	
+
 	/**
 	 * Gets the direction for abilities to start in
+	 * 
 	 * @return The ability starting direction of this user
 	 */
 	public abstract Vector getDirection();
 
 	public abstract Optional<Entity> getTargetEntity(double range, double raySize, FluidCollisionMode fluid, Predicate<Entity> filter);
-	
+
 	/**
 	 * Gets the unique id for this user
+	 * 
 	 * @return The user's unique id
 	 */
 	public abstract UUID getUniqueID();
-	
+
 	/**
-	 * Checks whether the user should be removed from
-	 * memory or not
+	 * Checks whether the user should be removed from memory or not
+	 * 
 	 * @return True to remove user from memory
 	 */
 	public abstract boolean shouldRemove();
+
+	public abstract MainHand getMainHand();
+
+	public final MainHand getOffHand() {
+		return getMainHand() == MainHand.RIGHT ? MainHand.LEFT : MainHand.RIGHT;
+	}
 }

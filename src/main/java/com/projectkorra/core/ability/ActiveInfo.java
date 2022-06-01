@@ -19,7 +19,7 @@ public class ActiveInfo {
 	private AbilityBinds original;
 	private ExpanderInstance expander;
 	private AbilityUser user;
-	
+
 	ActiveInfo(AbilityUser user) {
 		this.instances = new HashMap<>();
 		this.sequences = new ArrayList<>();
@@ -44,7 +44,7 @@ public class ActiveInfo {
 		original = new AbilityBinds();
 		expander = null;
 	}
-	
+
 	LinkedList<AbilityInstance> getInstances(Class<? extends AbilityInstance> clazz) {
 		return instances.get(clazz);
 	}
@@ -52,7 +52,7 @@ public class ActiveInfo {
 	boolean hasInstance(Class<? extends AbilityInstance> clazz) {
 		return instances.get(clazz) != null && instances.get(clazz).size() > 0;
 	}
-	
+
 	boolean addInstance(AbilityInstance instance) {
 		if (instance == null) {
 			return false;
@@ -67,29 +67,29 @@ public class ActiveInfo {
 			original.copy(instance.getUser().getBinds());
 			instance.getUser().getBinds().copy(expander.getNewBinds());
 		}
-		
+
 		return instances.computeIfAbsent(instance.getClass(), (c) -> new LinkedList<>()).add(instance);
 	}
-	
+
 	void removeInstance(AbilityInstance instance) {
 		if (instance == null) {
 			return;
 		}
-		
+
 		instances.get(instance.getClass()).remove(instance);
 		if (instance == expander) {
 			instance.getUser().getBinds().copy(original);
 			expander = null;
 		}
 	}
-	
+
 	ComboAgent updateCombos(Ability ability, Activation trigger) {
 		ComboAgent completed = null;
 		sequences.add(new ComboAgent());
 		Iterator<ComboAgent> iter = sequences.iterator();
 		while (iter.hasNext()) {
 			ComboAgent agent = iter.next();
-			
+
 			switch (agent.update(ability, trigger)) {
 			case COMPLETE:
 				completed = agent;
@@ -99,7 +99,7 @@ public class ActiveInfo {
 				break;
 			}
 		}
-		
+
 		if (completed != null) {
 			sequences.clear();
 		}

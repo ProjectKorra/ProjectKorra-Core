@@ -4,12 +4,13 @@ import java.util.HashSet;
 import java.util.Set;
 import java.util.function.Predicate;
 
-import com.projectkorra.core.physics.Collider;
-
 import org.bukkit.util.BoundingBox;
 
+import com.projectkorra.core.physics.Collider;
+import com.projectkorra.core.util.data.Pair;
+
 public class CollisionTree {
-	
+
 	private static final int[] XS = { 1, 1, 1, 1, 0, 0, 0, 0 };
 	private static final int[] YS = { 1, 1, 0, 0, 1, 1, 0, 0 };
 	private static final int[] ZS = { 1, 0, 1, 0, 1, 0, 1, 0 };
@@ -18,29 +19,29 @@ public class CollisionTree {
 	private int capacity;
 	private Set<Collidable> contents;
 	private CollisionTree[] children;
-	
+
 	public CollisionTree(BoundingBox bounds, int capacity) {
 		this.bounds = bounds;
 		this.capacity = capacity;
 		this.contents = new HashSet<Collidable>(capacity);
 		this.children = null;
 	}
-	
+
 	private void divide() {
 		if (children == null) {
 			children = new CollisionTree[8];
 			for (int i = 0; i < 8; i++) {
 				children[i] = new CollisionTree(new BoundingBox(bounds.getMinX() + XS[i] * bounds.getWidthX() / 2, bounds.getMinY() + YS[i] * bounds.getHeight() / 2, bounds.getMinZ() + ZS[i] * bounds.getWidthZ() / 2, bounds.getMaxX() - XS[7 - i] * bounds.getWidthX() / 2, bounds.getMaxY() - YS[7 - i] * bounds.getHeight() / 2, bounds.getMaxZ() - ZS[7 - i] * bounds.getWidthZ() / 2), capacity);
 			}
-			
+
 			for (Collidable obj : contents) {
 				insert(obj);
 			}
-			
+
 			contents.clear();
 		}
 	}
-	
+
 	void reset() {
 		if (children != null) {
 			for (CollisionTree branch : children) {
@@ -52,23 +53,23 @@ public class CollisionTree {
 
 		contents.clear();
 	}
-	
+
 	public boolean insert(Collidable obj) {
 		if (!bounds.contains(obj.getLocation().toVector())) {
 			return false;
 		}
-		
+
 		if (children != null) {
 			boolean inserted = false;
 			int i = 0;
-			
+
 			while (!inserted && i < children.length) {
 				inserted = children[i++].insert(obj);
 			}
-			
+
 			return inserted;
 		}
-		
+
 		if (contents.size() + 1 > capacity) {
 			divide();
 			return insert(obj);
@@ -76,31 +77,35 @@ public class CollisionTree {
 			return contents.add(obj);
 		}
 	}
-	
-	public Set<Collidable> query(Collider range, Predicate<Collidable> filter) {
-		Set<Collidable> found = new HashSet<>();
+
+	public Set<TreeQueryResult> query(Collider range, Predicate<Collidable> filter) {
+		Set<TreeQueryResult> found = new HashSet<>();
 		if (!range.overlaps(bounds)) {
 			return found;
 		}
-		
+
 		if (children != null) {
 			for (CollisionTree branch : children) {
 				found.addAll(branch.query(range, filter));
 			}
 		} else {
 			for (Collidable obj : contents) {
-				if (range.intersects(obj.getHitbox()) && filter.test(obj)) {
-					found.add(obj);
+				if (!filter.test(obj)) {
+					continue;
+				}
+
+				for (Pair<BoundingBox, BoundingBox> intsect : range.intersections(obj.getHitbox())) {
+					found.add(new TreeQueryResult(obj, intsect));
 				}
 			}
 		}
-		
+
 		return found;
 	}
-	
+
 	public Set<Collidable> getContents() {
 		Set<Collidable> all = new HashSet<>();
-		
+
 		if (children != null) {
 			for (CollisionTree branch : children) {
 				all.addAll(branch.getContents());
@@ -108,7 +113,31 @@ public class CollisionTree {
 		} else {
 			all.addAll(contents);
 		}
-		
+
 		return all;
+	}
+
+	public static class TreeQueryResult {
+		private Collidable collidable;
+		private Pair<BoundingBox, BoundingBox> intersection;
+
+		public TreeQueryResult(Collidable collidable, Pair<BoundingBox, BoundingBox> intersection) {
+			this.collidable = collidable;
+			this.intersection = intersection;
+		}
+
+		public Collidable getCollidable() {
+			return collidable;
+		}
+
+		/**
+		 * Returns the intersection pair for the found collision, left is the
+		 * boundingbox from the queried collider and right is from the found collidable
+		 * 
+		 * @return intersecting boundingboxes
+		 */
+		public Pair<BoundingBox, BoundingBox> getCollidingBounds() {
+			return intersection;
+		}
 	}
 }

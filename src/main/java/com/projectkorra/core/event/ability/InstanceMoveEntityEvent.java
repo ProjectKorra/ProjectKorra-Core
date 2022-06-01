@@ -11,13 +11,13 @@ import org.bukkit.util.Vector;
 public class InstanceMoveEntityEvent extends Event implements Cancellable {
 
 	private static final HandlerList HANDLERS = new HandlerList();
-	
+
 	private boolean cancelled = false;
 	private LivingEntity target;
 	private Vector direction;
 	private boolean knockback, resetFallDistance;
 	private AbilityInstance source;
-	
+
 	public InstanceMoveEntityEvent(LivingEntity target, Vector direction, AbilityInstance source, boolean knockback, boolean resetFallDistance) {
 		this.target = target;
 		this.direction = direction;
@@ -29,11 +29,11 @@ public class InstanceMoveEntityEvent extends Event implements Cancellable {
 	public AbilityInstance getInstance() {
 		return source;
 	}
-	
+
 	public LivingEntity getTarget() {
 		return target;
 	}
-	
+
 	public Vector getDirection() {
 		return direction;
 	}
@@ -41,15 +41,15 @@ public class InstanceMoveEntityEvent extends Event implements Cancellable {
 	public boolean isKnockback() {
 		return knockback;
 	}
-	
+
 	public boolean doesResetFallDistance() {
 		return resetFallDistance;
 	}
-	
+
 	public void doesResetFallDistance(boolean resetFallDistance) {
 		this.resetFallDistance = resetFallDistance;
 	}
-	
+
 	@Override
 	public boolean isCancelled() {
 		return cancelled;
@@ -64,7 +64,7 @@ public class InstanceMoveEntityEvent extends Event implements Cancellable {
 	public HandlerList getHandlers() {
 		return HANDLERS;
 	}
-	
+
 	public static HandlerList getHandlerList() {
 		return HANDLERS;
 	}

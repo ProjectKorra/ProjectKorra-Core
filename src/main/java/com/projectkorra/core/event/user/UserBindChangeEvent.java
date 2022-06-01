@@ -32,6 +32,7 @@ public class UserBindChangeEvent extends Event implements Cancellable {
 
 	/**
 	 * Gets the current result of this bind change event.
+	 * 
 	 * @return null if the slot is being cleared, otherwise
 	 */
 	public Ability getResult() {
@@ -40,6 +41,7 @@ public class UserBindChangeEvent extends Event implements Cancellable {
 
 	/**
 	 * Sets the result of this bind change event to the given ability
+	 * 
 	 * @param result null to clear the slot, otherwise the ability to bind
 	 */
 	public void setResult(Ability result) {

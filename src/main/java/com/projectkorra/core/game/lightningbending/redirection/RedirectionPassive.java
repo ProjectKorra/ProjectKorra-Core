@@ -6,7 +6,6 @@ import org.bukkit.event.entity.EntityDamageByEntityEvent;
 import org.bukkit.event.entity.EntityDamageEvent.DamageCause;
 import org.bukkit.util.Vector;
 
-import com.google.common.collect.ImmutableSet;
 import com.projectkorra.core.UserManager;
 import com.projectkorra.core.ability.Ability;
 import com.projectkorra.core.ability.AbilityInstance;
@@ -22,83 +21,76 @@ import com.projectkorra.core.skill.Skill;
 import com.projectkorra.core.util.configuration.Configure;
 
 public class RedirectionPassive extends Ability implements Passive {
-	
+
 	public static final Activation TRIGGER = Activation.of("redirection_trigger", "Redirection", false);
-	
-	@Configure double staminaCost = 0.1;
 
-    public RedirectionPassive() {
-        super("Redirection", "Lightningbenders can take in lightning and release it again!", "ProjectKorra", "CORE", Skill.LIGHTNINGBENDING);
-    }
+	@Configure
+	double staminaCost = 0.05;
 
-    @Override
-    public void postProcessed() {}
+	public RedirectionPassive() {
+		super("Redirection", "Lightningbenders can take in lightning and release it again!", "ProjectKorra", "CORE", Skill.LIGHTNINGBENDING);
+	}
 
-    @Override
-    protected AbilityInstance activate(AbilityUser user, Activation trigger, Event provider) {
-        return null;
-    }
+	@Override
+	public void postProcessed() {
+	}
 
-    @Override
-    protected void onRegister() {}
+	@Override
+	protected AbilityInstance activate(AbilityUser user, Activation trigger, Event provider) {
+		return null;
+	}
 
-    @Override
-    public boolean uses(Activation trigger) {
-        return false;
-    }
+	@Override
+	protected void onRegister() {
+	}
 
-    @Override
-    public ImmutableSet<Class<? extends AbilityInstance>> instanceClasses() {
-        return ImmutableSet.of();
-    }
+	@Override
+	public Activation getTrigger() {
+		return null;
+	}
 
-    @Override
-    public Activation getTrigger() {
-        return null;
-    }
+	@EventHandler
+	public void onBoltDamage(InstanceDamageEntityEvent event) {
+		if (!(event.getInstance() instanceof BoltInstance)) {
+			return;
+		}
 
-    @EventHandler
-    public void onBoltDamage(InstanceDamageEntityEvent event) {
-        if (!(event.getInstance() instanceof BoltInstance)) {
-            return;
-        }
+		PlayerUser user = UserManager.getAs(event.getTarget().getUniqueId(), PlayerUser.class);
+		if (user == null) {
+			return;
+		} else if (!user.getEntity().isSneaking() || !user.getBoundAbility().filter((a) -> a instanceof BoltAbility).isPresent()) {
+			return;
+		} else if (AbilityManager.hasInstance(user, BoltInstance.class) && !AbilityManager.getInstance(user, BoltInstance.class).get().canRedirect()) {
+			return;
+		} else if (!user.getStamina().consume(staminaCost)) {
+			return;
+		}
 
-        PlayerUser user = UserManager.getAs(event.getTarget().getUniqueId(), PlayerUser.class);
-        if (user == null) {
-            return;
-        } else if (!user.getEntity().isSneaking() || !user.getBoundAbility().filter((a) -> a instanceof BoltAbility).isPresent()) {
-            return;
-        } else if (AbilityManager.hasInstance(user, BoltInstance.class) && !AbilityManager.getInstance(user, BoltInstance.class).get().canRedirect()) {
-            return;
-        } else if (!user.getStamina().consume(staminaCost)) {
-        	return;
-        }
+		event.setCancelled(true);
+		user.getEntity().setVelocity(new Vector(0, 0, 0));
+		user.removeCooldown(AbilityManager.getAbility(BoltAbility.class).get());
+		AbilityManager.activate(user, TRIGGER, event);
+	}
 
-        event.setCancelled(true);
-        user.getEntity().setVelocity(new Vector(0, 0, 0));
-        user.removeCooldown(AbilityManager.getAbility(BoltAbility.class).get());
-        AbilityManager.activate(user, TRIGGER, event);
-    }
-    
-    @EventHandler
-    public void onLightningDamage(EntityDamageByEntityEvent event) {
-        if (event.getCause() != DamageCause.LIGHTNING) {
-            return;
-        }
+	@EventHandler
+	public void onLightningDamage(EntityDamageByEntityEvent event) {
+		if (event.getCause() != DamageCause.LIGHTNING) {
+			return;
+		}
 
-        PlayerUser user = UserManager.getAs(event.getEntity().getUniqueId(), PlayerUser.class);
-        if (user == null) {
-            return;
-        } else if (!user.getEntity().isSneaking() || !user.getBoundAbility().filter((a) -> a instanceof BoltAbility).isPresent()) {
-            return;
-        } else if (AbilityManager.hasInstance(user, BoltInstance.class) && !AbilityManager.getInstance(user, BoltInstance.class).get().canRedirect()) {
-            return;
-        } else if (!user.getStamina().consume(staminaCost)) {
-        	return;
-        }
+		PlayerUser user = UserManager.getAs(event.getEntity().getUniqueId(), PlayerUser.class);
+		if (user == null) {
+			return;
+		} else if (!user.getEntity().isSneaking() || !user.getBoundAbility().filter((a) -> a instanceof BoltAbility).isPresent()) {
+			return;
+		} else if (AbilityManager.hasInstance(user, BoltInstance.class) && !AbilityManager.getInstance(user, BoltInstance.class).get().canRedirect()) {
+			return;
+		} else if (!user.getStamina().consume(staminaCost)) {
+			return;
+		}
 
-        event.setCancelled(true);
-        user.removeCooldown(AbilityManager.getAbility(BoltAbility.class).get());
-        AbilityManager.activate(user, TRIGGER, event);
-    }
+		event.setCancelled(true);
+		user.removeCooldown(AbilityManager.getAbility(BoltAbility.class).get());
+		AbilityManager.activate(user, TRIGGER, event);
+	}
 }

@@ -9,31 +9,32 @@ public class BendingCollisionEvent extends CancellableBendingEvent {
 
 	private Collidable first, second;
 	private CollisionOperator op;
-	
+
 	public BendingCollisionEvent(Collidable first, Collidable second, CollisionOperator op) {
 		this.first = first;
 		this.second = second;
 		this.op = op;
 	}
-	
+
 	public Collidable getFirst() {
 		return first;
 	}
-	
+
 	public Collidable getSecond() {
 		return second;
 	}
-	
+
 	public boolean isFirstBeingRemoved() {
 		return op.equals(CollisionOperator.FIRST_CANCELED) || op.equals(CollisionOperator.BOTH_CANCELED);
 	}
-	
+
 	public boolean isSecondBeingRemoved() {
 		return op.equals(CollisionOperator.SECOND_CANCELED) || op.equals(CollisionOperator.BOTH_CANCELED);
 	}
-	
+
 	/**
 	 * Set whether to remove the first collidable or not
+	 * 
 	 * @param remove true to remove first collidable
 	 */
 	public void setFirstToRemove(boolean remove) {
@@ -51,9 +52,10 @@ public class BendingCollisionEvent extends CancellableBendingEvent {
 			}
 		}
 	}
-	
+
 	/**
 	 * Set whether to remove the second collidable or not
+	 * 
 	 * @param remove true to remove second collidable
 	 */
 	public void setSecondToRemove(boolean remove) {
@@ -71,10 +73,11 @@ public class BendingCollisionEvent extends CancellableBendingEvent {
 			}
 		}
 	}
-	
+
 	/**
-	 * Calculates the approximate center of the collision using the positions
-	 * of the collidables and their volumes to find a weighted average location
+	 * Calculates the approximate center of the collision using the positions of the
+	 * collidables and their volumes to find a weighted average location
+	 * 
 	 * @return approximate center location of the collision
 	 */
 	public Location getCenter() {

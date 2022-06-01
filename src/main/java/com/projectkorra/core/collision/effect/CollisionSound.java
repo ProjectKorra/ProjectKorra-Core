@@ -15,15 +15,15 @@ public class CollisionSound extends CollisionEffect {
 	@Override
 	protected void accept(BendingCollisionEvent event, Object... args) {
 		Sound sound;
-		
+
 		try {
-			sound = Sound.valueOf((String)args[0]);
+			sound = Sound.valueOf((String) args[0]);
 		} catch (Exception e) {
 			sound = Sound.ENTITY_GENERIC_EXPLODE;
 		}
-		
+
 		Location loc = event.getCenter();
-		loc.getWorld().playSound(loc, sound, (float)args[1], (float)args[2]);
+		loc.getWorld().playSound(loc, sound, (float) args[1], (float) args[2]);
 	}
 
 }

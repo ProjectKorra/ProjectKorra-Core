@@ -16,28 +16,31 @@ import org.bukkit.entity.LivingEntity;
 import org.bukkit.util.Vector;
 
 public final class Effects {
-    
-    private Effects() {}
+
+	private Effects() {
+	}
 
 	/**
-	 * Apply damage to the given target from the ability source, with the option to calculate ignore armor
-	 * @param target The entity to damage
-	 * @param damage How much damage to apply
-	 * @param source The ability causing the damage
+	 * Apply damage to the given target from the ability source, with the option to
+	 * calculate ignore armor
+	 * 
+	 * @param target      The entity to damage
+	 * @param damage      How much damage to apply
+	 * @param source      The ability causing the damage
 	 * @param ignoreArmor Whether to ignore armor stats
 	 */
-    public static void damage(LivingEntity target, double damage, AbilityInstance source, boolean ignoreArmor) {
-        if (target.getNoDamageTicks() > target.getMaximumNoDamageTicks() / 2.0f && damage <= target.getLastDamage()) {
-			return;
+	public static boolean damage(LivingEntity target, double damage, AbilityInstance source, boolean ignoreArmor) {
+		if (target.getNoDamageTicks() > target.getMaximumNoDamageTicks() / 2.0f && damage <= target.getLastDamage()) {
+			return false;
 		}
 
 		InstanceDamageEntityEvent event = Events.call(new InstanceDamageEntityEvent(target, damage, source, ignoreArmor));
 		if (event.isCancelled()) {
-			return;
+			return false;
 		}
-		
+
 		damage = event.getDamage();
-		
+
 		if (event.doesIgnoreArmor() && damage > 0) {
 			double defense = target.getAttribute(Attribute.GENERIC_ARMOR).getValue();
 			double toughness = target.getAttribute(Attribute.GENERIC_ARMOR_TOUGHNESS).getValue();
@@ -45,23 +48,27 @@ public final class Effects {
 		}
 
 		target.damage(damage, source.getUser().getEntity());
-    }
+		return true;
+	}
 
 	/**
-	 * Apply movement to the target entity in the given direction from the ability source,
-	 * with options to flag it as knockback and to reset the entity's fall distance
-	 * @param target The entity to move
-	 * @param direction How to move the entity
-	 * @param source The ability applying movement
-	 * @param knockback Whether the movement was knockback
-	 * @param resetFallDistance Whether the movement should reset fall distance to zero
+	 * Apply movement to the target entity in the given direction from the ability
+	 * source, with options to flag it as knockback and to reset the entity's fall
+	 * distance
+	 * 
+	 * @param target            The entity to move
+	 * @param direction         How to move the entity
+	 * @param source            The ability applying movement
+	 * @param knockback         Whether the movement was knockback
+	 * @param resetFallDistance Whether the movement should reset fall distance to
+	 *                          zero
 	 */
 	public static void move(LivingEntity target, Vector direction, AbilityInstance source, boolean knockback, boolean resetFallDistance) {
 		InstanceMoveEntityEvent event = Events.call(new InstanceMoveEntityEvent(target, direction, source, knockback, resetFallDistance));
 		if (event.isCancelled()) {
 			return;
 		}
-		
+
 		if (event.doesResetFallDistance()) {
 			target.setFallDistance(0);
 		}
@@ -69,7 +76,7 @@ public final class Effects {
 		if (knockback) {
 			// track knockback for impact damage
 		}
-		
+
 		target.setVelocity(direction);
 	}
 

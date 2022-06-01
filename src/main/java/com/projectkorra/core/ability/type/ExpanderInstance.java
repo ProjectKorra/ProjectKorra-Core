@@ -6,7 +6,7 @@ import com.projectkorra.core.ability.AbilityInstance;
 import com.projectkorra.core.ability.AbilityUser;
 
 public abstract class ExpanderInstance extends AbilityInstance {
-	
+
 	public ExpanderInstance(Ability provider, AbilityUser user) {
 		super(provider, user);
 	}

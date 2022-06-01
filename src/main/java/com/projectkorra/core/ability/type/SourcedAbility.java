@@ -5,6 +5,6 @@ import com.projectkorra.core.ability.SourceInstance;
 import com.projectkorra.core.ability.activation.Activation;
 
 public interface SourcedAbility {
-    
-    public SourceInstance selectSource(AbilityUser user, Activation trigger);
+
+	public SourceInstance selectSource(AbilityUser user, Activation trigger);
 }

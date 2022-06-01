@@ -1,8 +1,12 @@
 package com.projectkorra.core.game.firebending.flamethrower;
 
+import java.util.concurrent.ThreadLocalRandom;
+
 import org.bukkit.FluidCollisionMode;
 import org.bukkit.Location;
 import org.bukkit.Sound;
+import org.bukkit.block.Block;
+import org.bukkit.block.BlockFace;
 import org.bukkit.entity.Entity;
 import org.bukkit.entity.LivingEntity;
 import org.bukkit.util.RayTraceResult;
@@ -10,23 +14,29 @@ import org.bukkit.util.Vector;
 
 import com.projectkorra.core.ability.AbilityUser;
 import com.projectkorra.core.ability.attribute.Attribute;
+import com.projectkorra.core.ability.attribute.AttributeGroup;
 import com.projectkorra.core.game.firebending.FireAbilityInstance;
+import com.projectkorra.core.temporary.TempBlock;
 import com.projectkorra.core.util.Effects;
 
 public class FlamethrowerInstance extends FireAbilityInstance {
 
-	@Attribute(Attribute.DAMAGE)
+	@Attribute(value = Attribute.DAMAGE, group = AttributeGroup.DAMAGE)
 	private double damage;
-	@Attribute(Attribute.RANGE)
+	@Attribute(value = Attribute.RANGE, group = AttributeGroup.RANGE)
 	private double range;
-	@Attribute(Attribute.COOLDOWN)
+	@Attribute(value = Attribute.COOLDOWN, group = AttributeGroup.COOLDOWN)
 	private long cooldown;
-	@Attribute(Attribute.RADIUS)
+	@Attribute(value = Attribute.RADIUS, group = AttributeGroup.SIZE)
 	private double radius;
-	@Attribute(Attribute.SPEED)
+	@Attribute(value = Attribute.SPEED, group = AttributeGroup.SPEED)
 	private double speed;
-	@Attribute("stamina_cost")
+	@Attribute(value = Attribute.STAMINA_COST, group = AttributeGroup.STAMINA)
 	private double staminaCost;
+	@Attribute(value = "fire_duration", group = AttributeGroup.DURATION)
+	private long fireLifetime;
+	@Attribute(value = Attribute.FIRE_TICK, group = AttributeGroup.BURN)
+	private int fireTicks;
 
 	private double currRange = 0, currRadius = 0, inc;
 
@@ -38,6 +48,8 @@ public class FlamethrowerInstance extends FireAbilityInstance {
 		this.radius = provider.radius;
 		this.speed = provider.speed;
 		this.staminaCost = provider.staminaDrain;
+		this.fireLifetime = provider.fireLifetime;
+		this.fireTicks = provider.fireTicks;
 	}
 
 	@Override
@@ -68,21 +80,22 @@ public class FlamethrowerInstance extends FireAbilityInstance {
 			RayTraceResult ray = loc.getWorld().rayTrace(loc, dir, inc, FluidCollisionMode.ALWAYS, true, currRadius, null);
 			if (ray != null) {
 				boolean br = false;
-				
+
 				if (affect(ray.getHitEntity())) {
 					br = true;
 				}
-				
+
 				if (ray.getHitBlock() != null) {
 					if (ray.getHitBlock().getType().isSolid()) {
-						if (ray.getHitBlock().getRelative(ray.getHitBlockFace()).isEmpty()) {
-							ray.getHitBlock().getRelative(ray.getHitBlockFace()).setBlockData(getFireType().createBlockData(), false);
+						Block place = ray.getHitBlock().getRelative(ray.getHitBlockFace());
+						if (place.isEmpty() && place.getRelative(BlockFace.DOWN).getType().isSolid()) {
+							TempBlock.from(ray.getHitBlock().getRelative(ray.getHitBlockFace())).setData(getFireType().createBlockData(), fireLifetime + ThreadLocalRandom.current().nextLong(1000) - 500);
 						}
 					}
-					
+
 					br = true;
 				}
-				
+
 				if (br) {
 					break;
 				}
@@ -91,15 +104,15 @@ public class FlamethrowerInstance extends FireAbilityInstance {
 
 		return true;
 	}
-	
+
 	private boolean affect(Entity entity) {
 		if (entity != null && entity instanceof LivingEntity && !entity.getUniqueId().equals(user.getUniqueID())) {
 			LivingEntity lent = (LivingEntity) entity;
 			Effects.damage(lent, damage, this, false);
-			lent.setFireTicks(lent.getFireTicks() + 10);
+			lent.setFireTicks(lent.getFireTicks() + fireTicks);
 			return true;
 		}
-		
+
 		return false;
 	}
 
@@ -115,6 +128,12 @@ public class FlamethrowerInstance extends FireAbilityInstance {
 	@Override
 	public String getName() {
 		return provider.getName();
+	}
+
+	@Override
+	protected void preUpdate() {
+		// TODO Auto-generated method stub
+
 	}
 
 }

@@ -8,9 +8,10 @@ import org.bukkit.event.Listener;
 import org.bukkit.plugin.java.JavaPlugin;
 
 public final class Events {
-	
-	private Events() {}
-	
+
+	private Events() {
+	}
+
 	public static <T extends Event> T call(T event) {
 		Bukkit.getServer().getPluginManager().callEvent(event);
 		return event;

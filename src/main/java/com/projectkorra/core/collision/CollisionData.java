@@ -6,11 +6,11 @@ public class CollisionData {
 	private String[] effects;
 	private String[][] args;
 	private CollisionOperator type;
-	
+
 	public CollisionData(String first, String second, CollisionOperator type) {
 		this(first, second, type, null, null);
 	}
-	
+
 	public CollisionData(String first, String second, CollisionOperator type, String[] effects, String[][] args) {
 		this.left = first;
 		this.right = second;
@@ -18,27 +18,27 @@ public class CollisionData {
 		this.effects = effects;
 		this.args = args;
 	}
-	
+
 	public String getLeft() {
 		return left;
 	}
-	
+
 	public String getSecond() {
 		return right;
 	}
-	
+
 	public CollisionOperator getOperator() {
 		return type;
 	}
-	
+
 	public int getEffectAmount() {
 		return effects == null ? 0 : effects.length;
 	}
-	
+
 	public String getEffect(int index) {
 		return effects == null ? "" : effects[index];
 	}
-	
+
 	public String[] getArgs(int index) {
 		return effects == null ? new String[0] : args[index];
 	}

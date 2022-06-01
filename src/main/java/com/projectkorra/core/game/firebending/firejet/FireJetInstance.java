@@ -7,77 +7,88 @@ import org.bukkit.util.Vector;
 
 import com.projectkorra.core.ability.AbilityUser;
 import com.projectkorra.core.ability.attribute.Attribute;
+import com.projectkorra.core.ability.attribute.AttributeGroup;
 import com.projectkorra.core.game.firebending.FireAbilityInstance;
 import com.projectkorra.core.util.Effects;
 
 public class FireJetInstance extends FireAbilityInstance {
 
-    @Attribute("max_" + Attribute.SPEED)
-    private double maxSpeed;
-    @Attribute(Attribute.COOLDOWN)
-    private long cooldown;
-    @Attribute("acceleration")
-    private double acceleration;
-    @Attribute("stamina_cost")
-    private double staminaCost;
+	@Attribute(value = "max_speed", group = AttributeGroup.SPEED)
+	private double maxSpeed;
+	@Attribute(value = Attribute.COOLDOWN, group = AttributeGroup.COOLDOWN)
+	private long cooldown;
+	@Attribute(value = "acceleration", group = AttributeGroup.SPEED)
+	private double acceleration;
+	@Attribute(value = Attribute.STAMINA_DRAIN, group = AttributeGroup.STAMINA)
+	private double staminaDrain;
 
-    public FireJetInstance(FireJetAbility provider, AbilityUser user) {
-        super(provider, user);
-        this.maxSpeed = provider.speed;
-        this.cooldown = provider.cooldown;
-        this.acceleration = provider.acceleration;
-        this.staminaCost = provider.jetDrain;
-    }
+	Vector velocity;
 
-    @Override
-    protected void onStart() {
-        Effects.playSound(user.getLocation(), Sound.ENTITY_GHAST_SHOOT, 1f, 0.6f);
-        user.getStamina().pauseRegen(this);
-    }
+	public FireJetInstance(FireJetAbility provider, AbilityUser user) {
+		super(provider, user);
+		this.maxSpeed = provider.speed;
+		this.cooldown = provider.cooldown;
+		this.acceleration = provider.acceleration;
+		this.staminaDrain = provider.jetDrain;
+	}
 
-    @Override
-    protected boolean onUpdate(double timeDelta) {
-        if (!user.getStamina().consume(timeDelta * staminaCost)) {
-            return false;
-        } else if (user.getLocation().getBlock().isLiquid()) {
-            return false;
-        } else if (!user.getBoundAbility().isPresent() || user.getBoundAbility().get() != provider) {
-            return false;
-        }
+	@Override
+	protected void onStart() {
+		Effects.playSound(user.getLocation(), Sound.ENTITY_GHAST_SHOOT, 1f, 0.6f);
+		user.getStamina().pauseRegen(this);
+		velocity = user.getEntity().getVelocity();
+	}
 
-        Vector velocity = user.getDirection().multiply(acceleration * timeDelta);
-        velocity.setY(velocity.getY() * 0.8);
-        velocity.add(user.getEntity().getVelocity());
-        if (velocity.length() > maxSpeed * timeDelta) {
-            velocity.normalize().multiply(maxSpeed * timeDelta);
-        }
+	@Override
+	protected boolean onUpdate(double timeDelta) {
+		if (!user.getStamina().consume(timeDelta * staminaDrain)) {
+			return false;
+		} else if (user.getLocation().getBlock().isLiquid()) {
+			return false;
+		} else if (!user.getBoundAbility().filter((a) -> a == provider).isPresent()) {
+			return false;
+		}
 
-        RayTraceResult ray = user.getLocation().getWorld().rayTraceBlocks(user.getLocation(), new Vector(0, -1, 0), 1.3, FluidCollisionMode.ALWAYS, true);
-        if (ray != null) {
-            this.particles(user.getLocation(), 13, 0.4, 0.1, 0.4);
-            velocity.setY(0.5 * (1.1 - (user.getLocation().getY() - ray.getHitBlock().getY() - 1)));
-        }
+		velocity.add(user.getDirection().multiply(acceleration * timeDelta));
+		RayTraceResult ray = user.getLocation().getWorld().rayTraceBlocks(user.getLocation(), new Vector(0, -1, 0), 3, FluidCollisionMode.ALWAYS, true);
+		if (ray != null) {
+			this.particles(user.getLocation().subtract(0, 0.2, 0), 13, 0.1, 0.4, 0.1);
+		} else if (velocity.getY() > 0) {
+			double v = velocity.length();
+			velocity.setY(velocity.getY() * 0.2).normalize().multiply(v);
+		}
 
-        user.getEntity().setVelocity(velocity);
-        user.getEntity().setFallDistance(0);
-        this.particles(user.getLocation(), 7, 0.2, 0.2, 0.2);
-        Effects.playSound(user.getLocation(), Sound.BLOCK_FIRE_AMBIENT, 1f, 1.8f);
-        return true;
-    }
+		if (velocity.length() > maxSpeed * timeDelta) {
+			velocity.normalize().multiply(maxSpeed * timeDelta);
+		}
 
-    @Override
-    protected void postUpdate() {
-    }
+		user.getEntity().setVelocity(velocity);
+		user.getEntity().setFallDistance(0);
+		this.particles(user.getLocation(), 7, 0.2, 0.2, 0.2);
+		Effects.playSound(user.getLocation(), Sound.BLOCK_FIRE_AMBIENT, 1f, 1.8f);
+		return true;
+	}
 
-    @Override
-    protected void onStop() {
-        user.addCooldown(provider, cooldown);
-    }
+	@Override
+	public int interpolationInterval() {
+		return 1;
+	}
 
-    @Override
-    public String getName() {
-        return provider.getName();
-    }
-    
-    
+	@Override
+	protected void postUpdate() {
+	}
+
+	@Override
+	protected void onStop() {
+		user.addCooldown(provider, cooldown);
+	}
+
+	@Override
+	public String getName() {
+		return provider.getName();
+	}
+
+	@Override
+	protected void preUpdate() {
+	}
 }

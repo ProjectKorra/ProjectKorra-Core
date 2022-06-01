@@ -4,7 +4,7 @@ import org.bukkit.event.Event;
 import org.bukkit.event.HandlerList;
 
 public class BendingEvent extends Event {
-	
+
 	private static final HandlerList HANDLERS = new HandlerList();
 
 	@Override

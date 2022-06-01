@@ -9,51 +9,51 @@ import org.bukkit.event.HandlerList;
 
 public class InstanceIgniteEntityEvent extends Event implements Cancellable {
 
-    private static final HandlerList HANDLERS = new HandlerList();
+	private static final HandlerList HANDLERS = new HandlerList();
 
-    private boolean cancelled = false;
-    private LivingEntity target;
-    private int fireTicks;
-    private AbilityInstance source;
+	private boolean cancelled = false;
+	private LivingEntity target;
+	private int fireTicks;
+	private AbilityInstance source;
 
-    public InstanceIgniteEntityEvent(LivingEntity target, int fireTicks, AbilityInstance source) {
-        this.target = target;
-        this.fireTicks = fireTicks;
-        this.source = source;
-    }
+	public InstanceIgniteEntityEvent(LivingEntity target, int fireTicks, AbilityInstance source) {
+		this.target = target;
+		this.fireTicks = fireTicks;
+		this.source = source;
+	}
 
-    public LivingEntity getTarget() {
-        return target;
-    }
+	public LivingEntity getTarget() {
+		return target;
+	}
 
-    public int getFireTicks() {
-        return fireTicks;
-    }
+	public int getFireTicks() {
+		return fireTicks;
+	}
 
-    public void setFireTicks(int fireTicks) {
-        this.fireTicks = fireTicks;
-    }
+	public void setFireTicks(int fireTicks) {
+		this.fireTicks = fireTicks;
+	}
 
-    public AbilityInstance getInstance() {
-        return source;
-    }
+	public AbilityInstance getInstance() {
+		return source;
+	}
 
-    @Override
-    public boolean isCancelled() {
-        return cancelled;
-    }
+	@Override
+	public boolean isCancelled() {
+		return cancelled;
+	}
 
-    @Override
-    public void setCancelled(boolean cancel) {
-        this.cancelled = cancel;
-    }
+	@Override
+	public void setCancelled(boolean cancel) {
+		this.cancelled = cancel;
+	}
 
-    @Override
-    public HandlerList getHandlers() {
-        return HANDLERS;
-    }
-    
-    public static HandlerList getHandlerList() {
-        return HANDLERS;
-    }
+	@Override
+	public HandlerList getHandlers() {
+		return HANDLERS;
+	}
+
+	public static HandlerList getHandlerList() {
+		return HANDLERS;
+	}
 }

@@ -3,10 +3,12 @@ package com.projectkorra.core.ability.activation;
 import java.util.HashMap;
 import java.util.Map;
 
+import com.projectkorra.core.ProjectKorra;
+
 public class Activation {
-	
+
 	private static final Map<String, Activation> CACHE = new HashMap<>();
-	
+
 	public static final Activation LEFT_CLICK = of("left_click", "Left Click", true);
 	public static final Activation RIGHT_CLICK_BLOCK = of("right_click_block", "Right Click Block", true);
 	public static final Activation RIGHT_CLICK_ENTITY = of("right_click_entity", "Right Click Entity", true);
@@ -20,13 +22,15 @@ public class Activation {
 
 	private String id, display;
 	private boolean comboable;
-	
-	private Activation(String id, String display, boolean comboable) {
+	private int bitIndex;
+
+	private Activation(String id, String display, boolean comboable, int bitIndex) {
 		this.id = id;
 		this.display = display;
 		this.comboable = comboable;
+		this.bitIndex = bitIndex;
 	}
-	
+
 	public String getDisplay() {
 		return display;
 	}
@@ -34,23 +38,45 @@ public class Activation {
 	public boolean canCombo() {
 		return comboable;
 	}
-	
+
+	public int getFlagIndex() {
+		return bitIndex;
+	}
+
+	public boolean matchAny(Activation... triggers) {
+		long flags = 0;
+		for (Activation a : triggers) {
+			flags |= (1L << a.getFlagIndex());
+		}
+		return (flags & (1L << this.getFlagIndex())) != 0L;
+	}
+
 	@Override
 	public String toString() {
 		return id;
 	}
-	
+
 	@Override
 	public boolean equals(Object other) {
 		return other instanceof Activation && other.toString().equals(id);
 	}
-	
+
 	@Override
 	public int hashCode() {
 		return id.hashCode();
 	}
-	
+
 	public static Activation of(String id, String display, boolean comboable) {
-		return CACHE.computeIfAbsent(id.toLowerCase(), (s) -> new Activation(s, display, comboable));
+		if (id == null) {
+			ProjectKorra.warnConsole("Attempted register of activation with null id");
+			return null;
+		}
+
+		if (CACHE.size() >= 64) {
+			ProjectKorra.warnConsole("Activation of " + id + " unable to register, cache full");
+			return null;
+		}
+
+		return CACHE.computeIfAbsent(id.toLowerCase(), (s) -> new Activation(s, display, comboable, CACHE.size()));
 	}
 }

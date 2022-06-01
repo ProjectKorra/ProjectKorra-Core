@@ -12,28 +12,28 @@ import org.bukkit.plugin.java.JavaPlugin;
 
 public class SQLiteDatabase implements Database {
 
-    private File file;
+	private File file;
 
-    public SQLiteDatabase(File file) {
-        this.file = file;
-        
-    }
+	public SQLiteDatabase(File file) {
+		this.file = file;
 
-    @Override
-    public Connection connect() {
-        if (!this.file.getParentFile().exists()) {
-            this.file.mkdirs();
-        }
+	}
 
-        if (!this.file.exists()) {
-            try {
-                this.file.createNewFile();
-            } catch (IOException e) {
-                e.printStackTrace();
-            }
-        }
+	@Override
+	public Connection connect() {
+		if (!this.file.getParentFile().exists()) {
+			this.file.mkdirs();
+		}
 
-        try {
+		if (!this.file.exists()) {
+			try {
+				this.file.createNewFile();
+			} catch (IOException e) {
+				e.printStackTrace();
+			}
+		}
+
+		try {
 			Class.forName("org.sqlite.JDBC");
 
 			Connection connection = DriverManager.getConnection("jdbc:sqlite:" + this.file.getAbsolutePath());
@@ -47,6 +47,6 @@ public class SQLiteDatabase implements Database {
 			JavaPlugin.getPlugin(ProjectKorra.class).getLogger().warning("SQLite exception during connection.");
 			return null;
 		}
-    }
-    
+	}
+
 }

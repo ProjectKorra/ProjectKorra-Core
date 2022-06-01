@@ -5,7 +5,7 @@ plugins {
 	id 'java'
 
 	// Generates the plugin.yml, allows easier access to common plugin libraries, and facilitates the test server tasks.
-	id 'kr.entree.spigradle' version '2.3.4'
+	id 'kr.entree.spigradle' version '2.4.2'
 
 	// Allows us to shade libraries into the build plugin.
 	id 'com.github.johnrengelman.shadow' version '5.2.0'
@@ -14,7 +14,6 @@ plugins {
 repositories {
 	jcenter()
 	mavenCentral()
-
 	spigot()
 }
 

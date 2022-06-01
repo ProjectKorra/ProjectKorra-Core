@@ -1,36 +1,36 @@
 package com.projectkorra.core.ability;
 
 public final class Cooldown {
-    
-    private String tag;
-    private long start, duration = 0;
 
-    Cooldown(String tag) {
-        this.tag = tag;
-        this.start = System.currentTimeMillis();
-    }
+	private String tag;
+	private long start, duration = 0;
 
-    public String getTag() {
-        return tag;
-    }
+	Cooldown(String tag) {
+		this.tag = tag;
+		this.start = System.currentTimeMillis();
+	}
 
-    public long getStartTime() {
-        return start;
-    }
+	public String getTag() {
+		return tag;
+	}
 
-    public long getEndTime() {
-        return start + duration;
-    }
+	public long getStartTime() {
+		return start;
+	}
 
-    public long getDuration() {
-        return duration;
-    }
+	public long getEndTime() {
+		return start + duration;
+	}
 
-    public void addDuration(long duration) {
-        this.duration += duration;
-    }
+	public long getDuration() {
+		return duration;
+	}
 
-    public long getRemaining() {
-        return getEndTime() - System.currentTimeMillis();
-    }
+	public void addDuration(long duration) {
+		this.duration += duration;
+	}
+
+	public long getRemaining() {
+		return getEndTime() - System.currentTimeMillis();
+	}
 }

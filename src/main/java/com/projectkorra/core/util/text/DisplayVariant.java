@@ -6,7 +6,7 @@ public class DisplayVariant {
 
 	private String noun, verb, user;
 	private ChatColor color;
-	
+
 	public DisplayVariant(String noun, String verb, String user, ChatColor color) {
 		this.noun = noun;
 		this.verb = verb;
@@ -25,23 +25,23 @@ public class DisplayVariant {
 	public String getUser() {
 		return user;
 	}
-	
+
 	public ChatColor getColor() {
 		return color;
 	}
-	
+
 	public String getColoredNoun() {
 		return color + noun;
 	}
-	
+
 	public String getColoredVerb() {
 		return color + verb;
 	}
-	
+
 	public String getColoredUser() {
 		return color + user;
 	}
-	
+
 	public boolean isValid() {
 		return noun != null && verb != null && user != null && color != null;
 	}
