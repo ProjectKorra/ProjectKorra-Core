@@ -11,10 +11,8 @@ import org.bukkit.block.Block;
 import org.bukkit.util.Vector;
 
 import com.projectkorra.core.ability.AbilityInstance;
-import com.projectkorra.core.ability.AbilityManager;
 import com.projectkorra.core.ability.AbilityUser;
 import com.projectkorra.core.ability.attribute.Attribute;
-import com.projectkorra.core.ability.attribute.AttributeGroup;
 import com.projectkorra.core.game.BendingBlocks;
 import com.projectkorra.core.temporary.TempBlock;
 import com.projectkorra.core.util.Blocks;
@@ -25,21 +23,20 @@ public class LavaflowInstance extends AbilityInstance {
 	
 	private static Material[] STONES = { Material.GRANITE, Material.STONE, Material.ANDESITE, Material.DIORITE };
 	
-	@Attribute(value = "flow_speed", group = AttributeGroup.SPEED)
+	@Attribute("flow_speed")
 	private double flowSpeed;
-	@Attribute(value = Attribute.STAMINA_DRAIN, group = AttributeGroup.STAMINA)
-	private double staminaDrain;
-	@Attribute(value = Attribute.SELECT_RANGE, group = AttributeGroup.SELECT_RADIUS)
+	@Attribute(SELECT_RANGE)
 	private double sourceRange;
-	@Attribute(value = Attribute.RADIUS, group = AttributeGroup.SIZE)
+	@Attribute(RADIUS)
 	private double sourceRadius;
-	@Attribute(value = Attribute.COOLDOWN, group = AttributeGroup.COOLDOWN)
+	@Attribute(COOLDOWN)
 	private long cooldown;
-	@Attribute(value = "lava_create_time", group = AttributeGroup.CHARGE_TIME)
+	@Attribute("lava_create_time")
 	private long createTime;
-	@Attribute(value = "lava_cool_time", group = AttributeGroup.DURATION)
+	@Attribute("lava_cool_time")
 	private long coolTime;
 	
+	private double staminaDrain;
 	private Location curr;
 	private Block target;
 	private Set<Block> affected = new HashSet<>();
@@ -56,16 +53,16 @@ public class LavaflowInstance extends AbilityInstance {
 	}
 
 	@Override
-	protected void onStart() {
+	protected boolean onStart() {
 		Block source = Blocks.targeted(user.getEyeLocation(), sourceRange, (b) -> b.isPassable() && b.getType() != Material.LAVA);
 		
 		if (!BendingBlocks.isEarthbendable(source) && !BendingBlocks.isLavabendable(source)) {
-			AbilityManager.remove(this);
-			return;
+			return false;
 		}
 		
 		curr = source.getLocation().add(0.5, 0.5, 0.5);
 		user.getStamina().pauseRegen(this);
+		return true;
 	}
 
 	@Override

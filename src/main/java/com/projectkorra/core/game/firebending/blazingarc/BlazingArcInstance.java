@@ -15,7 +15,6 @@ import org.bukkit.util.Vector;
 
 import com.projectkorra.core.ability.AbilityUser;
 import com.projectkorra.core.ability.attribute.Attribute;
-import com.projectkorra.core.ability.attribute.AttributeGroup;
 import com.projectkorra.core.collision.Collidable;
 import com.projectkorra.core.game.firebending.FireAbilityInstance;
 import com.projectkorra.core.physics.Collider;
@@ -25,15 +24,15 @@ import com.projectkorra.core.util.Velocity;
 
 public class BlazingArcInstance extends FireAbilityInstance implements Collidable {
 
-	@Attribute(value = Attribute.DAMAGE, group = AttributeGroup.DAMAGE)
+	@Attribute(DAMAGE)
 	private double damage;
-	@Attribute(value = Attribute.RANGE, group = AttributeGroup.RANGE)
+	@Attribute(RANGE)
 	private double range;
-	@Attribute(value = Attribute.SPEED, group = AttributeGroup.SPEED)
+	@Attribute(SPEED)
 	private double speed;
-	@Attribute(value = Attribute.COOLDOWN, group = AttributeGroup.COOLDOWN)
+	@Attribute(COOLDOWN)
 	private long cooldown;
-	@Attribute(value = Attribute.KNOCKBACK, group = AttributeGroup.SPEED)
+	@Attribute(KNOCKBACK)
 	private double knockback;
 
 	private Location[] locs = new Location[3];
@@ -57,10 +56,11 @@ public class BlazingArcInstance extends FireAbilityInstance implements Collidabl
 	}
 
 	@Override
-	protected void onStart() {
+	protected boolean onStart() {
 		dirs[0] = user.getDirection();
 		user.addCooldown(provider, cooldown);
 		this.collider = new Collider(user.getLocation());
+		return true;
 	}
 
 	@Override

@@ -9,23 +9,20 @@ import org.bukkit.block.Block;
 import org.bukkit.block.BlockFace;
 import org.bukkit.block.data.BlockData;
 
-import com.projectkorra.core.ability.AbilityManager;
 import com.projectkorra.core.ability.AbilityUser;
 import com.projectkorra.core.ability.attribute.Attribute;
-import com.projectkorra.core.ability.attribute.AttributeGroup;
 import com.projectkorra.core.game.firebending.FireAbilityInstance;
 import com.projectkorra.core.temporary.TempBlock;
 import com.projectkorra.core.util.Blocks;
 
 public class BlazeInstance extends FireAbilityInstance {
 
-	@Attribute(value = Attribute.RANGE, group = AttributeGroup.RANGE)
+	@Attribute(RANGE)
 	private double range;
-	@Attribute(value = Attribute.STAMINA_DRAIN, group = AttributeGroup.STAMINA)
-	private double staminaDrain;
-	@Attribute(value = "fire_duration", group = AttributeGroup.DURATION)
+	@Attribute(DURATION)
 	private long fireDuration;
 
+	private double staminaDrain;
 	private Location loc;
 	private BlockData data;
 
@@ -37,21 +34,20 @@ public class BlazeInstance extends FireAbilityInstance {
 	}
 
 	@Override
-	protected void onStart() {
+	protected boolean onStart() {
 		Block target = user.getEntity().getTargetBlockExact((int) range, FluidCollisionMode.ALWAYS);
 		if (target == null) {
-			AbilityManager.remove(this);
-			return;
+			return false;
 		}
 
 		if (!Tag.FIRE.isTagged(target.getType())) {
-			AbilityManager.remove(this);
-			return;
+			return false;
 		}
 
 		loc = target.getLocation();
 		data = target.getBlockData();
 		user.getStamina().pauseRegen(this);
+		return true;
 	}
 
 	@Override

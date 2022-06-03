@@ -5,16 +5,14 @@ import org.bukkit.inventory.ItemStack;
 import com.projectkorra.core.ability.Ability;
 import com.projectkorra.core.ability.AbilityUser;
 import com.projectkorra.core.ability.attribute.Attribute;
-import com.projectkorra.core.ability.attribute.AttributeGroup;
 import com.projectkorra.core.game.firebending.FireAbilityInstance;
 
 public class FlameBroilInstance extends FireAbilityInstance {
 
-	@Attribute(value = "cooktime", group = AttributeGroup.CHARGE_TIME)
+	@Attribute("cooktime")
 	private long cooktime;
-	@Attribute(value = Attribute.STAMINA_DRAIN, group = AttributeGroup.STAMINA)
+	
 	private double staminaDrain;
-
 	private ItemStack held;
 
 	public FlameBroilInstance(Ability provider, AbilityUser user) {
@@ -24,8 +22,8 @@ public class FlameBroilInstance extends FireAbilityInstance {
 	}
 
 	@Override
-	protected void onStart() {
-
+	protected boolean onStart() {
+		return true;
 	}
 
 	@Override

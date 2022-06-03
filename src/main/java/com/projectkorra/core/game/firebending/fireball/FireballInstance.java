@@ -15,7 +15,6 @@ import org.bukkit.util.Vector;
 import com.projectkorra.core.ability.AbilityManager;
 import com.projectkorra.core.ability.AbilityUser;
 import com.projectkorra.core.ability.attribute.Attribute;
-import com.projectkorra.core.ability.attribute.AttributeGroup;
 import com.projectkorra.core.ability.type.BlastInstance;
 import com.projectkorra.core.collision.Collidable;
 import com.projectkorra.core.game.firebending.FireAbilityInstance;
@@ -24,16 +23,17 @@ import com.projectkorra.core.temporary.TempBlock;
 import com.projectkorra.core.util.Effects;
 import com.projectkorra.core.util.Particles;
 import com.projectkorra.core.util.Vectors;
+import com.projectkorra.core.util.data.RemovalPolicy;
 
 public class FireballInstance extends FireAbilityInstance implements Collidable {
 
-	@Attribute(value = Attribute.RANGE, group = AttributeGroup.RANGE)
+	@Attribute(RANGE)
 	private double range;
-	@Attribute(value = Attribute.SPEED, group = AttributeGroup.SPEED)
+	@Attribute(SPEED)
 	private double speed;
-	@Attribute(value = Attribute.DAMAGE, group = AttributeGroup.DAMAGE)
+	@Attribute(DAMAGE)
 	private double damage;
-	@Attribute(value = Attribute.COOLDOWN, group = AttributeGroup.COOLDOWN)
+	@Attribute(COOLDOWN)
 	private long cooldown;
 
 	private double size = 0.25;
@@ -49,12 +49,14 @@ public class FireballInstance extends FireAbilityInstance implements Collidable 
 	}
 
 	@Override
-	protected void onStart() {
+	protected boolean onStart() {
 		this.blast = new BlastInstance(user, (loc) -> loc.getBlock().isPassable());
 		this.blast.setSpeed(speed);
 		this.collider = new Collider(blast.getLocation());
 		user.addCooldown(provider, cooldown, true);
 		Effects.playSound(blast.getLocation(), Sound.ENTITY_GHAST_SHOOT, 1f, 0.6f);
+		removal.add(RemovalPolicy.COMMON);
+		return true;
 	}
 
 	@Override

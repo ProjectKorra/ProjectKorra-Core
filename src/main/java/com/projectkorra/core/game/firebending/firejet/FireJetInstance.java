@@ -7,22 +7,20 @@ import org.bukkit.util.Vector;
 
 import com.projectkorra.core.ability.AbilityUser;
 import com.projectkorra.core.ability.attribute.Attribute;
-import com.projectkorra.core.ability.attribute.AttributeGroup;
 import com.projectkorra.core.game.firebending.FireAbilityInstance;
 import com.projectkorra.core.util.Effects;
 
 public class FireJetInstance extends FireAbilityInstance {
 
-	@Attribute(value = "max_speed", group = AttributeGroup.SPEED)
+	@Attribute("max_speed")
 	private double maxSpeed;
-	@Attribute(value = Attribute.COOLDOWN, group = AttributeGroup.COOLDOWN)
+	@Attribute(COOLDOWN)
 	private long cooldown;
-	@Attribute(value = "acceleration", group = AttributeGroup.SPEED)
+	@Attribute("acceleration")
 	private double acceleration;
-	@Attribute(value = Attribute.STAMINA_DRAIN, group = AttributeGroup.STAMINA)
+	
 	private double staminaDrain;
-
-	Vector velocity;
+	private Vector velocity;
 
 	public FireJetInstance(FireJetAbility provider, AbilityUser user) {
 		super(provider, user);
@@ -33,10 +31,11 @@ public class FireJetInstance extends FireAbilityInstance {
 	}
 
 	@Override
-	protected void onStart() {
+	protected boolean onStart() {
 		Effects.playSound(user.getLocation(), Sound.ENTITY_GHAST_SHOOT, 1f, 0.6f);
 		user.getStamina().pauseRegen(this);
 		velocity = user.getEntity().getVelocity();
+		return true;
 	}
 
 	@Override

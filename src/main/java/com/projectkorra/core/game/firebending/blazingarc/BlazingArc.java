@@ -12,20 +12,13 @@ import com.projectkorra.core.util.configuration.Configure;
 
 public class BlazingArc extends Ability implements Bindable {
 
-	@Configure("speed")
-	double speed = 25;
-	@Configure("range")
-	double range = 15;
-	@Configure("damage")
-	double damage = 4;
-	@Configure("cooldown")
-	long cooldown = 3500;
-	@Configure("knockback")
-	double knockback = 1.2;
-	@Configure(comment = "How long the user has to swipe their cursor to make the arc")
-	long delay = 200;
-	@Configure
-	double staminaCost = 0.25;
+	@Configure double speed = 25;
+	@Configure double range = 15;
+	@Configure double damage = 4;
+	@Configure long cooldown = 3500;
+	@Configure double knockback = 1.2;
+	@Configure long delay = 200;
+	@Configure double staminaCost = 0.25;
 
 	public BlazingArc() {
 		super("BlazingArc", "Create a arcing blaze in front of you", "ProjectKorra", "CORE", Skill.FIREBENDING);

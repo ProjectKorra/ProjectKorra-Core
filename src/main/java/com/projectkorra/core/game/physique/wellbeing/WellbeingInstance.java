@@ -8,11 +8,10 @@ import com.projectkorra.core.ability.Ability;
 import com.projectkorra.core.ability.AbilityInstance;
 import com.projectkorra.core.ability.AbilityUser;
 import com.projectkorra.core.ability.attribute.Attribute;
-import com.projectkorra.core.ability.attribute.AttributeGroup;
 
 public class WellbeingInstance extends AbilityInstance {
 
-	@Attribute(value = "health", group = AttributeGroup.HEALTH)
+	@Attribute("health")
 	private double health;
 
 	private double original;
@@ -28,11 +27,12 @@ public class WellbeingInstance extends AbilityInstance {
 	}
 
 	@Override
-	protected void onStart() {
+	protected boolean onStart() {
 		AttributeInstance attr = user.getEntity().getAttribute(GENERIC_MAX_HEALTH);
 		original = attr.getBaseValue();
 		attr.setBaseValue(health);
 		user.getEntity().setHealth(health);
+		return true;
 	}
 
 	@Override

@@ -270,6 +270,10 @@ public abstract class AbilityUser extends SkillHolder {
 		Cooldown cd = cooldowns.remove(tag);
 		Events.call(new UserCooldownEndEvent(this, cd));
 	}
+	
+	public boolean isOnline() {
+		return !entity.isDead();
+	}
 
 	public SourceInstance getSource(Activation trigger) {
 		return sources.get(trigger);

@@ -13,19 +13,17 @@ import org.bukkit.util.RayTraceResult;
 
 import com.projectkorra.core.ability.AbilityUser;
 import com.projectkorra.core.ability.attribute.Attribute;
-import com.projectkorra.core.ability.attribute.AttributeGroup;
 import com.projectkorra.core.game.firebending.FireAbilityInstance;
 import com.projectkorra.core.temporary.TempBlock;
 
 public class MeltingInstance extends FireAbilityInstance {
 
-	@Attribute(value = Attribute.STAMINA_DRAIN, group = AttributeGroup.STAMINA)
-	private double staminaDrain;
-	@Attribute(value = Attribute.RANGE, group = AttributeGroup.RANGE)
+	@Attribute(RANGE)
 	private double range;
-	@Attribute(value = "melt_time", group = AttributeGroup.CHARGE_TIME)
+	@Attribute("melt_time")
 	private long meltTime;
 
+	private double staminaDrain;
 	private Map<Block, Long> times = new HashMap<>();
 
 	public MeltingInstance(Convection provider, AbilityUser user) {
@@ -36,8 +34,9 @@ public class MeltingInstance extends FireAbilityInstance {
 	}
 
 	@Override
-	protected void onStart() {
+	protected boolean onStart() {
 		this.user.getStamina().pauseRegen(this);
+		return true;
 	}
 
 	@Override

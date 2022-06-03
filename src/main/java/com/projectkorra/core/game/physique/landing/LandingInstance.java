@@ -6,11 +6,10 @@ import com.projectkorra.core.ability.Ability;
 import com.projectkorra.core.ability.AbilityInstance;
 import com.projectkorra.core.ability.AbilityUser;
 import com.projectkorra.core.ability.attribute.Attribute;
-import com.projectkorra.core.ability.attribute.AttributeGroup;
 
 public class LandingInstance extends AbilityInstance {
 
-	@Attribute(value = "damage_reduction", group = AttributeGroup.RESISTANCE)
+	@Attribute("damage_reduction")
 	private double reduction;
 
 	public LandingInstance(Ability provider, AbilityUser user, double reduction) {
@@ -24,7 +23,8 @@ public class LandingInstance extends AbilityInstance {
 	}
 
 	@Override
-	protected void onStart() {
+	protected boolean onStart() {
+		return true;
 	}
 
 	@Override

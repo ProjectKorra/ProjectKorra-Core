@@ -8,7 +8,6 @@ import org.bukkit.util.BoundingBox;
 import com.projectkorra.core.ability.AbilityManager;
 import com.projectkorra.core.ability.AbilityUser;
 import com.projectkorra.core.ability.attribute.Attribute;
-import com.projectkorra.core.ability.attribute.AttributeGroup;
 import com.projectkorra.core.collision.Collidable;
 import com.projectkorra.core.game.firebending.FireAbilityInstance;
 import com.projectkorra.core.physics.Collider;
@@ -16,15 +15,14 @@ import com.projectkorra.core.util.Effects;
 
 public class FlameShieldInstance extends FireAbilityInstance implements Collidable {
 
-	@Attribute(value = Attribute.RADIUS, group = AttributeGroup.SIZE)
+	@Attribute(RADIUS)
 	private double radius;
-	@Attribute(value = Attribute.COOLDOWN, group = AttributeGroup.COOLDOWN)
+	@Attribute(COOLDOWN)
 	private long cooldown;
-	@Attribute(value = Attribute.STAMINA_DRAIN, group = AttributeGroup.STAMINA)
-	private double staminaDrain;
-	@Attribute(value = Attribute.DAMAGE, group = AttributeGroup.DAMAGE)
+	@Attribute(DAMAGE)
 	private double damage;
 
+	private double staminaDrain;
 	private double collisionDamage;
 	private Collider collider;
 	private double angle = 0, health = 1;
@@ -39,10 +37,11 @@ public class FlameShieldInstance extends FireAbilityInstance implements Collidab
 	}
 
 	@Override
-	protected void onStart() {
+	protected boolean onStart() {
 		this.collider = new Collider(user.getLocation());
 		this.user.getStamina().pauseRegen(this);
 		this.health = 4 / 3 * Math.PI * radius * radius * radius;
+		return true;
 	}
 
 	@Override

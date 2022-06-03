@@ -41,4 +41,9 @@ public class PlayerUser extends User<Player> {
 	public MainHand getMainHand() {
 		return typed.getMainHand();
 	}
+	
+	@Override
+	public boolean isOnline() {
+		return typed.isOnline();
+	}
 }

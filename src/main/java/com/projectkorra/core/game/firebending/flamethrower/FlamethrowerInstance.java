@@ -14,30 +14,28 @@ import org.bukkit.util.Vector;
 
 import com.projectkorra.core.ability.AbilityUser;
 import com.projectkorra.core.ability.attribute.Attribute;
-import com.projectkorra.core.ability.attribute.AttributeGroup;
 import com.projectkorra.core.game.firebending.FireAbilityInstance;
 import com.projectkorra.core.temporary.TempBlock;
 import com.projectkorra.core.util.Effects;
 
 public class FlamethrowerInstance extends FireAbilityInstance {
 
-	@Attribute(value = Attribute.DAMAGE, group = AttributeGroup.DAMAGE)
+	@Attribute(DAMAGE)
 	private double damage;
-	@Attribute(value = Attribute.RANGE, group = AttributeGroup.RANGE)
+	@Attribute(RANGE)
 	private double range;
-	@Attribute(value = Attribute.COOLDOWN, group = AttributeGroup.COOLDOWN)
+	@Attribute(COOLDOWN)
 	private long cooldown;
-	@Attribute(value = Attribute.RADIUS, group = AttributeGroup.SIZE)
+	@Attribute(RADIUS)
 	private double radius;
-	@Attribute(value = Attribute.SPEED, group = AttributeGroup.SPEED)
+	@Attribute(SPEED)
 	private double speed;
-	@Attribute(value = Attribute.STAMINA_COST, group = AttributeGroup.STAMINA)
-	private double staminaCost;
-	@Attribute(value = "fire_duration", group = AttributeGroup.DURATION)
+	@Attribute(DURATION)
 	private long fireLifetime;
-	@Attribute(value = Attribute.FIRE_TICK, group = AttributeGroup.BURN)
+	@Attribute(FIRE_TICK)
 	private int fireTicks;
 
+	private double staminaCost;
 	private double currRange = 0, currRadius = 0, inc;
 
 	public FlamethrowerInstance(Flamethrower provider, AbilityUser user) {
@@ -53,8 +51,9 @@ public class FlamethrowerInstance extends FireAbilityInstance {
 	}
 
 	@Override
-	protected void onStart() {
+	protected boolean onStart() {
 		user.getStamina().pauseRegen(this);
+		return true;
 	}
 
 	@Override

@@ -20,7 +20,6 @@ import com.projectkorra.core.ProjectKorra;
 import com.projectkorra.core.ability.AbilityManager;
 import com.projectkorra.core.ability.AbilityUser;
 import com.projectkorra.core.ability.attribute.Attribute;
-import com.projectkorra.core.ability.attribute.AttributeGroup;
 import com.projectkorra.core.collision.Collidable;
 import com.projectkorra.core.game.BendingBlocks;
 import com.projectkorra.core.game.earthbending.EarthAbilityInstance;
@@ -37,17 +36,16 @@ import com.projectkorra.core.util.math.UnitVector;
 
 public class EarthboltInstance extends EarthAbilityInstance implements Collidable {
 
-	@Attribute(value = Attribute.DAMAGE, group = AttributeGroup.DAMAGE)
+	@Attribute(DAMAGE)
 	private double damage;
-	@Attribute(value = Attribute.SELECT_RANGE, group = AttributeGroup.SELECT_RADIUS)
+	@Attribute(SELECT_RANGE)
 	private double selectRange;
-	@Attribute(value = "launch_speed", group = AttributeGroup.SPEED)
+	@Attribute("launch_power")
 	private double speed;
-	@Attribute(value = Attribute.COOLDOWN, group = AttributeGroup.COOLDOWN)
+	@Attribute(COOLDOWN)
 	private long cooldown;
-	@Attribute(value = Attribute.STAMINA_COST, group = AttributeGroup.STAMINA)
+	
 	private double staminaCost;
-
 	private boolean shot = false, launched = false;
 	private FallingBlock block;
 	private Collider collider;
@@ -62,7 +60,7 @@ public class EarthboltInstance extends EarthAbilityInstance implements Collidabl
 	}
 
 	@Override
-	protected void onStart() {
+	protected boolean onStart() {
 		Predicate<Block> bendable = (b) -> BendingBlocks.isEarthbendable(b);
 		if (user.hasSkill(Skill.LAVABENDING)) {
 			bendable = bendable.or((b) -> BendingBlocks.isLavabendable(b));
@@ -74,13 +72,13 @@ public class EarthboltInstance extends EarthAbilityInstance implements Collidabl
 		}
 
 		if (!bendable.test(source)) {
-			AbilityManager.remove(this);
-			return;
+			return false;
 		}
 
 		block = createFallingBlock(source);
 		user.getStamina().consume(staminaCost / 2);
 		collider = new Collider(block.getLocation());
+		return true;
 	}
 
 	@Override

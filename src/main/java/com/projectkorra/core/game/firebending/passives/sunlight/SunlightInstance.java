@@ -26,7 +26,8 @@ public class SunlightInstance extends AbilityInstance {
 	}
 
 	@Override
-	protected void onStart() {
+	protected boolean onStart() {
+		return true;
 	}
 
 	@Override

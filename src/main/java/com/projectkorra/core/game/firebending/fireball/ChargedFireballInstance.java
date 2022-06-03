@@ -14,7 +14,6 @@ import org.bukkit.util.Vector;
 import com.projectkorra.core.ability.AbilityManager;
 import com.projectkorra.core.ability.AbilityUser;
 import com.projectkorra.core.ability.attribute.Attribute;
-import com.projectkorra.core.ability.attribute.AttributeGroup;
 import com.projectkorra.core.collision.Collidable;
 import com.projectkorra.core.game.firebending.FireAbilityInstance;
 import com.projectkorra.core.physics.Collider;
@@ -24,27 +23,26 @@ import com.projectkorra.core.util.Velocity;
 
 public class ChargedFireballInstance extends FireAbilityInstance implements Collidable {
 
-	@Attribute(value = "max_speed", group = AttributeGroup.SPEED)
+	@Attribute("max_speed")
 	private double maxSpeed;
-	@Attribute(value = "min_speed", group = AttributeGroup.SPEED)
+	@Attribute("min_speed")
 	private double minSpeed;
-	@Attribute(value = "max_range", group = AttributeGroup.RANGE)
+	@Attribute("max_range")
 	private double maxRange;
-	@Attribute(value = "min_range", group = AttributeGroup.RANGE)
+	@Attribute("min_range")
 	private double minRange;
-	@Attribute(value = "max_damage", group = AttributeGroup.DAMAGE)
+	@Attribute("max_damage")
 	private double maxDamage;
-	@Attribute(value = "min_damage", group = AttributeGroup.DAMAGE)
+	@Attribute("min_damage")
 	private double minDamage;
-	@Attribute(value = Attribute.COOLDOWN, group = AttributeGroup.COOLDOWN)
+	@Attribute(COOLDOWN)
 	private long cooldown;
-	@Attribute(value = Attribute.KNOCKBACK, group = AttributeGroup.SPEED)
+	@Attribute(KNOCKBACK)
 	private double knockback;
-	@Attribute(value = Attribute.CHARGE_DURATION, group = AttributeGroup.CHARGE_TIME)
+	@Attribute(CHARGE_TIME)
 	private long chargeTime;
-	@Attribute(value = Attribute.STAMINA_COST, group = AttributeGroup.STAMINA)
+	
 	private double staminaCost;
-
 	private Location loc;
 	private Collider collider;
 	private double size = 0.5;
@@ -68,10 +66,11 @@ public class ChargedFireballInstance extends FireAbilityInstance implements Coll
 	}
 
 	@Override
-	protected void onStart() {
+	protected boolean onStart() {
 		loc = user.getEyeLocation();
 		collider = new Collider(loc);
 		user.getStamina().pauseRegen(this);
+		return true;
 	}
 
 	@Override

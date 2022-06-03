@@ -19,7 +19,6 @@ import org.bukkit.plugin.java.JavaPlugin;
 import com.projectkorra.core.ProjectKorra;
 import com.projectkorra.core.ability.AbilityUser;
 import com.projectkorra.core.ability.attribute.Attribute;
-import com.projectkorra.core.ability.attribute.AttributeGroup;
 import com.projectkorra.core.game.BendingBlocks;
 import com.projectkorra.core.game.earthbending.EarthAbilityInstance;
 import com.projectkorra.core.skill.Skill;
@@ -33,15 +32,15 @@ import com.projectkorra.core.util.math.UnitVector;
 
 public class ShockwaveInstance extends EarthAbilityInstance {
 
-	@Attribute(value = "angle", group = AttributeGroup.SIZE)
+	@Attribute("width")
 	private double angle;
-	@Attribute(value = Attribute.RANGE, group = AttributeGroup.RANGE)
+	@Attribute(RANGE)
 	private double range;
-	@Attribute(value = Attribute.SPEED, group = AttributeGroup.SPEED)
+	@Attribute(SPEED)
 	private double speed;
-	@Attribute(value = Attribute.COOLDOWN, group = AttributeGroup.COOLDOWN)
+	@Attribute(COOLDOWN)
 	private long cooldown;
-	@Attribute(value = Attribute.DAMAGE, group = AttributeGroup.DAMAGE)
+	@Attribute(DAMAGE)
 	private double damage;
 
 	private Location[] locs = new Location[3];
@@ -62,7 +61,7 @@ public class ShockwaveInstance extends EarthAbilityInstance {
 	}
 
 	@Override
-	protected void onStart() {
+	protected boolean onStart() {
 		start = user.getLocation();
 		for (int i = 0; i < 3; ++i) {
 			locs[i] = user.getLocation().add(user.getDirection().setY(0));
@@ -78,6 +77,7 @@ public class ShockwaveInstance extends EarthAbilityInstance {
 		}
 
 		user.addCooldown(provider, cooldown);
+		return true;
 	}
 
 	@Override

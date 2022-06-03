@@ -14,7 +14,6 @@ import org.bukkit.util.Vector;
 
 import com.projectkorra.core.ability.AbilityUser;
 import com.projectkorra.core.ability.attribute.Attribute;
-import com.projectkorra.core.ability.attribute.AttributeGroup;
 import com.projectkorra.core.game.firebending.FireAbilityInstance;
 import com.projectkorra.core.temporary.TempBlock;
 import com.projectkorra.core.util.Blocks;
@@ -23,15 +22,14 @@ public class ExtinguishInstance extends FireAbilityInstance {
 
 	private static Material[] STONES = { Material.GRANITE, Material.STONE, Material.ANDESITE, Material.DIORITE };
 
-	@Attribute(value = Attribute.RANGE, group = AttributeGroup.RANGE)
+	@Attribute(RANGE)
 	private double range;
-	@Attribute(value = Attribute.RADIUS, group = AttributeGroup.SIZE)
+	@Attribute(RADIUS)
 	private double radius;
-	@Attribute(value = Attribute.COOLDOWN, group = AttributeGroup.COOLDOWN)
+	@Attribute(COOLDOWN)
 	private long cooldown;
-	@Attribute(value = Attribute.STAMINA_COST, group = AttributeGroup.STAMINA)
+	
 	private double staminaCost;
-
 	private Set<Block> affected = new HashSet<>();
 
 	public ExtinguishInstance(Convection provider, AbilityUser user) {
@@ -43,8 +41,9 @@ public class ExtinguishInstance extends FireAbilityInstance {
 	}
 
 	@Override
-	protected void onStart() {
+	protected boolean onStart() {
 		user.addCooldown(provider, cooldown);
+		return true;
 	}
 
 	@Override

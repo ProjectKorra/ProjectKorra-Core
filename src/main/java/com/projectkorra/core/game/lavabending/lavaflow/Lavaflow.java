@@ -7,6 +7,7 @@ import com.projectkorra.core.ability.AbilityInstance;
 import com.projectkorra.core.ability.AbilityManager;
 import com.projectkorra.core.ability.AbilityUser;
 import com.projectkorra.core.ability.activation.Activation;
+import com.projectkorra.core.ability.attribute.AttributeGroup;
 import com.projectkorra.core.ability.type.Bindable;
 import com.projectkorra.core.skill.Skill;
 import com.projectkorra.core.util.configuration.Configure;
@@ -23,6 +24,13 @@ public class Lavaflow extends Ability implements Bindable {
 
 	public Lavaflow() {
 		super("Lavaflow", "Turn the earth into lava", "ProjectKorra", "CORE", Skill.LAVABENDING);
+	}
+	
+	@Override
+	public void postProcessed() {
+		AttributeGroup.CHARGE_TIME.add("lava_create_time");
+		AttributeGroup.DURATION.add("lava_cool_time");
+		AttributeGroup.SPEED.add("flow_speed");
 	}
 
 	@Override

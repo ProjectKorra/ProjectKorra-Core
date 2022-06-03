@@ -35,7 +35,6 @@ import com.projectkorra.core.skill.Skill;
 import com.projectkorra.core.util.Events;
 import com.projectkorra.core.util.configuration.Config;
 import com.projectkorra.core.util.configuration.Configure;
-import com.projectkorra.core.util.data.CollectionUtil;
 import com.projectkorra.core.util.reflection.DynamicLoader;
 import com.projectkorra.core.util.reflection.ReflectionUtil;
 
@@ -52,7 +51,6 @@ public final class AbilityManager {
 	// instance info
 	private static final Set<AbilityInstance> ACTIVE = new HashSet<>(256);
 	private static final Map<Class<? extends AbilityInstance>, Map<String, Field>> ATTRIBUTES = new HashMap<>();
-	private static final Map<Class<? extends AbilityInstance>, Set<Field>[]> ATTR_GROUP = new HashMap<>();
 	private static final Map<AbilityInstance, Map<Field, Modifier>> MODIFIERS = new HashMap<>();
 	private static final Map<AbilityUser, ActiveInfo> USER_INFO = new HashMap<>();
 
@@ -137,11 +135,7 @@ public final class AbilityManager {
 	public static boolean hasAttribute(AbilityInstance instance, String attribute) {
 		return ATTRIBUTES.containsKey(instance.getClass()) && ATTRIBUTES.get(instance.getClass()).containsKey(attribute.toLowerCase());
 	}
-
-	public static boolean hasAttributeGroup(AbilityInstance instance, AttributeGroup group) {
-		return ATTR_GROUP.containsKey(instance.getClass()) && ATTR_GROUP.get(instance.getClass())[group.ordinal()].isEmpty();
-	}
-
+	
 	public static boolean addModifier(AbilityInstance instance, String attribute, Modifier mod) {
 		if (!hasAttribute(instance, attribute)) {
 			return false;
@@ -153,12 +147,8 @@ public final class AbilityManager {
 	}
 
 	public static boolean addModifier(AbilityInstance instance, AttributeGroup group, Modifier mod) {
-		if (!hasAttributeGroup(instance, group)) {
-			return false;
-		}
-
-		for (Field field : ATTR_GROUP.get(instance.getClass())[group.ordinal()]) {
-			MODIFIERS.computeIfAbsent(instance, (i) -> new HashMap<>()).merge(field, mod, (a, b) -> a.and(b));
+		for (String attribute : group.getAttributes()) {
+			addModifier(instance, attribute, mod);
 		}
 		return true;
 	}
@@ -209,7 +199,6 @@ public final class AbilityManager {
 		return Config.process(Events.register(ability));
 	}
 
-	@SuppressWarnings("unchecked")
 	public static void registerFrom(JavaPlugin plugin, String path) {
 		DynamicLoader.load(plugin, path, (c) -> Ability.class.isAssignableFrom(c) || AbilityInstance.class.isAssignableFrom(c), (clazz) -> {
 			if (Ability.class.isAssignableFrom(clazz)) {
@@ -221,17 +210,14 @@ public final class AbilityManager {
 			} else if (AbilityInstance.class.isAssignableFrom(clazz)) {
 				Class<? extends AbilityInstance> instance = clazz.asSubclass(AbilityInstance.class);
 				Map<String, Field> attributes = new HashMap<>();
-				Set<Field>[] groups = (Set<Field>[]) CollectionUtil.fillArray(new HashSet[AttributeGroup.values().length], (i) -> new HashSet<>());
 
 				for (Field field : clazz.getDeclaredFields()) {
 					if (field.isAnnotationPresent(Attribute.class)) {
 						attributes.put(field.getAnnotation(Attribute.class).value().toLowerCase(), field);
-						groups[field.getAnnotation(Attribute.class).group().ordinal()].add(field);
 					}
 				}
 
 				ATTRIBUTES.put(instance, attributes);
-				ATTR_GROUP.put(instance, groups);
 			}
 		});
 	}
@@ -292,8 +278,6 @@ public final class AbilityManager {
 			return false;
 		} else if (Events.call(new InstanceStartEvent(instance)).isCancelled()) {
 			return false;
-		} else if (!info(instance.getUser()).addInstance(instance)) {
-			return false;
 		}
 
 		if (MODIFIERS.containsKey(instance)) {
@@ -311,11 +295,16 @@ public final class AbilityManager {
 			});
 		}
 
+		if (!instance.start()) {
+			return false;
+		} else if (!info(instance.getUser()).addInstance(instance)) {
+			return false;
+		}
+		
 		if (instance.hasUpdate()) {
 			ACTIVE.add(instance);
 		}
 
-		instance.start();
 		return true;
 	}
 

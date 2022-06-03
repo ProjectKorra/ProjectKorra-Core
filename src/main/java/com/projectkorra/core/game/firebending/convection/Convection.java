@@ -11,6 +11,7 @@ import com.projectkorra.core.ability.AbilityInstance;
 import com.projectkorra.core.ability.AbilityManager;
 import com.projectkorra.core.ability.AbilityUser;
 import com.projectkorra.core.ability.activation.Activation;
+import com.projectkorra.core.ability.attribute.AttributeGroup;
 import com.projectkorra.core.ability.type.Bindable;
 import com.projectkorra.core.event.ability.InstanceDamageEntityEvent;
 import com.projectkorra.core.game.firebending.flamingwall.FlamingWallInstance;
@@ -40,6 +41,7 @@ public class Convection extends Ability implements Bindable {
 
 	@Override
 	public void postProcessed() {
+		AttributeGroup.CHARGE_TIME.add("melt_time");
 	}
 
 	@Override

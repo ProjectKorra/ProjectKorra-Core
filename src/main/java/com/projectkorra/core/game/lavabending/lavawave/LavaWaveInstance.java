@@ -15,7 +15,6 @@ import org.bukkit.util.Vector;
 import com.projectkorra.core.ProjectKorra;
 import com.projectkorra.core.ability.AbilityUser;
 import com.projectkorra.core.ability.attribute.Attribute;
-import com.projectkorra.core.ability.attribute.AttributeGroup;
 import com.projectkorra.core.game.BendingBlocks;
 import com.projectkorra.core.game.lavabending.LavaAbilityInstance;
 import com.projectkorra.core.temporary.TempBlock;
@@ -25,21 +24,20 @@ import com.projectkorra.core.util.Vectors;
 
 public class LavaWaveInstance extends LavaAbilityInstance {
 	
-	@Attribute(value = Attribute.STAMINA_DRAIN, group = AttributeGroup.STAMINA)
-	private double staminaDrain;
-	@Attribute(value = Attribute.COOLDOWN, group = AttributeGroup.COOLDOWN)
+	@Attribute(COOLDOWN)
 	private long cooldown;
-	@Attribute(value = Attribute.SPEED, group = AttributeGroup.SPEED)
+	@Attribute(SPEED)
 	private double speed;
-	@Attribute(value = Attribute.DAMAGE, group = AttributeGroup.DAMAGE)
+	@Attribute(DAMAGE)
 	private double damage;
-	@Attribute(value = Attribute.RANGE, group = AttributeGroup.RANGE)
+	@Attribute(RANGE)
 	private double range;
-	@Attribute(value = Attribute.WIDTH, group = AttributeGroup.SIZE)
+	@Attribute(WIDTH)
 	private double width;
-	@Attribute(value = "cool_time", group = AttributeGroup.DURATION)
+	@Attribute("lava_cool_time")
 	private long coolTime;
 	
+	private double staminaDrain;
 	private Location loc;
 	private Vector dir, ortho;
 	private Set<Block> affected = new HashSet<>();
@@ -57,11 +55,12 @@ public class LavaWaveInstance extends LavaAbilityInstance {
 	}
 
 	@Override
-	protected void onStart() {
+	protected boolean onStart() {
 		this.dir = Vectors.direction(user.getLocation().getYaw(), 0);
 		this.loc = user.getLocation().add(dir.multiply(0.7));
 		this.ortho = Vectors.orthogonal(dir).get();
 		this.maxRange = range;
+		return true;
 	}
 
 	@Override

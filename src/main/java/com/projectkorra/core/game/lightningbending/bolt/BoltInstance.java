@@ -18,7 +18,6 @@ import com.projectkorra.core.ability.AbilityInstance;
 import com.projectkorra.core.ability.AbilityManager;
 import com.projectkorra.core.ability.AbilityUser;
 import com.projectkorra.core.ability.attribute.Attribute;
-import com.projectkorra.core.ability.attribute.AttributeGroup;
 import com.projectkorra.core.collision.Collidable;
 import com.projectkorra.core.physics.Collider;
 import com.projectkorra.core.util.Effects;
@@ -29,21 +28,20 @@ import com.projectkorra.core.util.math.AngleType;
 
 public class BoltInstance extends AbilityInstance implements Collidable {
 
-	@Attribute(value = "max_charge_time", group = AttributeGroup.CHARGE_TIME)
+	@Attribute("max_charge_time")
 	private long maxChargeTime;
-	@Attribute(value = "min_charge_time", group = AttributeGroup.CHARGE_TIME)
+	@Attribute("min_charge_time")
 	private long minChargeTime;
-	@Attribute(value = Attribute.DAMAGE, group = AttributeGroup.DAMAGE)
+	@Attribute(DAMAGE)
 	private double damage;
-	@Attribute(value = Attribute.SPEED, group = AttributeGroup.SPEED)
+	@Attribute(SPEED)
 	private double speed;
-	@Attribute(value = Attribute.RANGE, group = AttributeGroup.RANGE)
+	@Attribute(RANGE)
 	private double range;
-	@Attribute(value = Attribute.COOLDOWN, group = AttributeGroup.COOLDOWN)
+	@Attribute(COOLDOWN)
 	private long cooldown;
-	@Attribute(value = Attribute.STAMINA_COST, group = AttributeGroup.STAMINA)
-	private double staminaCost;
 
+	private double staminaCost;
 	private boolean shot = false, subArc = false;
 	private Location loc;
 	private double maxRange, subarcChance;
@@ -65,9 +63,10 @@ public class BoltInstance extends AbilityInstance implements Collidable {
 	}
 
 	@Override
-	protected void onStart() {
+	protected boolean onStart() {
 		collider = new Collider(user.getLocation());
 		this.user.getStamina().pauseRegen(this);
+		return true;
 	}
 
 	@Override

@@ -1,9 +1,28 @@
 package com.projectkorra.core.ability;
 
+import com.projectkorra.core.ability.attribute.Attribute;
+import com.projectkorra.core.util.data.RemovalPolicy;
+
 public abstract class AbilityInstance {
+
+	//QoL copies of common attributes
+	protected static final String SPEED = Attribute.SPEED;
+	protected static final String RANGE = Attribute.RANGE;
+	protected static final String SELECT_RANGE = Attribute.SELECT_RANGE;
+	protected static final String DAMAGE = Attribute.DAMAGE;
+	protected static final String COOLDOWN = Attribute.COOLDOWN;
+	protected static final String DURATION = Attribute.DURATION;
+	protected static final String RADIUS = Attribute.RADIUS;
+	protected static final String CHARGE_TIME = Attribute.CHARGE_TIME;
+	protected static final String WIDTH = Attribute.WIDTH;
+	protected static final String HEIGHT = Attribute.HEIGHT;
+	protected static final String KNOCKBACK = Attribute.KNOCKBACK;
+	protected static final String KNOCKUP = Attribute.KNOCKUP;
+	protected static final String FIRE_TICK = Attribute.FIRE_TICK;
 
 	protected final AbilityUser user;
 	protected final Ability provider;
+	protected final RemovalPolicy removal = RemovalPolicy.EMPTY;
 	private int counter = -1;
 	private long startTime = -1;
 
@@ -71,13 +90,18 @@ public abstract class AbilityInstance {
 		return 3;
 	}
 
-	final void start() {
+	final boolean start() {
 		startTime = System.currentTimeMillis();
-		onStart();
+		return onStart();
 	}
 
 	final boolean update(double timeDelta) {
 		++counter;
+		
+		if (removal.test(this)) {
+			return false;
+		}
+		
 		return onUpdate(timeDelta);
 	}
 
@@ -88,9 +112,10 @@ public abstract class AbilityInstance {
 	}
 
 	/**
-	 * Method called when instance is started
+	 * Method called when the instance is started
+	 * @return true if ability can successfully start
 	 */
-	protected abstract void onStart();
+	protected abstract boolean onStart();
 
 	/**
 	 * Method called to update the instance

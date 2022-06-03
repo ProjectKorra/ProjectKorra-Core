@@ -17,7 +17,6 @@ import org.bukkit.util.Vector;
 import com.projectkorra.core.ability.AbilityManager;
 import com.projectkorra.core.ability.AbilityUser;
 import com.projectkorra.core.ability.attribute.Attribute;
-import com.projectkorra.core.ability.attribute.AttributeGroup;
 import com.projectkorra.core.collision.Collidable;
 import com.projectkorra.core.game.firebending.FireAbilityInstance;
 import com.projectkorra.core.physics.Collider;
@@ -28,29 +27,28 @@ import com.projectkorra.core.util.Velocity;
 
 public class FlamingWallInstance extends FireAbilityInstance implements Collidable {
 
-	@Attribute(value = Attribute.DAMAGE, group = AttributeGroup.DAMAGE)
+	@Attribute(DAMAGE)
 	private double damage;
-	@Attribute(value = "raise_radius", group = AttributeGroup.SELECT_RADIUS)
+	@Attribute("raise_radius")
 	private double raiseRadius;
-	@Attribute(value = "shove_range", group = AttributeGroup.RANGE)
+	@Attribute("shove_range")
 	private double shoveRange;
-	@Attribute(value = Attribute.WIDTH, group = AttributeGroup.SIZE)
+	@Attribute(WIDTH)
 	private double width;
-	@Attribute(value = Attribute.HEIGHT, group = AttributeGroup.SIZE)
+	@Attribute(HEIGHT)
 	private double height;
-	@Attribute(value = "shove_knockback", group = AttributeGroup.SPEED)
+	@Attribute("shove_knockback")
 	private double shoveKnockback;
-	@Attribute(value = Attribute.COOLDOWN, group = AttributeGroup.COOLDOWN)
+	@Attribute(COOLDOWN)
 	private long cooldown;
-	@Attribute(value = "shove_speed", group = AttributeGroup.SPEED)
+	@Attribute("shove_speed")
 	private double shoveSpeed;
-	@Attribute(value = Attribute.DURATION, group = AttributeGroup.DURATION)
+	@Attribute(DURATION)
 	private double duration;
-	@Attribute(value = "raise_speed", group = AttributeGroup.SPEED)
+	@Attribute("raise_speed")
 	private double raiseSpeed;
-	@Attribute(value = Attribute.STAMINA_COST, group = AttributeGroup.STAMINA)
+	
 	private double staminaCost;
-
 	private Location loc, shoveStart = null;
 	private Vector dir;
 	private boolean shoved = false, targeted = false;
@@ -75,10 +73,11 @@ public class FlamingWallInstance extends FireAbilityInstance implements Collidab
 	}
 
 	@Override
-	protected void onStart() {
+	protected boolean onStart() {
 		this.locate();
 		this.collider = new Collider(loc);
 		this.user.getStamina().pauseRegen(this);
+		return true;
 	}
 
 	@Override
