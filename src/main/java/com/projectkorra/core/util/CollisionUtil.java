@@ -45,7 +45,7 @@ public class CollisionUtil {
 	}
 
 	public static String stringify(CollisionData data) {
-		return data.getLeft() + " " + data.getOperator().getSymbol() + " " + data.getSecond() /* + */;
+		return data.getLeft() + " " + data.getOperator().getSymbol() + " " + data.getRight() /* + */;
 	}
 
 	public static class CollisionParseException extends Exception {

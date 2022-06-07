@@ -23,7 +23,7 @@ public class CollisionData {
 		return left;
 	}
 
-	public String getSecond() {
+	public String getRight() {
 		return right;
 	}
 

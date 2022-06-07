@@ -6,7 +6,7 @@ import java.util.List;
 import com.projectkorra.core.ability.activation.Activation;
 import com.projectkorra.core.ability.activation.SequenceInfo;
 
-public class ComboAgent {
+public class ComboValidator {
 
 	public enum Result {
 		FAILED, COMPLETE, INCOMPLETE;
@@ -18,7 +18,7 @@ public class ComboAgent {
 	/**
 	 * Construct a new agent that starts from the root of the {@link ComboTree}
 	 */
-	public ComboAgent() {
+	public ComboValidator() {
 		this(ComboTree.ROOT);
 	}
 
@@ -27,7 +27,7 @@ public class ComboAgent {
 	 * 
 	 * @param starting where to start in the {@link ComboTree}
 	 */
-	public ComboAgent(ComboTree starting) {
+	public ComboValidator(ComboTree starting) {
 		this.current = starting;
 		this.sequence = new ArrayList<>();
 	}

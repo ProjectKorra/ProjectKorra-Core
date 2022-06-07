@@ -42,7 +42,7 @@ public final class CollisionManager {
 		}
 
 		init = true;
-		COLLISIONS.readAnd((cd) -> valids.put(Pairing.of(cd.getLeft().toLowerCase(), cd.getSecond().toLowerCase()), cd));
+		COLLISIONS.readAnd((cd) -> valids.put(Pairing.of(cd.getLeft().toLowerCase(), cd.getRight().toLowerCase()), cd));
 		plugin.getServer().getScheduler().scheduleSyncRepeatingTask(plugin, CollisionManager::tick, 1, 1);
 	}
 

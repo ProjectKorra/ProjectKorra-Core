@@ -24,7 +24,6 @@ import com.projectkorra.core.ability.attribute.Modifier;
 import com.projectkorra.core.ability.type.Combo;
 import com.projectkorra.core.ability.type.ExpanderInstance;
 import com.projectkorra.core.ability.type.Passive;
-import com.projectkorra.core.ability.type.SourcedAbility;
 import com.projectkorra.core.collision.Collidable;
 import com.projectkorra.core.collision.CollisionManager;
 import com.projectkorra.core.event.ability.InstanceStartEvent;
@@ -171,7 +170,7 @@ public final class AbilityManager {
 	 * @return the successfully registered ability
 	 */
 	public static <T extends Ability> T register(T ability) throws IllegalArgumentException {
-		if (ABILITIES_BY_NAME.containsKey(ability.getName())) {
+		if (ABILITIES_BY_NAME.containsKey(ability.getName().toLowerCase())) {
 			throw new IllegalArgumentException("An Ability with named '" + ability.getName() + "' already exists!");
 		} else if (ABILITIES_BY_CLASS.containsKey(ability.getClass())) {
 			throw new IllegalArgumentException("An Ability from class '" + ability.getClass().getSimpleName() + "' already exists!");
@@ -249,12 +248,8 @@ public final class AbilityManager {
 			return false;
 		}
 
-		if (ability instanceof SourcedAbility) {
-			user.putSource(trigger, ((SourcedAbility) ability).selectSource(user, trigger));
-		}
-
 		if (trigger.canCombo()) {
-			ComboAgent combo = USER_INFO.computeIfAbsent(user, (u) -> new ActiveInfo(u)).updateCombos(ability, trigger);
+			ComboValidator combo = USER_INFO.computeIfAbsent(user, (u) -> new ActiveInfo(u)).updateCombos(ability, trigger);
 			if (combo != null) {
 				ability = COMBOS.get(SequenceInfo.stringify(combo.getSequence()));
 				trigger = Activation.COMBO;

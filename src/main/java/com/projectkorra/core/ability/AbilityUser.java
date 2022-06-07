@@ -13,9 +13,9 @@ import org.bukkit.Location;
 import org.bukkit.entity.Entity;
 import org.bukkit.entity.LivingEntity;
 import org.bukkit.inventory.MainHand;
+import org.bukkit.util.RayTraceResult;
 import org.bukkit.util.Vector;
 
-import com.projectkorra.core.ability.activation.Activation;
 import com.projectkorra.core.ability.type.Bindable;
 import com.projectkorra.core.event.user.UserBindChangeEvent;
 import com.projectkorra.core.event.user.UserBindCopyEvent;
@@ -33,7 +33,6 @@ public abstract class AbilityUser extends SkillHolder {
 	private AbilityBinds binds = new AbilityBinds();
 	private Map<String, Cooldown> cooldowns = new HashMap<>();
 	private PriorityQueue<Cooldown> cdQueue = new PriorityQueue<>(32, (a, b) -> (int) (a.getEndTime() - b.getEndTime()));
-	private Map<Activation, SourceInstance> sources = new HashMap<>();
 	private LivingEntity entity;
 	private Stamina stamina;
 
@@ -271,18 +270,24 @@ public abstract class AbilityUser extends SkillHolder {
 		Events.call(new UserCooldownEndEvent(this, cd));
 	}
 	
+	public Location getTargetLocation(double distance, FluidCollisionMode fluids, boolean ignorePassable, Predicate<Entity> filter) {
+		return rayTrace(distance, fluids, ignorePassable, 1, filter)
+				.map((r) -> r.getHitPosition().toLocation(entity.getWorld()))
+				.orElseGet(() -> entity.getEyeLocation().add(entity.getLocation().getDirection().multiply(distance)));
+	}
+	
+	public Optional<RayTraceResult> rayTrace(double maxDistance, FluidCollisionMode fluids, boolean ignorePassable, double raySize, Predicate<Entity> filter) {
+		return Optional.ofNullable(rayTraceHelper(entity.getEyeLocation(), maxDistance, fluids, ignorePassable, raySize, filter));
+	}
+	
+	private RayTraceResult rayTraceHelper(Location loc, double maxDistance, FluidCollisionMode fluids, boolean ignorePassable, double raySize, Predicate<Entity> filter) {
+		return entity.getWorld().rayTrace(loc, loc.getDirection(), maxDistance, fluids, ignorePassable, raySize, filter);
+	}
+	
 	public boolean isOnline() {
 		return !entity.isDead();
 	}
-
-	public SourceInstance getSource(Activation trigger) {
-		return sources.get(trigger);
-	}
-
-	void putSource(Activation trigger, SourceInstance instance) {
-		sources.put(trigger, instance);
-	}
-
+	
 	public abstract void sendMessage(String message);
 
 	public abstract boolean hasPermission(String permission);

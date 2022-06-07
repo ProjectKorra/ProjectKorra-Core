@@ -47,6 +47,7 @@ public class BoltInstance extends AbilityInstance implements Collidable {
 	private double maxRange, subarcChance;
 	private Collider collider;
 	private Set<BoundingBox> hitboxes = new HashSet<>();
+	private Set<BoltInstance> subarcs = new HashSet<>();
 
 	public BoltInstance(BoltAbility provider, AbilityUser user, boolean subArc) {
 		super(provider, user);
@@ -125,11 +126,12 @@ public class BoltInstance extends AbilityInstance implements Collidable {
 				hitboxes.add(BoundingBox.of(loc.clone(), 1 + size, 1 + size, 1 + size));
 			}
 
-			if (ThreadLocalRandom.current().nextInt(100) < subarcChance * 100) {
+			if (subarcChance >= 1 || ThreadLocalRandom.current().nextInt(100) < subarcChance * 100) {
 				BoltInstance subArc = new BoltInstance((BoltAbility) provider, user, true);
 				subArc.shot = true;
 				subArc.loc = loc.clone().setDirection(out.add(ortho.multiply(0.2)));
 				AbilityManager.start(subArc);
+				subarcs.add(subArc);
 			}
 
 			collider.shift(loc);
@@ -146,11 +148,12 @@ public class BoltInstance extends AbilityInstance implements Collidable {
 
 			collider.set(hitboxes);
 
-			if (ThreadLocalRandom.current().nextInt(100) < subarcChance * 100) {
+			if (subarcChance >= 1 || ThreadLocalRandom.current().nextInt(100) < subarcChance * 100) {
 				BoltInstance subArc = new BoltInstance((BoltAbility) provider, user, true);
 				subArc.shot = true;
 				subArc.loc = loc.clone().setDirection(in.add(ortho.multiply(0.2)));
 				AbilityManager.start(subArc);
+				subarcs.add(subArc);
 			}
 		}
 
@@ -168,6 +171,9 @@ public class BoltInstance extends AbilityInstance implements Collidable {
 
 	@Override
 	protected void onStop() {
+		for (BoltInstance subarc : subarcs) {
+			AbilityManager.remove(subarc);
+		}
 	}
 
 	@Override
@@ -195,8 +201,10 @@ public class BoltInstance extends AbilityInstance implements Collidable {
 	}
 
 	private void shoot() {
-		if (shot)
+		if (shot) {
 			return;
+		}
+		
 		this.shot = true;
 		this.loc = user.getEyeLocation();
 		this.user.addCooldown(provider, cooldown);

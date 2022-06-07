@@ -5,10 +5,12 @@ import java.util.HashSet;
 import java.util.LinkedList;
 import java.util.Map;
 
+import org.apache.commons.lang.Validate;
 import org.bukkit.Bukkit;
 import org.bukkit.block.Block;
 import org.bukkit.block.BlockState;
 import org.bukkit.block.data.BlockData;
+import org.bukkit.util.Consumer;
 
 import com.projectkorra.core.ProjectKorra;
 
@@ -60,6 +62,8 @@ public class TempBlock {
 	public void revertData(TempData data) {
 		if (data == null) {
 			return;
+		} else if (!stack.contains(data)) {
+			return;
 		}
 
 		if (stack.peek() == data) {
@@ -77,7 +81,8 @@ public class TempBlock {
 		} else {
 			stack.remove(data);
 		}
-
+		
+		data.onRevert.accept(this);
 		if (stack.isEmpty()) {
 			this.revert();
 		}
@@ -85,11 +90,18 @@ public class TempBlock {
 
 	public void revert() {
 		CACHE.remove(this.block);
-		this.destroy();
+		for (TempData td : this.stack) {
+			td.onRevert.accept(this);
+		}
+		this.stack.clear();
 		this.block.setBlockData(original.getBlockData());
 	}
 	
 	public void destroy() {
+		CACHE.remove(this.block);
+		for (TempData td : this.stack) {
+			td.onDestroy.accept(this);
+		}
 		this.stack.clear();
 	}
 
@@ -110,6 +122,7 @@ public class TempBlock {
 	}
 
 	public static TempBlock from(Block block) {
+		Validate.notNull(block);
 		return CACHE.computeIfAbsent(block, TempBlock::new);
 	}
 
@@ -138,6 +151,7 @@ public class TempBlock {
 		private BlockData data;
 		private long created = System.currentTimeMillis(), duration;
 		private boolean physics;
+		private Consumer<TempBlock> onDestroy = (b) -> {}, onRevert = (b) -> {};
 
 		private TempData(BlockData data, long duration, boolean physics) {
 			this.data = data;
@@ -151,6 +165,28 @@ public class TempBlock {
 
 		public boolean isDone() {
 			return duration > 0 && lifetime() >= duration;
+		}
+		
+		public boolean hasPhysics() {
+			return physics;
+		}
+		
+		public TempData setDestroyEffect(Consumer<TempBlock> onDestroy) {
+			if (onDestroy == null) {
+				onDestroy = (b) -> {};
+			}
+			
+			this.onDestroy = onDestroy;
+			return this;
+		}
+		
+		public TempData setRevertEffect(Consumer<TempBlock> onRevert) {
+			if (onRevert == null) {
+				onRevert = (b) -> {};
+			}
+			
+			this.onRevert = onRevert;
+			return this;
 		}
 	}
 }

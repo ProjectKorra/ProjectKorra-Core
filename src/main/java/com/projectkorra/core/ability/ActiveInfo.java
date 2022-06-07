@@ -15,7 +15,7 @@ import com.projectkorra.core.ability.type.ExpanderInstance;
 public class ActiveInfo {
 
 	private Map<Class<? extends AbilityInstance>, LinkedList<AbilityInstance>> instances;
-	private List<ComboAgent> sequences;
+	private List<ComboValidator> sequences;
 	private AbilityBinds original;
 	private ExpanderInstance expander;
 	private AbilityUser user;
@@ -83,12 +83,12 @@ public class ActiveInfo {
 		}
 	}
 
-	ComboAgent updateCombos(Ability ability, Activation trigger) {
-		ComboAgent completed = null;
-		sequences.add(new ComboAgent());
-		Iterator<ComboAgent> iter = sequences.iterator();
+	ComboValidator updateCombos(Ability ability, Activation trigger) {
+		ComboValidator completed = null;
+		sequences.add(new ComboValidator());
+		Iterator<ComboValidator> iter = sequences.iterator();
 		while (iter.hasNext()) {
-			ComboAgent agent = iter.next();
+			ComboValidator agent = iter.next();
 
 			switch (agent.update(ability, trigger)) {
 			case COMPLETE:
