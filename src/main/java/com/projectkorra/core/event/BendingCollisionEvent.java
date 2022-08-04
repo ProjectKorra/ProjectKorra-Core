@@ -1,12 +1,18 @@
 package com.projectkorra.core.event;
 
 import org.bukkit.Location;
+import org.bukkit.event.Cancellable;
+import org.bukkit.event.Event;
+import org.bukkit.event.HandlerList;
 
 import com.projectkorra.core.collision.Collidable;
 import com.projectkorra.core.collision.CollisionOperator;
 
-public class BendingCollisionEvent extends CancellableBendingEvent {
+public class BendingCollisionEvent extends Event implements Cancellable {
+	
+	private static final HandlerList HANDLERS = new HandlerList();
 
+	private boolean cancelled = false;
 	private Collidable first, second;
 	private CollisionOperator op;
 
@@ -86,5 +92,24 @@ public class BendingCollisionEvent extends CancellableBendingEvent {
 		double ynum = first.getHitbox().getVolume() * first.getHitbox().getCenterY() + second.getHitbox().getVolume() * second.getHitbox().getCenterY();
 		double znum = first.getHitbox().getVolume() * first.getHitbox().getCenterZ() + second.getHitbox().getVolume() * second.getHitbox().getCenterZ();
 		return new Location(first.getWorld(), xnum / denom, ynum / denom, znum / denom);
+	}
+
+	@Override
+	public boolean isCancelled() {
+		return cancelled;
+	}
+
+	@Override
+	public void setCancelled(boolean cancel) {
+		this.cancelled = cancel;
+	}
+
+	@Override
+	public HandlerList getHandlers() {
+		return HANDLERS;
+	}
+	
+	public static HandlerList getHandlerList() {
+		return HANDLERS;
 	}
 }

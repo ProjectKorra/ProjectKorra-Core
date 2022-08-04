@@ -59,6 +59,10 @@ public class AttributeGroup {
 		return this;
 	}
 	
+	public int size() {
+		return attributes.size();
+	}
+	
 	private static AttributeGroup createBase(String attribute) {
 		return new AttributeGroup(attribute).add("max_" + attribute).add("min_" + attribute);
 	}

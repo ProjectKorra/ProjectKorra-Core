@@ -136,6 +136,14 @@ public final class AbilityManager {
 		return ATTRIBUTES.containsKey(instance.getClass()) && ATTRIBUTES.get(instance.getClass()).containsKey(attribute.toLowerCase());
 	}
 	
+	/**
+	 * Attempts to add the given modifier to the given attribute of the given instance.
+	 * 
+	 * @param instance  {@link AbilityInstance} to modify
+	 * @param attribute name of attribute to modify (see {@link Attribute})
+	 * @param mod       {@link Modifier} to use
+	 * @return whether the modifier was successfully added or not
+	 */
 	public static boolean addModifier(AbilityInstance instance, String attribute, Modifier mod) {
 		if (!hasAttribute(instance, attribute)) {
 			return false;
@@ -146,11 +154,23 @@ public final class AbilityManager {
 		return true;
 	}
 
-	public static boolean addModifier(AbilityInstance instance, AttributeGroup group, Modifier mod) {
+	/**
+	 * Attempts to add the modifier to the given group of attributes for the given instance
+	 * 
+	 * @param instance {@link AbilityInstance} to modify
+	 * @param group    {@link AttributeGroup} to modify for instance
+	 * @param mod      {@link Modifier} to use
+	 * @return array of booleans for each attribute in the group of whether the modifier was successfully added or not
+	 */
+	public static boolean[] addModifier(AbilityInstance instance, AttributeGroup group, Modifier mod) {
+		boolean[] worked = new boolean[group.size()];
+		int i = -1;
+		
 		for (String attribute : group.getAttributes()) {
-			addModifier(instance, attribute, mod);
+			worked[++i] = addModifier(instance, attribute, mod);
 		}
-		return true;
+		
+		return worked;
 	}
 
 	/**
