@@ -29,3 +29,6 @@ local.properties
 .recommenders
 .externalToolBuilders/
 *.launch
+.classpath
+.project
+.vscode/settings.json
