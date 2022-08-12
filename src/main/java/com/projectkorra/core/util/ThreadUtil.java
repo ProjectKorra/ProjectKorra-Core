@@ -1,8 +1,7 @@
 package com.projectkorra.core.util;
 
-import org.apache.commons.lang.Validate;
+import com.google.common.base.Preconditions;
 
-import org.bukkit.Bukkit;
 import org.bukkit.plugin.java.JavaPlugin;
 import org.bukkit.scheduler.BukkitRunnable;
 import org.bukkit.scheduler.BukkitTask;
@@ -31,7 +30,7 @@ public class ThreadUtil {
 	* @since 0.0.1
 	*/
 	public static BukkitTask runTask(BukkitRunnable runnable) throws NullPointerException, IllegalStateException {
-		Validate.notNull(runnable, "runnable cannot be null");
+		Preconditions.checkNotNull(runnable, "runnable cannot be null");
 		return runnable.runTask(PLUGIN);
 	}
 
@@ -49,7 +48,7 @@ public class ThreadUtil {
 	* @since 0.0.1
 	*/
 	public static BukkitTask runTask(Runnable runnable) throws NullPointerException, IllegalStateException {
-		Validate.notNull(runnable, "runnable cannot be null");
+		Preconditions.checkNotNull(runnable, "runnable cannot be null");
 		return PLUGIN.getServer().getScheduler().runTask(PLUGIN, runnable);
 	}
 
@@ -67,7 +66,7 @@ public class ThreadUtil {
 	* @since 0.0.1
 	*/
 	public static BukkitTask runTaskAsynchronously(BukkitRunnable runnable) throws NullPointerException, IllegalStateException {
-		Validate.notNull(runnable, "runnable cannot be null");
+		Preconditions.checkNotNull(runnable, "runnable cannot be null");
 		return runnable.runTaskAsynchronously(PLUGIN);
 	}
 
@@ -85,7 +84,7 @@ public class ThreadUtil {
 	* @since 0.0.1
 	*/
 	public static BukkitTask runTaskAsynchronously(Runnable runnable) throws NullPointerException, IllegalStateException {
-		Validate.notNull(runnable, "runnable cannot be null");
+		Preconditions.checkNotNull(runnable, "runnable cannot be null");
 		return PLUGIN.getServer().getScheduler().runTaskAsynchronously(PLUGIN, runnable);
 	}
 
@@ -105,8 +104,8 @@ public class ThreadUtil {
 	* @since 0.0.1
 	*/
 	public static BukkitTask runDelayedTask(BukkitRunnable runnable, long delay) throws NullPointerException, IllegalStateException, IllegalArgumentException {
-		Validate.notNull(runnable, "runnable cannot be null");
-		Validate.isTrue(delay >= 0, "delay cannot be negative");
+		Preconditions.checkNotNull(runnable, "runnable cannot be null");
+		Preconditions.checkArgument(delay >= 0, "delay cannot be negative");
 		return runnable.runTaskLater(PLUGIN, delay);
 	}
 
@@ -126,8 +125,8 @@ public class ThreadUtil {
 	* @since 0.0.1
 	*/
 	public static BukkitTask runDelayedTask(Runnable runnable, long delay) throws NullPointerException, IllegalStateException, IllegalArgumentException {
-		Validate.notNull(runnable, "runnable cannot be null");
-		Validate.isTrue(delay >= 0, "delay cannot be negative");
+		Preconditions.checkNotNull(runnable, "runnable cannot be null");
+		Preconditions.checkArgument(delay >= 0, "delay cannot be negative");
 		return PLUGIN.getServer().getScheduler().runTaskLater(PLUGIN, runnable, delay);
 	}
 
@@ -147,8 +146,8 @@ public class ThreadUtil {
 	* @since 0.0.1
 	*/
 	public static BukkitTask runDelayedTaskAsynchronously(BukkitRunnable runnable, long delay) throws NullPointerException, IllegalStateException, IllegalArgumentException {
-		Validate.notNull(runnable, "runnable cannot be null");
-		Validate.isTrue(delay >= 0, "delay cannot be negative");
+		Preconditions.checkNotNull(runnable, "runnable cannot be null");
+		Preconditions.checkArgument(delay >= 0, "delay cannot be negative");
 		return runnable.runTaskLaterAsynchronously(PLUGIN, delay);
 	}
 
@@ -168,8 +167,8 @@ public class ThreadUtil {
 	* @since 0.0.1
 	*/
 	public static BukkitTask runDelayedTaskAsynchronously(Runnable runnable, long delay) throws NullPointerException, IllegalStateException, IllegalArgumentException {
-		Validate.notNull(runnable, "runnable cannot be null");
-		Validate.isTrue(delay >= 0, "delay cannot be negative");
+		Preconditions.checkNotNull(runnable, "runnable cannot be null");
+		Preconditions.checkArgument(delay >= 0, "delay cannot be negative");
 		return PLUGIN.getServer().getScheduler().runTaskLaterAsynchronously(PLUGIN, runnable, delay);
 	}
 
@@ -187,7 +186,7 @@ public class ThreadUtil {
 	* @since 0.0.1
 	*/
 	public static BukkitTask runRepeatingTask(BukkitRunnable runnable) throws NullPointerException, IllegalStateException {
-		Validate.notNull(runnable, "runnable cannot be null");
+		Preconditions.checkNotNull(runnable, "runnable cannot be null");
 		return runRepeatingTask(runnable, 0L, 0L);
 	}
 
@@ -205,7 +204,7 @@ public class ThreadUtil {
 	* @since 0.0.1
 	*/
 	public static BukkitTask runRepeatingTask(Runnable runnable) throws NullPointerException, IllegalStateException {
-		Validate.notNull(runnable, "runnable cannot be null");
+		Preconditions.checkNotNull(runnable, "runnable cannot be null");
 		return runRepeatingTask(runnable, 0L, 0L);
 	}
 
@@ -225,8 +224,8 @@ public class ThreadUtil {
 	* @since 0.0.1
 	*/
 	public static BukkitTask runRepeatingTask(BukkitRunnable runnable, long delay) throws NullPointerException, IllegalStateException, IllegalArgumentException {
-		Validate.notNull(runnable, "runnable cannot be null");
-		Validate.isTrue(delay >= 0, "delay cannot be negative");
+		Preconditions.checkNotNull(runnable, "runnable cannot be null");
+		Preconditions.checkArgument(delay >= 0, "delay cannot be negative");
 		return runRepeatingTask(runnable, delay, 0L);
 	}
 
@@ -246,8 +245,8 @@ public class ThreadUtil {
 	* @since 0.0.1
 	*/
 	public static BukkitTask runRepeatingTask(Runnable runnable, long delay) throws NullPointerException, IllegalStateException, IllegalArgumentException {
-		Validate.notNull(runnable, "runnable cannot be null");
-		Validate.isTrue(delay >= 0, "delay cannot be negative");
+		Preconditions.checkNotNull(runnable, "runnable cannot be null");
+		Preconditions.checkArgument(delay >= 0, "delay cannot be negative");
 		return runRepeatingTask(runnable, delay, 0L);
 	}
 
@@ -268,9 +267,9 @@ public class ThreadUtil {
 	* @since 0.0.1
 	*/
 	public static BukkitTask runRepeatingTask(BukkitRunnable runnable, long delay, long period) throws NullPointerException, IllegalStateException, IllegalArgumentException {
-		Validate.notNull(runnable, "runnable cannot be null");
-		Validate.isTrue(delay >= 0, "delay cannot be negative");
-		Validate.isTrue(period >= 0, "period cannot be negative");
+		Preconditions.checkNotNull(runnable, "runnable cannot be null");
+		Preconditions.checkArgument(delay >= 0, "delay cannot be negative");
+		Preconditions.checkArgument(period >= 0, "period cannot be negative");
 		return runnable.runTaskTimer(PLUGIN, delay, period);
 	}
 
@@ -291,9 +290,9 @@ public class ThreadUtil {
 	* @since 0.0.1
 	*/
 	public static BukkitTask runRepeatingTask(Runnable runnable, long delay, long period) throws NullPointerException, IllegalStateException, IllegalArgumentException {
-		Validate.notNull(runnable, "runnable cannot be null");
-		Validate.isTrue(delay >= 0, "delay cannot be negative");
-		Validate.isTrue(period >= 0, "period cannot be negative");
+		Preconditions.checkNotNull(runnable, "runnable cannot be null");
+		Preconditions.checkArgument(delay >= 0, "delay cannot be negative");
+		Preconditions.checkArgument(period >= 0, "period cannot be negative");
 		return PLUGIN.getServer().getScheduler().runTaskTimer(PLUGIN, runnable, delay, period);
 	}
 
@@ -311,7 +310,7 @@ public class ThreadUtil {
 	* @since 0.0.1
 	*/
 	public static BukkitTask runRepeatingTaskAsynchronously(BukkitRunnable runnable) throws NullPointerException, IllegalStateException {
-		Validate.notNull(runnable, "runnable cannot be null");
+		Preconditions.checkNotNull(runnable, "runnable cannot be null");
 		return runRepeatingTaskAsynchronously(runnable, 0L, 0L);
 	}
 
@@ -329,7 +328,7 @@ public class ThreadUtil {
 	* @since 0.0.1
 	*/
 	public static BukkitTask runRepeatingTaskAsynchronously(Runnable runnable) throws NullPointerException, IllegalStateException {
-		Validate.notNull(runnable, "runnable cannot be null");
+		Preconditions.checkNotNull(runnable, "runnable cannot be null");
 		return runRepeatingTaskAsynchronously(runnable, 0L, 0L);
 	}
 
@@ -349,8 +348,8 @@ public class ThreadUtil {
 	* @since 0.0.1
 	*/
 	public static BukkitTask runRepeatingTaskAsynchronously(BukkitRunnable runnable, long delay) throws NullPointerException, IllegalStateException, IllegalArgumentException {
-		Validate.notNull(runnable, "runnable cannot be null");
-		Validate.isTrue(delay >= 0, "delay cannot be negative");
+		Preconditions.checkNotNull(runnable, "runnable cannot be null");
+		Preconditions.checkArgument(delay >= 0, "delay cannot be negative");
 		return runRepeatingTaskAsynchronously(runnable, delay, 0L);
 	}
 
@@ -370,8 +369,8 @@ public class ThreadUtil {
 	* @since 0.0.1
 	*/
 	public static BukkitTask runRepeatingTaskAsynchronously(Runnable runnable, long delay) throws NullPointerException, IllegalStateException, IllegalArgumentException {
-		Validate.notNull(runnable, "runnable cannot be null");
-		Validate.isTrue(delay >= 0, "delay cannot be negative");
+		Preconditions.checkNotNull(runnable, "runnable cannot be null");
+		Preconditions.checkArgument(delay >= 0, "delay cannot be negative");
 		return runRepeatingTaskAsynchronously(runnable, delay, 0L);
 	}
 
@@ -392,9 +391,9 @@ public class ThreadUtil {
 	* @since 0.0.1
 	*/
 	public static BukkitTask runRepeatingTaskAsynchronously(BukkitRunnable runnable, long delay, long period) throws NullPointerException, IllegalStateException, IllegalArgumentException {
-		Validate.notNull(runnable, "runnable cannot be null");
-		Validate.isTrue(delay >= 0, "delay cannot be negative");
-		Validate.isTrue(period >= 0, "period cannot be negative");
+		Preconditions.checkNotNull(runnable, "runnable cannot be null");
+		Preconditions.checkArgument(delay >= 0, "delay cannot be negative");
+		Preconditions.checkArgument(period >= 0, "period cannot be negative");
 		return runnable.runTaskTimerAsynchronously(PLUGIN, delay, period);
 	}
 
@@ -415,9 +414,9 @@ public class ThreadUtil {
 	* @since 0.0.1
 	*/
 	public static BukkitTask runRepeatingTaskAsynchronously(Runnable runnable, long delay, long period) throws NullPointerException, IllegalStateException, IllegalArgumentException {
-		Validate.notNull(runnable, "runnable cannot be null");
-		Validate.isTrue(delay >= 0, "delay cannot be negative");
-		Validate.isTrue(period >= 0, "period cannot be negative");
+		Preconditions.checkNotNull(runnable, "runnable cannot be null");
+		Preconditions.checkArgument(delay >= 0, "delay cannot be negative");
+		Preconditions.checkArgument(period >= 0, "period cannot be negative");
 		return PLUGIN.getServer().getScheduler().runTaskTimerAsynchronously(PLUGIN, runnable, delay, period);
 	}
 }

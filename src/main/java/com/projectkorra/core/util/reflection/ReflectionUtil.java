@@ -1,5 +1,7 @@
 package com.projectkorra.core.util.reflection;
 
+import com.google.common.base.Preconditions;
+
 import java.lang.reflect.Constructor;
 import java.lang.reflect.Field;
 import java.lang.reflect.Method;
@@ -9,8 +11,6 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
-
-import org.apache.commons.lang.Validate;
 
 import org.bukkit.Bukkit;
 
@@ -112,7 +112,7 @@ public class ReflectionUtil {
 	 * @since 0.0.1
 	 */
 	private static Class<?> getType(final Object object) throws NullPointerException {
-		Validate.notNull(object);
+		Preconditions.checkNotNull(object);
 
 		return object.getClass();
 	}
@@ -181,7 +181,7 @@ public class ReflectionUtil {
 	 * @since 0.0.1
 	 */
 	public static <T> Constructor<T> getConstructor(final Class<T> clazz, final Class<?>... parameterTypes) throws NullPointerException, NoSuchMethodException, SecurityException {
-		Validate.notNull(clazz, "clazz cannot be null");
+		Preconditions.checkNotNull(clazz, "clazz cannot be null");
 
 		Constructor<T> constructor = clazz.getDeclaredConstructor(parameterTypes);
 		constructor.setAccessible(true);
@@ -259,7 +259,7 @@ public class ReflectionUtil {
 	 * @since 0.0.1
 	 */
 	public static <T> T instantiateObject(final Constructor<T> constructor, final Object... arguments) throws NullPointerException, InstantiationException, IllegalAccessException, IllegalArgumentException, InvocationTargetException {
-		Validate.notNull(constructor, "constructor cannot be null");
+		Preconditions.checkNotNull(constructor, "constructor cannot be null");
 
 		return constructor.newInstance(arguments);
 	}
@@ -306,7 +306,7 @@ public class ReflectionUtil {
 	 * @since 0.0.1
 	 */
 	public static Method getMethod(final Class<?> clazz, final String methodName, final Class<?>... parameterTypes) throws NullPointerException, NoSuchMethodException, SecurityException {
-		Validate.notNull(clazz, "clazz cannot be null");
+		Preconditions.checkNotNull(clazz, "clazz cannot be null");
 
 		// Checks all methods within the specified class.
 		for (final Method method : clazz.getDeclaredMethods()) {
@@ -480,7 +480,7 @@ public class ReflectionUtil {
 	 * @since 0.0.1
 	 */
 	public static <T> T invokeMethod(final Object instance, final Method method, final Class<T> returnType, final Object... arguments) throws NullPointerException, IllegalAccessException, InvocationTargetException, IllegalArgumentException {
-		Validate.notNull(method, "method cannot be null");
+		Preconditions.checkNotNull(method, "method cannot be null");
 
 		if (returnType == null) {
 			return (T) method.invoke(instance, arguments); // null if void or Object, T will be Object if null is passed in but we still have to cast.
@@ -533,7 +533,7 @@ public class ReflectionUtil {
 	 * @since 0.0.1
 	 */
 	public static Field getField(final Class<?> clazz, final String fieldName) throws NullPointerException, NoSuchFieldException, SecurityException {
-		Validate.notNull(clazz, "clazz cannot be null");
+		Preconditions.checkNotNull(clazz, "clazz cannot be null");
 
 		// Checks all fields within the specified class.
 		for (final Field field : clazz.getDeclaredFields()) {
@@ -677,7 +677,7 @@ public class ReflectionUtil {
 	 * @since 0.0.1
 	 */
 	public static <T> T getValue(final Object instance, final Field field, final Class<T> type) throws NullPointerException, IllegalArgumentException, IllegalAccessException {
-		Validate.notNull(field, "field cannot be null");
+		Preconditions.checkNotNull(field, "field cannot be null");
 
 		if (type == null) {
 			return (T) field.get(instance); // null or Object, T will be Object if null is passed in but we still have to cast.
@@ -747,7 +747,7 @@ public class ReflectionUtil {
 	 * @since 0.0.1
 	 */
 	public static void setValue(final Object instance, final Field field, final Object value) throws NullPointerException, IllegalAccessException, IllegalArgumentException {
-		Validate.notNull(field, "field cannot be null");
+		Preconditions.checkNotNull(field, "field cannot be null");
 
 		field.set(instance, value);
 	}

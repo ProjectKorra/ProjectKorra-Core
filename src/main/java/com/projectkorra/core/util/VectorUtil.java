@@ -1,6 +1,7 @@
 package com.projectkorra.core.util;
 
-import org.apache.commons.lang.Validate;
+import com.google.common.base.Preconditions;
+
 import org.bukkit.Location;
 import org.bukkit.util.Vector;
 
@@ -31,7 +32,7 @@ public class VectorUtil {
 	 * @throws IllegalArgumentException when the axis vector is a zero vector
 	 */
 	public static Vector orthogonal(Vector axis, double length, Angle rotation) throws IllegalArgumentException {
-		Validate.isTrue(!axis.equals(UnitVector.ZERO.normal()), "Axis direction cannot be the zero vector!");
+		Preconditions.checkArgument(!axis.equals(UnitVector.ZERO.normal()), "Axis direction cannot be the zero vector!");
 
 		double yaw = Math.toRadians(getYaw(axis));
 		Vector other = new Vector(-Math.sin(yaw), axis.getY() - 1, Math.cos(yaw));
