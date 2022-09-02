@@ -1,57 +1,64 @@
 package com.projectkorra.core.ability;
 
-import java.util.Arrays;
-import java.util.HashSet;
+import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.Set;
+import java.util.Map.Entry;
 
 import org.bukkit.entity.Entity;
+import org.bukkit.event.Event;
+import org.bukkit.event.player.PlayerToggleSneakEvent;
 
 import com.projectkorra.core.ability.activation.Activation;
-import com.projectkorra.core.skills.Skill;
 import com.projectkorra.core.util.Pair;
 import com.projectkorra.core.game.InputType;
 
 public abstract class BendingUser {
-	
-	private Set<Skill> skills;
-	private List<Pair<AbilityInfo, Activation>> activations;
-	private List<Ability> instances;
-	private Map<AbilityInfo, Cooldown> cooldowns;
-	private AbilityInfo[] binds;
+
+	private List<Pair<AbilityInfo, Activation>> activations = new ArrayList<>();
+	private List<Ability> instances = new ArrayList<>();
+	private Map<AbilityInfo, Cooldown> cooldowns = new HashMap<>();
+	private Map<InputType, Pair<Boolean, Event>> inputs = new HashMap<>();
 	private Entity entity;
-	private InputType mostRecentInput;
 	
 	public BendingUser(Entity entity) {
 		this.entity = entity;
-		skills = new HashSet<>(4);
-	}
-	
-	public void does(InputType p) {
-		this.mostRecentInput = p;
+		for(InputType t : InputType.values()) {
+			inputs.put(t, new Pair<>(false, null)); 
+		}
 	}
 
-	public boolean did(InputType p) {
-		return this.mostRecentInput == p;
+	public abstract AbilityInfo getCurrentBind();
+	
+	protected final void does(InputType p, Event e) {
+		if(e instanceof PlayerToggleSneakEvent) {
+			System.out.print("Caught sneak event, adding to inputs");
+		}
+		this.inputs.put(p, new Pair<>(true, e));
+
+		for(Entry<InputType, Pair<Boolean, Event>> entry : inputs.entrySet()) {
+			System.out.println("Input: " + entry.getKey());
+			System.out.println("Value: " + entry.getValue().getKey());
+
+		}
+	}
+
+	public final boolean did(InputType p) {
+		return this.inputs.get(p).getKey();
 	}
 	
-	public boolean canBend(AbilityInfo info) {
-		for(Skill s : info.skills) {
-			if(!skills.contains(s)) {
-				return false;
-			}
-		}
+	public final boolean canBend(AbilityInfo info) {
 		return true;
 	}
 	
-	public void addCooldown(AbilityInfo info, long cooldown) {
+	public final void addCooldown(AbilityInfo info, long cooldown) {
 		Cooldown c = new Cooldown(cooldown);
 		c.addCooldown();
 		cooldowns.put(info, c);
 	}
 	
-	public boolean onCooldown(AbilityInfo info) {
+	public final boolean onCooldown(AbilityInfo info) {
 		Cooldown cooldown = cooldowns.get(info);
 		if(cooldown == null) {
 			return false;
@@ -61,48 +68,24 @@ public abstract class BendingUser {
 			return true;
 		}
 	}
-
-	public abstract AbilityInfo getCurrentBind();
-	
-	public AbilityInfo[] getBinds() {
-		return binds;
-	}
-
-	public Set<Skill> getSkills() {
-		return skills;
-	}
-	
-	public boolean copyBinds(BendingUser other) {
-		for(AbilityInfo info : binds) {
-			if(!other.canBend(info)) {
-				return false;
-			}
-		}
-		other.setBinds(Arrays.copyOf(binds, 9));	
-		return true;
-	}
-
-	public void addSkills(Skill... skill) {
-		skills.addAll(Arrays.asList(skill));
-	}
 	
 	public Entity getEntity() {
 		return entity;
 	}
 	
-	protected List<Pair<AbilityInfo, Activation>> getActivations() {
+	protected final Map<InputType, Pair<Boolean, Event>> getInputs() {
+		return inputs;
+	}
+
+	protected final List<Pair<AbilityInfo, Activation>> getActivations() {
 		return activations;
 	}
 	
-	protected List<Ability> getInstances() {
+	protected final List<Ability> getInstances() {
 		return instances;
 	}
 	
-	private void setBinds(AbilityInfo[] arr) {
-		this.binds = arr;
-	}
-	
-	private class Cooldown {
+	private final class Cooldown {
 		private long checked;
 		private long cooldown;
 		
@@ -122,4 +105,8 @@ public abstract class BendingUser {
 			return this.checked;
 		}
 	}
+
+    public final boolean toggled() {
+        return false;
+    }
 }

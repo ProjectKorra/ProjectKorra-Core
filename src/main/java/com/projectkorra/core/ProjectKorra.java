@@ -7,25 +7,26 @@ import org.bukkit.plugin.java.JavaPlugin;
 import org.bukkit.plugin.java.JavaPluginLoader;
 
 import com.projectkorra.core.ability.AbilityManager;
+import com.projectkorra.core.ability.PKListener;
 
 public class ProjectKorra extends JavaPlugin {
 
 	@Override
 	public void onEnable() {
 		// get infos from classes
-
-		// load their infos into memory
-
+		new FireAbilityInfo();
 		// get their activations
 
 		// validate activations
 
-		new FireAbilityInfo();
+		// register listeners
 		
+		this.getServer().getPluginManager().registerEvents(new PKListener(), this);
+				
 		this.getServer().getScheduler().runTaskTimer(this, () -> {
 			AbilityManager.tick();
 			// do other stuff;
-		},  0, 0);
+		},  0, 1);
 	}
 
 	@Override

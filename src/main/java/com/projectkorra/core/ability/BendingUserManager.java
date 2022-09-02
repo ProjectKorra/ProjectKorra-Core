@@ -5,6 +5,8 @@ import java.util.List;
 
 import org.bukkit.entity.Player;
 
+import com.projectkorra.core.util.Pair;
+
 
 public class BendingUserManager {
 
@@ -21,18 +23,29 @@ public class BendingUserManager {
 	}
 
 	public static void loadBendingUser(Player player) {
-		// TODO database stuff
 		if(getBendingUser(player) == null) {
 			// check if player is in database, if not create new object
-			users.add(new BendingPlayer(player));
+			BendingUser user = new BendingPlayer(player);
+			
+			users.add(user);
+			
+			updateActivations(user);
 		}
 	}
 
 	public static void saveBendingUser(Player player) {
-		// TODO database stuff
 		if(getBendingUser(player) != null) {
 			// save information
 		}
 	}
+
+	private static void updateActivations(BendingUser user) {
+		
+		List<AbilityInfo> infos = AbilityManager.infos.stream().filter(i -> user.canBend(i)).toList();
+
+		for(AbilityInfo i : infos) {
+			user.getActivations().add(new Pair<>(i, i.getActivation()));
+		}
+	} 
 
 }

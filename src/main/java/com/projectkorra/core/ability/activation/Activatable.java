@@ -1,7 +1,9 @@
 package com.projectkorra.core.ability.activation;
 
+import com.projectkorra.core.ability.BendingUser;
+
 public interface Activatable {
-	<T> boolean activate(T o);
+	boolean activate(BendingUser b);
 	boolean equals(Object o);
 	Activatable clone();
 }

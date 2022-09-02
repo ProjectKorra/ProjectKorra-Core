@@ -1,9 +1,11 @@
 package com.projectkorra.core;
 
+
 import com.projectkorra.core.ability.Ability;
 import com.projectkorra.core.ability.AbilityInfo;
 import com.projectkorra.core.ability.BendingUser;
 import com.projectkorra.core.ability.activation.Activation;
+import com.projectkorra.core.game.InputType;
 
 public class FireAbilityInfo extends AbilityInfo {
     
@@ -12,20 +14,19 @@ public class FireAbilityInfo extends AbilityInfo {
     }
 
     @Override
+    @SuppressWarnings("unchecked")
     public Activation getActivation() {
-        // TODO Auto-generated method stub
-        return null;
+        return new Activation().chain(0, b -> b.did(InputType.LEFT_CLICK)).chain(500L, b -> b.did(InputType.SHIFT_DOWN)).chain(500L, b -> b.did(InputType.SHIFT_UP));
     }
 
     @Override
     public void load() {
-        // TODO Auto-generated method stub
-        
+   
     }
 
     @Override
     public Ability createInstance(BendingUser user) {
-        // TODO Auto-generated method stub
-        return null;
+        
+        return new FireAbilityInstance(user, this.priority);
     }
 }

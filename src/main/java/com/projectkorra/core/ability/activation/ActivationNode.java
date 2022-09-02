@@ -4,56 +4,56 @@ import java.util.HashSet;
 import java.util.Set;
 import java.util.function.Predicate;
 
-public class ActivationNode<T> implements Activatable {
-	private long timeLastTested;
-	private Set<Predicate<T>> conditions;
+import com.projectkorra.core.ability.BendingUser;
+
+public class ActivationNode implements Activatable {
+	private long timeLastBendingUserested;
+	private Set<Predicate<BendingUser>> conditions = new HashSet<>();
 	@SafeVarargs
-	public ActivationNode(Predicate<T>... predicate) {
-		this.timeLastTested = -1;
-		conditions = new HashSet<>();
-		for(Predicate<T> p : predicate) {
+	public ActivationNode(Predicate<BendingUser>... predicate) {
+		this.timeLastBendingUserested = -1;
+		for(Predicate<BendingUser> p : predicate) {
 			conditions.add(p);
 		}
 	}
 	
 	@SuppressWarnings("unchecked")
-	private ActivationNode(Set<Predicate<T>> predicate) {
-		this((Predicate<T>[]) predicate.toArray());
+	private ActivationNode(Set<Predicate<BendingUser>> predicate) {
+		this((Predicate<BendingUser>[]) predicate.toArray());
 	}
 	
-	@SuppressWarnings("unchecked")
-	public boolean activate(Object o) {
-		this.timeLastTested = System.currentTimeMillis();
-		boolean temp = true;
+	@Override
+	public boolean activate(BendingUser o) {
+		this.timeLastBendingUserested = System.currentTimeMillis();
 		
-		for(Predicate<T> condition : conditions) {
-			try {
-				temp = temp && condition.test((T) o);
-			} catch(ClassCastException e) {
+		for(Predicate<BendingUser> condition : conditions) {
+			System.out.println("Testing condition");
+			if(!condition.test(o)) {
+				System.out.println("Failed condition");
 				return false;
 			}
 		}
-		
-		return temp;
+		System.out.println("Passed condition");
+		return true;
 	}
 	
 	@Override
 	public boolean equals(Object o) {
-		ActivationNode<?> s = (ActivationNode<?>) o;
+		ActivationNode s = (ActivationNode) o;
 		
 		return s.conditions.equals(this.conditions);
 	}
 	
-	public long timeLastTested() {
-		return timeLastTested;
+	public long timeLastBendingUserested() {
+		return timeLastBendingUserested;
 	}
 	
 	public long timeElapsed() {
-		return System.currentTimeMillis() - timeLastTested;
+		return System.currentTimeMillis() - timeLastBendingUserested;
 	}
 	
-	public ActivationNode<T> clone() {
-		return new ActivationNode<T>(conditions);
+	public ActivationNode clone() {
+		return new ActivationNode(conditions);
 	}
 
 }
