@@ -12,17 +12,17 @@ public class UserManager {
 	protected static final List<User> users = new ArrayList<>(20);
 	public static final User plugin = new PluginUser();
 
-	public static User getBendingUser(Player player) {
-		for (User user : users) {
-			if (user.getEntity() == player) {
-				return user;
+	public static User getUser(Player player) {
+		for (User u : users) {
+			if (u.getEntity() == player) {
+				return u;
 			}
 		}
 		return null;
 	}
 
-	public static void loadBendingUser(Player player) {
-		if (getBendingUser(player) == null) {
+	public static void loadUser(Player player) {
+		if (getUser(player) == null) {
 			// check if player is in database, if not create new object
 			User user = new PlayerUser(player);
 
@@ -32,8 +32,8 @@ public class UserManager {
 		}
 	}
 
-	public static void saveBendingUser(Player player) {
-		if (getBendingUser(player) != null) {
+	public static void saveUser(Player player) {
+		if (getUser(player) != null) {
 			// save information
 		}
 	}

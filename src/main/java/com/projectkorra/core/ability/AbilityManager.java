@@ -1,15 +1,15 @@
 package com.projectkorra.core.ability;
 
-import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.Iterator;
-import java.util.List;
+import java.util.Set;
 
 import com.projectkorra.core.ability.activation.Activation;
 import com.projectkorra.core.game.InputType;
 import com.projectkorra.core.util.Pair;
 
 public class AbilityManager {
-	public static final List<AbilityInfo> infos = new ArrayList<>(20);
+	public static final Set<AbilityInfo> infos = new HashSet<>(100);
 
 	public static void tick() {
 		for (User user : UserManager.users) {

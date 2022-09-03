@@ -3,17 +3,15 @@ package com.projectkorra.core;
 import org.bukkit.Location;
 import org.bukkit.Particle;
 import org.bukkit.entity.Entity;
-import org.bukkit.entity.Player;
 import org.bukkit.util.Vector;
 
 import com.projectkorra.core.ability.Ability;
-import com.projectkorra.core.ability.PlayerUser;
 import com.projectkorra.core.ability.User;
 
-public class FireAbilityInstance extends Ability {
+public class ExampleAbilityInstance extends Ability {
     private Location loc;
 
-    public FireAbilityInstance(User user, int priority) {
+    public ExampleAbilityInstance(User user, int priority) {
         super(user, priority);
 
         loc = user.getEntity().getLocation();
@@ -22,22 +20,19 @@ public class FireAbilityInstance extends Ability {
     @Override
     public void onStart() {
 
-        System.out.println("I AM START WOOHOOO" + this);
+        System.out.println("I AM START WOOHOOO " + this);
     }
 
     @Override
     public void progress() {
         Entity e = user.getEntity();
-        Vector dir;
+        Vector dir = e.getLocation().getDirection().clone();
 
-        if (user instanceof PlayerUser) {
-            Player p = (Player) e;
-            dir = p.getEyeLocation().getDirection().clone();
+        if (loc.add(dir).getBlock().isPassable()) {
+            e.getWorld().spawnParticle(Particle.CLOUD, loc.add(dir), 5);
         } else {
-            dir = e.getLocation().getDirection().clone();
+            this.remove();
         }
-
-        e.getWorld().spawnParticle(Particle.CLOUD, loc.add(dir), 5);
 
         if (System.currentTimeMillis() - this.getStartTime() > 5000) {
             this.remove();
@@ -47,7 +42,7 @@ public class FireAbilityInstance extends Ability {
     @Override
     public void onRemove() {
 
-        System.out.println("I AM STOP SAD DAY" + this);
+        System.out.println("I AM STOP SAD DAY " + this);
 
     }
 

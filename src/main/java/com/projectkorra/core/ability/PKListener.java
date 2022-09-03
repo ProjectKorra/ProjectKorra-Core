@@ -18,19 +18,19 @@ public class PKListener implements Listener {
 
 	@EventHandler
 	public void onPlayerLogin(PlayerLoginEvent event) {
-		UserManager.loadBendingUser(event.getPlayer());
+		UserManager.loadUser(event.getPlayer());
 	}
 
 	@EventHandler
 	public void onPlayerLogout(PlayerQuitEvent event) {
-		UserManager.saveBendingUser(event.getPlayer());
+		UserManager.saveUser(event.getPlayer());
 	}
 
 	@EventHandler
 	public void onPlayerSneak(PlayerToggleSneakEvent event) {
 		Player p = event.getPlayer();
 		if (p != null) {
-			User user = UserManager.getBendingUser(p);
+			User user = UserManager.getUser(p);
 			user.does(!p.isSneaking() ? InputType.SHIFT_DOWN : InputType.SHIFT_UP, event);
 
 			AbilityManager.activate(user);
@@ -41,7 +41,7 @@ public class PKListener implements Listener {
 	public void onPlayerToggle(PlayerToggleSprintEvent event) {
 		Player p = event.getPlayer();
 		if (p != null) {
-			User user = UserManager.getBendingUser(p);
+			User user = UserManager.getUser(p);
 			user.does(!p.isSprinting() ? InputType.SPRINT_ON : InputType.SPRINT_OFF, event);
 
 			AbilityManager.activate(user);
@@ -52,7 +52,7 @@ public class PKListener implements Listener {
 	public void onPlayerInteract(PlayerInteractEvent event) {
 		Player p = event.getPlayer();
 		if (p != null) {
-			User user = UserManager.getBendingUser(p);
+			User user = UserManager.getUser(p);
 			if (event.getHand() == EquipmentSlot.HAND) {
 
 				switch (event.getAction()) {

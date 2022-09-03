@@ -6,27 +6,30 @@ import com.projectkorra.core.ability.User;
 import com.projectkorra.core.ability.activation.Activation;
 import com.projectkorra.core.game.InputType;
 
-public class FireAbilityInfo extends AbilityInfo {
+public class FireBlastInfo extends AbilityInfo {
 
-    public FireAbilityInfo() {
-        super("Vahagn", "1.0.0", "FireAbility", true);
+    // add default config variables here
+
+    public FireBlastInfo() {
+        super("Vahagn", "1.0", "FireBlast", true);
     }
 
     @Override
-    @SuppressWarnings("unchecked")
     public Activation getActivation() {
-        return new Activation().chain(0, b -> b.did(InputType.LEFT_CLICK)).chain(500L, b -> b.did(InputType.SHIFT_DOWN))
-                .chain(500L, b -> b.did(InputType.SHIFT_UP));
+        // TODO Auto-generated method stub
+        return new Activation().check(InputType.LEFT_CLICK);
     }
 
     @Override
     public void load() {
+        // TODO Auto-generated method stub
 
     }
 
     @Override
     public Ability createInstance(User user) {
-
-        return new FireAbilityInstance(user, this.priority);
+        // TODO Auto-generated method stub
+        return new FireBlastInstance(user, priority);
     }
+
 }
