@@ -2,14 +2,12 @@ package com.projectkorra.core.ability;
 
 import org.bukkit.entity.Player;
 
+public class PlayerUser extends User {
 
-
-public class BendingPlayer extends BendingUser {
-	
-	public BendingPlayer(Player entity) {
+	public PlayerUser(Player entity) {
 		super(entity);
 	}
-	
+
 	@Override
 	public AbilityInfo getCurrentBind() {
 		return null;

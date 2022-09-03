@@ -4,16 +4,16 @@ public abstract class Ability {
 	private boolean started = false;
 	private boolean stopped = false;
 	private long startTime;
-	protected BendingUser user;
+	protected User user;
 	private int priority = 0;
 
-	public Ability(BendingUser user, int priority) {
+	public Ability(User user, int priority) {
 		this.user = user;
 		this.priority = priority;
 	}
-	
+
 	public final void start() {
-		if(!started) {
+		if (!started) {
 			startTime = System.currentTimeMillis();
 			started = true;
 			this.onStart();
@@ -21,25 +21,27 @@ public abstract class Ability {
 	}
 
 	public final void tick() {
-		if(started && !stopped)
+		if (started && !stopped)
 			this.progress();
 	}
 
 	public final void remove() {
-		if(!stopped) {
+		if (!stopped) {
 			stopped = true;
 			this.onRemove();
 		}
 	}
 
 	public abstract void onStart();
-	public abstract void progress();
-	public abstract void onRemove();
 
+	public abstract void progress();
+
+	public abstract void onRemove();
 
 	public boolean started() {
 		return started;
 	}
+
 	public boolean stopped() {
 		return stopped;
 	}
@@ -52,7 +54,7 @@ public abstract class Ability {
 		return startTime;
 	}
 
-	public BendingUser getUser() {
+	public User getUser() {
 		return user;
 	}
 }

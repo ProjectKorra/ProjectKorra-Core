@@ -20,17 +20,18 @@ public class ProjectKorra extends JavaPlugin {
 		// validate activations
 
 		// register listeners
-		
+
 		this.getServer().getPluginManager().registerEvents(new PKListener(), this);
-				
+
 		this.getServer().getScheduler().runTaskTimer(this, () -> {
 			AbilityManager.tick();
 			// do other stuff;
-		},  0, 1);
+		}, 0, 1);
 	}
 
 	@Override
-	public void onDisable() {}
+	public void onDisable() {
+	}
 
 	public ProjectKorra() {
 		super();

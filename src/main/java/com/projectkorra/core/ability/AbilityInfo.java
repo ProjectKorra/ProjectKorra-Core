@@ -15,12 +15,13 @@ public abstract class AbilityInfo {
 	public final boolean bindable;
 	public final String configPath;
 	public int priority = 1;
-	
+
 	public AbilityInfo(String author, String version, String name, boolean bindable, Skill... skills) {
 		this(author, version, name, "DEFAULT", bindable, skills);
 	}
 
-	public AbilityInfo(String author, String version, String name, String configPath, boolean bindable, Skill... skills) {
+	public AbilityInfo(String author, String version, String name, String configPath, boolean bindable,
+			Skill... skills) {
 		this.author = author;
 		this.version = version;
 		this.name = name;
@@ -32,6 +33,8 @@ public abstract class AbilityInfo {
 	}
 
 	public abstract Activation getActivation();
+
 	public abstract void load();
-	public abstract Ability createInstance(BendingUser user);
+
+	public abstract Ability createInstance(User user);
 }

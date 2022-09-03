@@ -13,47 +13,49 @@ import org.bukkit.inventory.EquipmentSlot;
 import com.projectkorra.core.game.InputType;
 
 public class PKListener implements Listener {
-	
+
 	public long timeStart;
 
 	@EventHandler
 	public void onPlayerLogin(PlayerLoginEvent event) {
-		BendingUserManager.loadBendingUser(event.getPlayer());
+		UserManager.loadBendingUser(event.getPlayer());
 	}
-	
+
 	@EventHandler
 	public void onPlayerLogout(PlayerQuitEvent event) {
-		BendingUserManager.saveBendingUser(event.getPlayer());
+		UserManager.saveBendingUser(event.getPlayer());
 	}
-	
+
 	@EventHandler
 	public void onPlayerSneak(PlayerToggleSneakEvent event) {
 		Player p = event.getPlayer();
-		if(p != null) {
-			BendingUser user = BendingUserManager.getBendingUser(p);
+		if (p != null) {
+			User user = UserManager.getBendingUser(p);
 			user.does(!p.isSneaking() ? InputType.SHIFT_DOWN : InputType.SHIFT_UP, event);
 
 			AbilityManager.activate(user);
 		}
 	}
+
 	@EventHandler
 	public void onPlayerToggle(PlayerToggleSprintEvent event) {
 		Player p = event.getPlayer();
-		if(p != null) {
-			BendingUser user = BendingUserManager.getBendingUser(p);
-			user.does(p.isSprinting() ? InputType.SPRINT_ON : InputType.SPRINT_OFF, event);
+		if (p != null) {
+			User user = UserManager.getBendingUser(p);
+			user.does(!p.isSprinting() ? InputType.SPRINT_ON : InputType.SPRINT_OFF, event);
 
 			AbilityManager.activate(user);
 		}
 	}
+
 	@EventHandler
 	public void onPlayerInteract(PlayerInteractEvent event) {
 		Player p = event.getPlayer();
-		if(p != null) {
-			BendingUser user = BendingUserManager.getBendingUser(p);
-			if(event.getHand() == EquipmentSlot.HAND) {
-				
-				switch(event.getAction()) {
+		if (p != null) {
+			User user = UserManager.getBendingUser(p);
+			if (event.getHand() == EquipmentSlot.HAND) {
+
+				switch (event.getAction()) {
 					case LEFT_CLICK_AIR:
 						user.does(InputType.LEFT_CLICK, event);
 						break;
@@ -73,10 +75,8 @@ public class PKListener implements Listener {
 				}
 
 				AbilityManager.activate(user);
-			} 
+			}
 		}
 	}
-
-	
 
 }

@@ -7,15 +7,14 @@ import org.bukkit.entity.Player;
 
 import com.projectkorra.core.util.Pair;
 
+public class UserManager {
 
-public class BendingUserManager {
+	protected static final List<User> users = new ArrayList<>(20);
+	public static final User plugin = new PluginUser();
 
-	protected static final List<BendingUser> users = new ArrayList<>(20);
-	public static final BendingUser plugin = new PluginUser();
-
-	public static BendingUser getBendingUser(Player player) {
-		for(BendingUser user : users) {
-			if(user.getEntity() == player) {
+	public static User getBendingUser(Player player) {
+		for (User user : users) {
+			if (user.getEntity() == player) {
 				return user;
 			}
 		}
@@ -23,29 +22,29 @@ public class BendingUserManager {
 	}
 
 	public static void loadBendingUser(Player player) {
-		if(getBendingUser(player) == null) {
+		if (getBendingUser(player) == null) {
 			// check if player is in database, if not create new object
-			BendingUser user = new BendingPlayer(player);
-			
+			User user = new PlayerUser(player);
+
 			users.add(user);
-			
+
 			updateActivations(user);
 		}
 	}
 
 	public static void saveBendingUser(Player player) {
-		if(getBendingUser(player) != null) {
+		if (getBendingUser(player) != null) {
 			// save information
 		}
 	}
 
-	private static void updateActivations(BendingUser user) {
-		
+	private static void updateActivations(User user) {
+
 		List<AbilityInfo> infos = AbilityManager.infos.stream().filter(i -> user.canBend(i)).toList();
 
-		for(AbilityInfo i : infos) {
+		for (AbilityInfo i : infos) {
 			user.getActivations().add(new Pair<>(i, i.getActivation()));
 		}
-	} 
+	}
 
 }

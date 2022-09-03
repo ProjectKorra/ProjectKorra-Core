@@ -25,16 +25,16 @@ public class Angle {
 			return value;
 		}
 	}
-	
+
 	public void set(AngleMode mode, double value) {
 		this.mode = mode;
 		this.value = value;
 	}
-	
+
 	public void setValue(double value) {
 		this.value = value;
 	}
-	
+
 	public static Angle radians(double value) {
 		return new Angle(AngleMode.RADIANS, value);
 	}
@@ -44,10 +44,11 @@ public class Angle {
 	}
 
 	public static enum AngleMode {
-		DEGREES (180 / Math.PI), 
-		RADIANS (Math.PI / 180);
+		DEGREES(180 / Math.PI),
+		RADIANS(Math.PI / 180);
 
 		private double conversion;
+
 		private AngleMode(double conversion) {
 			this.conversion = conversion;
 		}

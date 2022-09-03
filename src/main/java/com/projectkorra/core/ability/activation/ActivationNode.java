@@ -4,31 +4,32 @@ import java.util.HashSet;
 import java.util.Set;
 import java.util.function.Predicate;
 
-import com.projectkorra.core.ability.BendingUser;
+import com.projectkorra.core.ability.User;
 
 public class ActivationNode implements Activatable {
 	private long timeLastBendingUserested;
-	private Set<Predicate<BendingUser>> conditions = new HashSet<>();
+	private Set<Predicate<User>> conditions = new HashSet<>();
+
 	@SafeVarargs
-	public ActivationNode(Predicate<BendingUser>... predicate) {
+	public ActivationNode(Predicate<User>... predicate) {
 		this.timeLastBendingUserested = -1;
-		for(Predicate<BendingUser> p : predicate) {
+		for (Predicate<User> p : predicate) {
 			conditions.add(p);
 		}
 	}
-	
+
 	@SuppressWarnings("unchecked")
-	private ActivationNode(Set<Predicate<BendingUser>> predicate) {
-		this((Predicate<BendingUser>[]) predicate.toArray());
+	private ActivationNode(Set<Predicate<User>> predicate) {
+		this((Predicate<User>[]) predicate.toArray());
 	}
-	
+
 	@Override
-	public boolean activate(BendingUser o) {
+	public boolean activate(User o) {
 		this.timeLastBendingUserested = System.currentTimeMillis();
-		
-		for(Predicate<BendingUser> condition : conditions) {
+
+		for (Predicate<User> condition : conditions) {
 			System.out.println("Testing condition");
-			if(!condition.test(o)) {
+			if (!condition.test(o)) {
 				System.out.println("Failed condition");
 				return false;
 			}
@@ -36,22 +37,22 @@ public class ActivationNode implements Activatable {
 		System.out.println("Passed condition");
 		return true;
 	}
-	
+
 	@Override
 	public boolean equals(Object o) {
 		ActivationNode s = (ActivationNode) o;
-		
+
 		return s.conditions.equals(this.conditions);
 	}
-	
+
 	public long timeLastBendingUserested() {
 		return timeLastBendingUserested;
 	}
-	
+
 	public long timeElapsed() {
 		return System.currentTimeMillis() - timeLastBendingUserested;
 	}
-	
+
 	public ActivationNode clone() {
 		return new ActivationNode(conditions);
 	}
