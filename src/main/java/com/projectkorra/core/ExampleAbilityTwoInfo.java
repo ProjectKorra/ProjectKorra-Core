@@ -1,9 +1,9 @@
 package com.projectkorra.core;
 
-import com.projectkorra.core.ability.Ability;
-import com.projectkorra.core.ability.AbilityInfo;
-import com.projectkorra.core.ability.User;
-import com.projectkorra.core.ability.activation.Activation;
+import com.projectkorra.core.api.Ability;
+import com.projectkorra.core.api.AbilityInfo;
+import com.projectkorra.core.api.User;
+import com.projectkorra.core.api.activation.Activation;
 import com.projectkorra.core.game.InputType;
 
 public class ExampleAbilityTwoInfo extends AbilityInfo {

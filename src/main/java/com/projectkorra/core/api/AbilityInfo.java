@@ -1,4 +1,4 @@
-package com.projectkorra.core.ability;
+package com.projectkorra.core.api;
 
 import java.util.Arrays;
 import java.util.Collections;
@@ -6,7 +6,7 @@ import java.util.List;
 import java.util.logging.Level;
 
 import com.projectkorra.core.ProjectKorra;
-import com.projectkorra.core.ability.activation.Activation;
+import com.projectkorra.core.api.activation.Activation;
 import com.projectkorra.core.skills.Skill;
 
 public abstract class AbilityInfo {

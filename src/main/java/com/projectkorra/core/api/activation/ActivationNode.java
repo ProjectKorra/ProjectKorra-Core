@@ -1,10 +1,10 @@
-package com.projectkorra.core.ability.activation;
+package com.projectkorra.core.api.activation;
 
 import java.util.HashSet;
 import java.util.Set;
 import java.util.function.Predicate;
 
-import com.projectkorra.core.ability.User;
+import com.projectkorra.core.api.User;
 
 public class ActivationNode implements Activatable {
 	private long lastTestTime;

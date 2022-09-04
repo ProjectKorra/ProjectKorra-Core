@@ -1,10 +1,10 @@
-package com.projectkorra.core.ability;
+package com.projectkorra.core.api;
 
 import java.util.HashSet;
 import java.util.Iterator;
 import java.util.Set;
 
-import com.projectkorra.core.ability.activation.Activation;
+import com.projectkorra.core.api.activation.Activation;
 import com.projectkorra.core.game.InputType;
 import com.projectkorra.core.util.Pair;
 
@@ -37,7 +37,7 @@ public class AbilityManager {
 		if (user == null) {
 			return;
 		}
-		for (Pair<AbilityInfo, Activation> e : user.getActivations()) {
+		for (Pair<AbilityInfo, Activation> e : user.getActivations(true)) {
 			if (e.getValue().activate(user)) {
 				user.getInstances().add(e.getKey().createInstance(user));
 			}

@@ -5,8 +5,8 @@ import org.bukkit.Particle;
 import org.bukkit.entity.Entity;
 import org.bukkit.util.Vector;
 
-import com.projectkorra.core.ability.Ability;
-import com.projectkorra.core.ability.User;
+import com.projectkorra.core.api.Ability;
+import com.projectkorra.core.api.User;
 
 public class ExampleAbilityTwoInstance extends Ability {
 

@@ -1,6 +1,6 @@
-package com.projectkorra.core.ability.activation;
+package com.projectkorra.core.api.activation;
 
-import com.projectkorra.core.ability.User;
+import com.projectkorra.core.api.User;
 
 public interface Activatable {
 	boolean activate(User b);

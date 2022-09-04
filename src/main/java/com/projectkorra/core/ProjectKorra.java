@@ -11,9 +11,9 @@ import org.bukkit.plugin.PluginDescriptionFile;
 import org.bukkit.plugin.java.JavaPlugin;
 import org.bukkit.plugin.java.JavaPluginLoader;
 
-import com.projectkorra.core.ability.AbilityInfo;
-import com.projectkorra.core.ability.AbilityManager;
-import com.projectkorra.core.ability.PKListener;
+import com.projectkorra.core.api.AbilityInfo;
+import com.projectkorra.core.api.AbilityManager;
+import com.projectkorra.core.api.PKListener;
 
 public class ProjectKorra extends JavaPlugin {
 

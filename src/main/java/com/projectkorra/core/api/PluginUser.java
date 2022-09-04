@@ -1,4 +1,4 @@
-package com.projectkorra.core.ability;
+package com.projectkorra.core.api;
 
 public class PluginUser extends User {
 

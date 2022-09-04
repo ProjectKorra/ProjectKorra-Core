@@ -1,10 +1,10 @@
-package com.projectkorra.core.ability.activation;
+package com.projectkorra.core.api.activation;
 
 import java.util.ArrayList;
 import java.util.List;
 import java.util.function.Predicate;
 
-import com.projectkorra.core.ability.User;
+import com.projectkorra.core.api.User;
 import com.projectkorra.core.game.InputType;
 import com.projectkorra.core.util.Pair;
 

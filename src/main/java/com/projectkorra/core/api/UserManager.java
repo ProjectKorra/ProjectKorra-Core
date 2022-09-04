@@ -1,4 +1,4 @@
-package com.projectkorra.core.ability;
+package com.projectkorra.core.api;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -43,7 +43,7 @@ public class UserManager {
 		List<AbilityInfo> infos = AbilityManager.infos.stream().filter(i -> user.canBend(i)).toList();
 
 		for (AbilityInfo i : infos) {
-			user.getActivations().add(new Pair<>(i, i.getActivation()));
+			user.getActivations(false).add(new Pair<>(i, i.getActivation()));
 		}
 	}
 

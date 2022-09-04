@@ -1,4 +1,4 @@
-package com.projectkorra.core.ability;
+package com.projectkorra.core.api;
 
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;

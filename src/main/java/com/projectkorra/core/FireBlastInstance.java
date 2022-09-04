@@ -1,7 +1,7 @@
 package com.projectkorra.core;
 
-import com.projectkorra.core.ability.Ability;
-import com.projectkorra.core.ability.User;
+import com.projectkorra.core.api.Ability;
+import com.projectkorra.core.api.User;
 
 public class FireBlastInstance extends Ability {
 

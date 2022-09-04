@@ -1,4 +1,4 @@
-package com.projectkorra.core.ability.collision;
+package com.projectkorra.core.api.collision;
 
 public class CollisionManager {
 
