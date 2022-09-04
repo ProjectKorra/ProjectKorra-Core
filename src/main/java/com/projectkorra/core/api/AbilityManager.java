@@ -5,7 +5,7 @@ import java.util.Iterator;
 import java.util.Set;
 
 import com.projectkorra.core.api.activation.Activation;
-import com.projectkorra.core.game.InputType;
+import com.projectkorra.core.api.game.InputType;
 import com.projectkorra.core.util.Pair;
 
 public class AbilityManager {
@@ -27,7 +27,7 @@ public class AbilityManager {
 		}
 
 		for (User user : UserManager.users) {
-			for (InputType t : InputType.values()) {
+			for (InputType t : InputType.values) {
 				user.getInputs().put(t, new Pair<>(false, null));
 			}
 		}
@@ -38,7 +38,18 @@ public class AbilityManager {
 			return;
 		}
 		for (Pair<AbilityInfo, Activation> e : user.getActivations(true)) {
-			if (e.getValue().activate(user)) {
+			if (!e.getKey().needsMovement() && e.getValue().activate(user)) {
+				user.getInstances().add(e.getKey().createInstance(user));
+			}
+		}
+	}
+
+	public static void activateMovement(User user) {
+		if (user == null) {
+			return;
+		}
+		for (Pair<AbilityInfo, Activation> e : user.getActivations(true)) {
+			if (e.getKey().needsMovement() && e.getValue().activate(user)) {
 				user.getInstances().add(e.getKey().createInstance(user));
 			}
 		}

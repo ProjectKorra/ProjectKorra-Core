@@ -10,7 +10,7 @@ import org.bukkit.event.Event;
 
 import com.projectkorra.core.util.Pair;
 import com.projectkorra.core.api.activation.Activation;
-import com.projectkorra.core.game.InputType;
+import com.projectkorra.core.api.game.InputType;
 
 public abstract class User {
 
@@ -25,7 +25,7 @@ public abstract class User {
 
 	public User(Entity entity) {
 		this.entity = entity;
-		for (InputType t : InputType.values()) {
+		for (InputType t : InputType.values) {
 			inputs.put(t, new Pair<>(false, null));
 		}
 	}
@@ -146,4 +146,9 @@ public abstract class User {
 		toggleNonBindable();
 		toggleBindable();
 	}
+
+	public Object getBinds() {
+		return null;
+	}
+
 }

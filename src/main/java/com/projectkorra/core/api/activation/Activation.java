@@ -5,7 +5,7 @@ import java.util.List;
 import java.util.function.Predicate;
 
 import com.projectkorra.core.api.User;
-import com.projectkorra.core.game.InputType;
+import com.projectkorra.core.api.game.InputType;
 import com.projectkorra.core.util.Pair;
 
 public class Activation implements Activatable {

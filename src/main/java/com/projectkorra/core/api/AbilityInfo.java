@@ -7,7 +7,7 @@ import java.util.logging.Level;
 
 import com.projectkorra.core.ProjectKorra;
 import com.projectkorra.core.api.activation.Activation;
-import com.projectkorra.core.skills.Skill;
+import com.projectkorra.core.api.skills.Skill;
 
 public abstract class AbilityInfo {
 	public final List<Skill> skills;
@@ -15,19 +15,28 @@ public abstract class AbilityInfo {
 	public final String version;
 	public final String name;
 	public final boolean bindable;
+	public final boolean needsMovement;
 	public final String configPath;
 	public int priority = 1;
 
-	public AbilityInfo(String author, String version, String name, boolean bindable, Skill... skills) {
-		this(author, version, name, "DEFAULT", bindable, skills);
+	public AbilityInfo(String author, String version, String name, boolean bindable,
+			Skill... skills) {
+		this(author, version, name, "DEFAULT", bindable, false, skills);
+	}
+
+	public AbilityInfo(String author, String version, String name, boolean bindable, boolean needsMovement,
+			Skill... skills) {
+		this(author, version, name, "DEFAULT", bindable, needsMovement, skills);
 	}
 
 	public AbilityInfo(String author, String version, String name, String configPath, boolean bindable,
+			boolean needsMovement,
 			Skill... skills) {
 		this.author = author;
 		this.version = version;
 		this.name = name;
 		this.bindable = bindable;
+		this.needsMovement = needsMovement;
 		this.skills = Collections.unmodifiableList(Arrays.asList(skills));
 		this.configPath = configPath;
 		if (AbilityManager.infos.stream().filter(i -> i.name == this.name).toList().size() < 1) {
@@ -45,4 +54,8 @@ public abstract class AbilityInfo {
 	public abstract void load();
 
 	public abstract Ability createInstance(User user);
+
+	public boolean needsMovement() {
+		return needsMovement;
+	}
 }

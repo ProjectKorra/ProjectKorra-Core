@@ -4,7 +4,7 @@ import com.projectkorra.core.api.Ability;
 import com.projectkorra.core.api.AbilityInfo;
 import com.projectkorra.core.api.User;
 import com.projectkorra.core.api.activation.Activation;
-import com.projectkorra.core.game.InputType;
+import com.projectkorra.core.api.game.InputType;
 
 public class FireBlastInfo extends AbilityInfo {
 
