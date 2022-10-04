@@ -5,7 +5,7 @@ import java.util.Iterator;
 import java.util.Set;
 
 import com.projectkorra.core.api.activation.Activation;
-import com.projectkorra.core.api.game.InputType;
+import com.projectkorra.core.api.game.Input;
 import com.projectkorra.core.util.Pair;
 
 public class AbilityManager {
@@ -27,7 +27,7 @@ public class AbilityManager {
 		}
 
 		for (User user : UserManager.users) {
-			for (InputType t : InputType.values) {
+			for (Input t : Input.values) {
 				user.getInputs().put(t, new Pair<>(false, null));
 			}
 		}
@@ -53,5 +53,9 @@ public class AbilityManager {
 				user.getInstances().add(e.getKey().createInstance(user));
 			}
 		}
+	}
+
+	public static void flagRemoval(User user, Ability ability, boolean cancel) {
+
 	}
 }

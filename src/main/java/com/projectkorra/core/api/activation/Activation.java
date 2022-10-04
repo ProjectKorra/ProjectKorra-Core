@@ -5,15 +5,23 @@ import java.util.List;
 import java.util.function.Predicate;
 
 import com.projectkorra.core.api.User;
-import com.projectkorra.core.api.game.InputType;
+import com.projectkorra.core.api.game.Input;
 import com.projectkorra.core.util.Pair;
 
 public class Activation implements Activatable {
 	private List<Pair<Pair<Long, Long>, ActivationNode>> conditions = new ArrayList<>();
 	private int step;
+	private Predicate<User>[] always;
 
 	public Activation() {
 		this.step = 0;
+		this.always = null;
+	}
+
+	@SafeVarargs
+	public Activation(Predicate<User>... always) {
+		this.step = 0;
+		this.always = always;
 	}
 
 	public Activation(Activation a) {
@@ -21,19 +29,19 @@ public class Activation implements Activatable {
 		a.conditions.forEach((i) -> this.conditions.add(i.clone()));
 	}
 
-	public Activation check(InputType... inputs) {
+	public Activation check(Input... inputs) {
 		return check(30000, inputs);
 	}
 
-	public Activation check(long maxTime, InputType... inputs) {
+	public Activation check(long maxTime, Input... inputs) {
 		return check(maxTime, true, inputs);
 	}
 
-	public Activation check(long maxTime, boolean reset, InputType... inputs) {
+	public Activation check(long maxTime, boolean reset, Input... inputs) {
 		return check(0, maxTime, reset, inputs);
 	}
 
-	public Activation check(long t1, long t2, boolean reset, InputType... inputs) {
+	public Activation check(long t1, long t2, boolean reset, Input... inputs) {
 		return check(t1, t2, reset, asPredicates(inputs));
 	}
 
@@ -55,6 +63,7 @@ public class Activation implements Activatable {
 	@SuppressWarnings("unchecked")
 	public Activation check(long t1, long t2, boolean reset, Predicate<User>... conditions) {
 		ActivationNode a = new ActivationNode(reset, conditions);
+		a.addConditions(always);
 		return check(t1, t2, a);
 	}
 
@@ -64,32 +73,32 @@ public class Activation implements Activatable {
 		return this;
 	}
 
-	public Activation exclude(InputType... excludes) {
+	public Activation exclude(Input... excludes) {
 		return exclude(true, asPredicates(excludes));
 	}
 
-	public Activation exclude(boolean reset, InputType... excludes) {
+	public Activation exclude(boolean reset, Input... excludes) {
 		return exclude(reset, asPredicates(excludes));
 	}
 
 	@SuppressWarnings("unchecked")
 	public Activation exclude(boolean reset, Predicate<User>... excludes) {
-		conditions.get(conditions.size() - 1).getValue().excludeOn(excludes).setReset(reset);
+		conditions.get(conditions.size() - 1).getValue().exclude(excludes).setReset(reset);
 		return this;
 	}
 
-	public Activation excludeAll(InputType... excludes) {
+	public Activation excludeAll(Input... excludes) {
 		return excludeAll(true, asPredicates(excludes));
 	}
 
-	public Activation excludeAll(boolean reset, InputType... excludes) {
+	public Activation excludeAll(boolean reset, Input... excludes) {
 		return excludeAll(reset, asPredicates(excludes));
 	}
 
 	@SuppressWarnings("unchecked")
 	public Activation excludeAll(boolean reset, Predicate<User>... excludes) {
 		for (int i = 0; i < conditions.size(); i++) {
-			conditions.get(i).getValue().excludeOn(excludes).setReset(reset);
+			conditions.get(i).getValue().exclude(excludes).setReset(reset);
 		}
 		return this;
 	}
@@ -167,10 +176,10 @@ public class Activation implements Activatable {
 	}
 
 	@SuppressWarnings("unchecked")
-	private Predicate<User>[] asPredicates(InputType[] inputs) {
+	private Predicate<User>[] asPredicates(Input[] inputs) {
 		List<Predicate<User>> predicates = new ArrayList<>();
 
-		for (InputType input : inputs) {
+		for (Input input : inputs) {
 			predicates.add(b -> b.did(input));
 		}
 		return (Predicate<User>[]) predicates.toArray();

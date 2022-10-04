@@ -6,13 +6,14 @@ import org.bukkit.entity.Entity;
 import org.bukkit.util.Vector;
 
 import com.projectkorra.core.api.Ability;
+import com.projectkorra.core.api.AbilityInfo;
 import com.projectkorra.core.api.User;
 
 public class ExampleAbilityInstance extends Ability {
     private Location loc;
 
-    public ExampleAbilityInstance(User user, int priority) {
-        super(user, priority);
+    public ExampleAbilityInstance(User user, AbilityInfo info, int priority) {
+        super(user, info, priority);
 
         loc = user.getEntity().getLocation();
     }

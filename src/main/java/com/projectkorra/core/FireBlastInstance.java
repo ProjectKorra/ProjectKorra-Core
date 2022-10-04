@@ -1,12 +1,13 @@
 package com.projectkorra.core;
 
 import com.projectkorra.core.api.Ability;
+import com.projectkorra.core.api.AbilityInfo;
 import com.projectkorra.core.api.User;
 
 public class FireBlastInstance extends Ability {
 
-    public FireBlastInstance(User user, int priority) {
-        super(user, priority);
+    public FireBlastInstance(User user, AbilityInfo info, int priority) {
+        super(user, info, priority);
         // TODO Auto-generated constructor stub
     }
 
@@ -31,8 +32,8 @@ public class FireBlastInstance extends Ability {
 
     public class ChargedFireBlastInstance extends FireBlastInstance {
 
-        public ChargedFireBlastInstance(User user, int priority) {
-            super(user, priority);
+        public ChargedFireBlastInstance(User user, AbilityInfo info, int priority) {
+            super(user, info, priority);
             // TODO Auto-generated constructor stub
         }
 

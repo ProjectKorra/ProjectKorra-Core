@@ -20,7 +20,7 @@ import org.bukkit.event.player.PlayerVelocityEvent;
 import org.bukkit.inventory.EquipmentSlot;
 import org.bukkit.util.Vector;
 
-import com.projectkorra.core.api.game.InputType;
+import com.projectkorra.core.api.game.Input;
 
 public class PKListener implements Listener {
 
@@ -41,7 +41,8 @@ public class PKListener implements Listener {
 		Player p = event.getPlayer();
 		if (p != null) {
 			User user = UserManager.getUser(p);
-			user.does(!p.isSneaking() ? InputType.SHIFT_DOWN : InputType.SHIFT_UP, event);
+			user.does(!p.isSneaking() ? Input.SHIFT_DOWN : Input.SHIFT_UP, event);
+			System.out.println("Listener: " + System.currentTimeMillis());
 
 			AbilityManager.activate(user);
 		}
@@ -52,7 +53,8 @@ public class PKListener implements Listener {
 		Player p = event.getPlayer();
 		if (p != null) {
 			User user = UserManager.getUser(p);
-			user.does(!p.isSprinting() ? InputType.SPRINT_ON : InputType.SPRINT_OFF, event);
+			user.does(!p.isSprinting() ? Input.SPRINT_ON : Input.SPRINT_OFF, event);
+			System.out.println("Listener: " + System.currentTimeMillis());
 
 			AbilityManager.activate(user);
 		}
@@ -67,20 +69,21 @@ public class PKListener implements Listener {
 
 				switch (event.getAction()) {
 					case LEFT_CLICK_AIR:
-						user.does(InputType.LEFT_CLICK, event);
+						user.does(Input.LEFT_CLICK, event);
 						break;
 					case LEFT_CLICK_BLOCK:
-						user.does(InputType.LEFT_CLICK_BLOCK, event);
+						user.does(Input.LEFT_CLICK_BLOCK, event);
 						break;
 					case RIGHT_CLICK_AIR:
-						user.does(InputType.RIGHT_CLICK_AIR, event);
+						user.does(Input.RIGHT_CLICK_AIR, event);
 						break;
 					case RIGHT_CLICK_BLOCK:
-						user.does(InputType.RIGHT_CLICK_BLOCK, event);
+						user.does(Input.RIGHT_CLICK_BLOCK, event);
 						break;
 					default:
 						return;
 				}
+				System.out.println("Listener: " + System.currentTimeMillis());
 
 				AbilityManager.activate(user);
 			}
@@ -107,14 +110,15 @@ public class PKListener implements Listener {
 			double dF = direction.dot(forward);
 
 			if (Math.abs(dL) > 0) {
-				user.does(dL > 0 ? InputType.LEFT : InputType.RIGHT, event);
+				user.does(dL > 0 ? Input.LEFT : Input.RIGHT, event);
 			}
 			if (Math.abs(dU) > 0) {
-				user.does(dU > 0 ? InputType.UP : InputType.DOWN, event);
+				user.does(dU > 0 ? Input.UP : Input.DOWN, event);
 			}
 			if (Math.abs(dF) > 0) {
-				user.does(dF > 0 ? InputType.FORWARD : InputType.BACKWARD, event);
+				user.does(dF > 0 ? Input.FORWARD : Input.BACKWARD, event);
 			}
+			System.out.println("Listener: " + System.currentTimeMillis());
 
 			AbilityManager.activateMovement(user);
 		}
@@ -125,7 +129,8 @@ public class PKListener implements Listener {
 		Player p = event.getPlayer();
 		if (p != null) {
 			User user = UserManager.getUser(p);
-			user.does(!p.isFlying() ? InputType.FLIGHT_ON : InputType.FLIGHT_OFF, event);
+			user.does(!p.isFlying() ? Input.FLIGHT_ON : Input.FLIGHT_OFF, event);
+			System.out.println("Listener: " + System.currentTimeMillis());
 
 			AbilityManager.activate(user);
 		}
@@ -139,7 +144,8 @@ public class PKListener implements Listener {
 
 			user.setSlot(event.getNewSlot());
 
-			user.does(InputType.SLOT_CHANGE, event);
+			user.does(Input.SLOT_CHANGE, event);
+			System.out.println("Listener: " + System.currentTimeMillis());
 
 			AbilityManager.activate(user);
 		}
@@ -151,7 +157,8 @@ public class PKListener implements Listener {
 		if (p != null) {
 			PlayerUser user = (PlayerUser) UserManager.getUser(p);
 			if (event.getStatistic() == Statistic.JUMP) {
-				user.does(InputType.JUMP, event);
+				user.does(Input.JUMP, event);
+				System.out.println("Listener: " + System.currentTimeMillis());
 				AbilityManager.activate(user);
 			}
 		}
@@ -162,8 +169,9 @@ public class PKListener implements Listener {
 		Player p = event.getPlayer();
 		if (p != null) {
 			PlayerUser user = (PlayerUser) UserManager.getUser(p);
-			if (event.getVelocity().equals(new Vector())) {
-				user.does(InputType.KNOCK_BACK, event);
+			if (!event.getVelocity().equals(new Vector())) {
+				System.out.println("Listener: " + System.currentTimeMillis());
+				user.does(Input.KNOCK_BACK, event);
 			}
 		}
 	}
@@ -174,7 +182,8 @@ public class PKListener implements Listener {
 		if (p != null) {
 			PlayerUser user = (PlayerUser) UserManager.getUser(p);
 
-			user.does(InputType.SWAP_HANDS, event);
+			user.does(Input.SWAP_HANDS, event);
+			System.out.println("Listener: " + System.currentTimeMillis());
 
 			AbilityManager.activate(user);
 		}
@@ -186,7 +195,8 @@ public class PKListener implements Listener {
 		if (p != null) {
 			PlayerUser user = (PlayerUser) UserManager.getUser(p);
 
-			user.does(InputType.THROW_ITEM, event);
+			user.does(Input.THROW_ITEM, event);
+			System.out.println("Listener: " + System.currentTimeMillis());
 
 			AbilityManager.activate(user);
 		}

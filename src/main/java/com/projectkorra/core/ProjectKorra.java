@@ -2,6 +2,7 @@ package com.projectkorra.core;
 
 import java.io.File;
 import java.io.IOException;
+import java.lang.reflect.Constructor;
 import java.util.Enumeration;
 import java.util.jar.JarEntry;
 import java.util.jar.JarFile;
@@ -25,6 +26,8 @@ public class ProjectKorra extends JavaPlugin {
 		// get infos from classes
 		registerAbilities();
 		// get their activations
+		new ExampleAbilityInfo();
+		new ExampleAbilityTwoInfo();
 
 		// validate activations
 
@@ -33,6 +36,8 @@ public class ProjectKorra extends JavaPlugin {
 		this.getServer().getPluginManager().registerEvents(new PKListener(), this);
 
 		this.getServer().getScheduler().runTaskTimer(this, () -> {
+			System.out.println("TICK: " + System.currentTimeMillis());
+
 			AbilityManager.tick();
 			// do other stuff;
 		}, 0, 1);
@@ -51,6 +56,10 @@ public class ProjectKorra extends JavaPlugin {
 	}
 
 	private void registerAbilities() {
+		if (!this.getDataFolder().exists()) {
+			this.getDataFolder().mkdir();
+		}
+
 		File abilFolder = new File(this.getDataFolder().getPath() + "\\abilities");
 		if (!abilFolder.exists()) {
 			abilFolder.mkdir();
@@ -74,7 +83,8 @@ public class ProjectKorra extends JavaPlugin {
 						Class<?> clazz = Class.forName(className);
 
 						if (clazz.getSuperclass() == AbilityInfo.class) {
-							clazz.getDeclaredConstructors()[0].newInstance();
+							Constructor<?> c = clazz.getDeclaredConstructors()[0];
+							c.newInstance();
 						}
 					} catch (Exception e) {
 						ProjectKorra.plugin.getLogger().log(Level.SEVERE,

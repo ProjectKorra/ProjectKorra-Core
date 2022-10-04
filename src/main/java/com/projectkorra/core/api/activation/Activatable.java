@@ -7,5 +7,4 @@ public interface Activatable {
 
 	boolean equals(Object o);
 
-	Activatable clone();
 }

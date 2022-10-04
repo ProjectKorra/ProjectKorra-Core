@@ -5,12 +5,25 @@ import java.util.Set;
 import java.util.function.Predicate;
 
 import com.projectkorra.core.api.User;
+import com.projectkorra.core.api.game.Input;
 
 public class ActivationNode implements Activatable {
 	private long lastTestTime;
 	private boolean reset = true;
 	private Set<Predicate<User>> conditions = new HashSet<>();
 	private Set<Predicate<User>> exclude = new HashSet<>();
+
+	@SafeVarargs
+	public ActivationNode(Input... inputs) {
+		this(true, inputs);
+	}
+
+	@SafeVarargs
+	public ActivationNode(boolean reset, Input... inputs) {
+		this.lastTestTime = -1;
+		this.reset = reset;
+		addConditions(inputs);
+	}
 
 	@SafeVarargs
 	public ActivationNode(Predicate<User>... predicate) {
@@ -21,9 +34,7 @@ public class ActivationNode implements Activatable {
 	public ActivationNode(boolean reset, Predicate<User>... predicate) {
 		this.lastTestTime = -1;
 		this.reset = reset;
-		for (Predicate<User> p : predicate) {
-			conditions.add(p);
-		}
+		addConditions(predicate);
 	}
 
 	@SuppressWarnings("unchecked")
@@ -47,11 +58,37 @@ public class ActivationNode implements Activatable {
 	}
 
 	@SuppressWarnings("unchecked")
-	public ActivationNode excludeOn(Predicate<User>... predicates) {
+	public ActivationNode exclude(Predicate<User>... predicates) {
 		for (Predicate<User> p : (Predicate<User>[]) predicates) {
 			exclude.add(p);
 		}
 		return this;
+	}
+
+	public ActivationNode exclude(Input... predicates) {
+		for (Input p : predicates) {
+			exclude.add(b -> b.did(p));
+		}
+		return this;
+	}
+
+	@SuppressWarnings("unchecked")
+	protected void addConditions(Predicate<User>... conditions) {
+		if (conditions == null) {
+			return;
+		}
+		for (Predicate<User> p : conditions) {
+			this.conditions.add(p);
+		}
+	}
+
+	protected void addConditions(Input... conditions) {
+		if (conditions == null) {
+			return;
+		}
+		for (Input p : conditions) {
+			this.conditions.add(b -> b.did(p));
+		}
 	}
 
 	@Override

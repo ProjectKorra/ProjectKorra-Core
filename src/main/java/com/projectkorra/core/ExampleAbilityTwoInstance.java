@@ -6,14 +6,15 @@ import org.bukkit.entity.Entity;
 import org.bukkit.util.Vector;
 
 import com.projectkorra.core.api.Ability;
+import com.projectkorra.core.api.AbilityInfo;
 import com.projectkorra.core.api.User;
 
 public class ExampleAbilityTwoInstance extends Ability {
 
     private Location loc;
 
-    public ExampleAbilityTwoInstance(User user, int priority) {
-        super(user, priority);
+    public ExampleAbilityTwoInstance(User user, AbilityInfo info, int priority) {
+        super(user, info, priority);
         // TODO Auto-generated constructor stub
         loc = user.getEntity().getLocation();
 

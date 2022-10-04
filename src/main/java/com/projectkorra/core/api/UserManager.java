@@ -10,7 +10,6 @@ import com.projectkorra.core.util.Pair;
 public class UserManager {
 
 	protected static final List<User> users = new ArrayList<>(20);
-	public static final User plugin = new PluginUser();
 
 	public static User getUser(Player player) {
 		for (User u : users) {
@@ -45,6 +44,10 @@ public class UserManager {
 		for (AbilityInfo i : infos) {
 			user.getActivations(false).add(new Pair<>(i, i.getActivation()));
 		}
+	}
+
+	public static void addCooldown(Ability abil, long cooldown) {
+		abil.getUser().addCooldown(abil.getInfo(), cooldown);
 	}
 
 }

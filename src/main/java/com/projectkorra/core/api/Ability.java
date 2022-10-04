@@ -7,8 +7,11 @@ public abstract class Ability {
 	protected User user;
 	private int priority = 0;
 
-	public Ability(User user, int priority) {
+	public final AbilityInfo info;
+
+	public Ability(User user, AbilityInfo info, int priority) {
 		this.user = user;
+		this.info = info;
 		this.priority = priority;
 	}
 
@@ -57,4 +60,9 @@ public abstract class Ability {
 	public User getUser() {
 		return user;
 	}
+
+	public AbilityInfo getInfo() {
+		return info;
+	}
+
 }

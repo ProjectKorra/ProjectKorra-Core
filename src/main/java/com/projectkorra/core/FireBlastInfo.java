@@ -4,7 +4,7 @@ import com.projectkorra.core.api.Ability;
 import com.projectkorra.core.api.AbilityInfo;
 import com.projectkorra.core.api.User;
 import com.projectkorra.core.api.activation.Activation;
-import com.projectkorra.core.api.game.InputType;
+import com.projectkorra.core.api.game.Input;
 
 public class FireBlastInfo extends AbilityInfo {
 
@@ -17,7 +17,7 @@ public class FireBlastInfo extends AbilityInfo {
     @Override
     public Activation getActivation() {
         // TODO Auto-generated method stub
-        return new Activation().check(InputType.LEFT_CLICK);
+        return new Activation().check(Input.LEFT_CLICK);
     }
 
     @Override
@@ -29,7 +29,7 @@ public class FireBlastInfo extends AbilityInfo {
     @Override
     public Ability createInstance(User user) {
         // TODO Auto-generated method stub
-        return new FireBlastInstance(user, priority);
+        return new FireBlastInstance(user, this, priority);
     }
 
 }

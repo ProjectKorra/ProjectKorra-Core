@@ -10,33 +10,31 @@ import org.bukkit.event.Event;
 
 import com.projectkorra.core.util.Pair;
 import com.projectkorra.core.api.activation.Activation;
-import com.projectkorra.core.api.game.InputType;
+import com.projectkorra.core.api.game.Input;
 
 public abstract class User {
 
-	private List<Pair<AbilityInfo, Activation>> activations = new ArrayList<>(20);
-	private List<Ability> instances = new ArrayList<>();
-	private Map<AbilityInfo, Cooldown> cooldowns = new HashMap<>(20);
-	private Map<InputType, Pair<Boolean, Event>> inputs = new HashMap<>();
-	private Entity entity;
+	protected List<Pair<AbilityInfo, Activation>> activations = new ArrayList<>(20);
+	protected List<Ability> instances = new ArrayList<>();
+	protected Map<AbilityInfo, Cooldown> cooldowns = new HashMap<>(20);
+	protected Entity entity;
 
+	private Map<Input, Pair<Boolean, Event>> inputs = new HashMap<>(30);
 	private boolean toggledBindable = false;
 	private boolean toggledNonBindable = false;
 
 	public User(Entity entity) {
 		this.entity = entity;
-		for (InputType t : InputType.values) {
+		for (Input t : Input.values) {
 			inputs.put(t, new Pair<>(false, null));
 		}
 	}
 
-	public abstract AbilityInfo getCurrentBind();
-
-	protected final void does(InputType p, Event e) {
+	protected final void does(Input p, Event e) {
 		this.inputs.put(p, new Pair<>(true, e));
 	}
 
-	public final boolean did(InputType p) {
+	public final boolean did(Input p) {
 		return this.inputs.get(p).getKey();
 	}
 
@@ -44,7 +42,7 @@ public abstract class User {
 		return true;
 	}
 
-	private final void addCooldown(AbilityInfo info, long cooldown) {
+	protected final void addCooldown(AbilityInfo info, long cooldown) {
 		Cooldown c = new Cooldown(cooldown);
 		c.addCooldown();
 		cooldowns.put(info, c);
@@ -65,22 +63,8 @@ public abstract class User {
 		return entity;
 	}
 
-	protected final Map<InputType, Pair<Boolean, Event>> getInputs() {
+	protected final Map<Input, Pair<Boolean, Event>> getInputs() {
 		return inputs;
-	}
-
-	protected final List<Pair<AbilityInfo, Activation>> getActivations(boolean current) {
-		if (current) {
-			List<Pair<AbilityInfo, Activation>> filtered = new ArrayList<>();
-			for (Pair<AbilityInfo, Activation> e : activations) {
-				if (e.getKey() == this.getCurrentBind() || !e.getKey().bindable) {
-					filtered.add(e);
-				}
-			}
-			return filtered;
-		} else {
-			return activations;
-		}
 	}
 
 	protected final List<Ability> getInstances() {
@@ -147,8 +131,10 @@ public abstract class User {
 		toggleBindable();
 	}
 
-	public Object getBinds() {
-		return null;
-	}
+	public abstract AbilityInfo getCurrentBind();
+
+	protected abstract List<Pair<AbilityInfo, Activation>> getActivations(boolean current);
+
+	public abstract List<AbilityInfo> getBinds();
 
 }
