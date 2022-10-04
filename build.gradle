@@ -5,29 +5,28 @@ plugins {
 	id 'java'
 
 	// Generates the plugin.yml, allows easier access to common plugin libraries, and facilitates the test server tasks.
-	id 'kr.entree.spigradle' version '2.2.3'
+	id 'kr.entree.spigradle' version '2.4.2'
 
 	// Allows us to shade libraries into the build plugin.
 	id 'com.github.johnrengelman.shadow' version '5.2.0'
 }
 
 repositories {
-	jcenter()
 	mavenCentral()
+	jitpack()
 
-	spigot()
-	paper()
+	spigotmc()
+	sonatype()
+	papermc()
 }
 
 dependencies {
 	compileOnly spigot(project.property('mcVersion'))
 	compileOnly paper(project.property('mcVersion'))
 
-	implementation 'com.google.guava:guava:28.2-jre'
-
-	testImplementation platform('org.junit:junit-bom:5.7.0')
-	testImplementation 'org.junit.jupiter:junit-jupiter'
-	testImplementation mockBukkit()
+	testImplementation 'org.junit.jupiter:junit-jupiter-api:5.8.1'
+	testRuntimeOnly 'org.junit.jupiter:junit-jupiter-engine:5.8.1'
+	testImplementation 'com.github.seeseemelk:MockBukkit-v1.19:2.29.0'
 }
 
 test {
@@ -46,14 +45,22 @@ task cleanAll {
 // Compilation variables / tasks
 // ---------------------------------------------------------
 
-targetCompatibility = 1.8
-sourceCompatibility = 1.8
+compileJava {
+	sourceCompatibility = JavaVersion.VERSION_17
+	targetCompatibility = JavaVersion.VERSION_17
+}
+
+// Shading
+// ---------------------------------------------------------
 
 tasks.build.dependsOn(shadowJar)
+tasks.prepareSpigotPlugins.dependsOn(shadowJar)
 
 shadowJar {
 	// This is required to prevent Spigradle from attempting to look for an incorrectly named file during debug.
 	classifier = ''
+
+	// relocate 'old.path.lib', "${project.property('group')}.lib"
 }
 
 // Plugin variables / tasks
@@ -73,6 +80,8 @@ spigot {
 		eula = true
 		buildVersion = project.property('mcVersion')
 		args = project.property('debugServerArgs').split(/(,\s*|\s+)/)
-		jvmArgs = project.property('debugServerJvmArgs').split(/(,\s*|\s+)/)
+		
+		// This caused issues with the debugPaper task
+		// jvmArgs = project.property('debugServerJvmArgs').split(/(,\s*|\s+)/)
 	}
 }
