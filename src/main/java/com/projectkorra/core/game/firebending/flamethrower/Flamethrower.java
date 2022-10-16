@@ -33,7 +33,7 @@ public class Flamethrower extends Ability implements Bindable {
 	int fireTicks = 2;
 
 	public Flamethrower() {
-		super("Flamethrower", "Create large streams of fire.", "ProjectKorra", "CORE", Skill.FIREBENDING);
+		super("Flamethrower", "Create large streams of fire.", "ProjectKorra", "CORE", Skill.of("firebending"));
 	}
 
 	@Override
@@ -47,14 +47,14 @@ public class Flamethrower extends Ability implements Bindable {
 
 	@Override
 	protected AbilityInstance activate(AbilityUser user, Activation trigger, Event provider) {
-		if (user.isOnCooldown(this)) {
+		if (user.hasCooldown(this)) {
 			return null;
 		}
 
 		if (trigger == Activation.SNEAK_DOWN && user.getStamina().consume(staminaCost)) {
 			return new FlamethrowerInstance(this, user);
 		} else if (trigger == Activation.SNEAK_UP) {
-			AbilityManager.getInstance(user, FlamethrowerInstance.class).ifPresent((inst) -> AbilityManager.remove(inst));
+			user.getInstance(FlamethrowerInstance.class).ifPresent(AbilityManager::remove);
 		}
 
 		return null;

@@ -1,7 +1,5 @@
 package com.projectkorra.core.game.firebending.flamethrower;
 
-import java.util.concurrent.ThreadLocalRandom;
-
 import org.bukkit.FluidCollisionMode;
 import org.bukkit.Location;
 import org.bukkit.Sound;
@@ -12,13 +10,12 @@ import org.bukkit.entity.LivingEntity;
 import org.bukkit.util.RayTraceResult;
 import org.bukkit.util.Vector;
 
+import com.projectkorra.core.ability.AbilityInstance;
 import com.projectkorra.core.ability.AbilityUser;
 import com.projectkorra.core.ability.attribute.Attribute;
-import com.projectkorra.core.game.firebending.FireAbilityInstance;
-import com.projectkorra.core.temporary.TempBlock;
 import com.projectkorra.core.util.Effects;
 
-public class FlamethrowerInstance extends FireAbilityInstance {
+public class FlamethrowerInstance extends AbilityInstance {
 
 	@Attribute(DAMAGE)
 	private double damage;
@@ -75,7 +72,7 @@ public class FlamethrowerInstance extends FireAbilityInstance {
 		for (double d = 0; d < currRange; d += inc) {
 			currRadius = (d / range) * radius;
 			loc.add(dir);
-			this.particles(loc, (int) Math.floor(1 + currRadius / 40), currRadius * 0.6, currRadius * 0.6, currRadius * 0.6);
+			//this.particles(loc, (int) Math.floor(1 + currRadius / 40), currRadius * 0.6, currRadius * 0.6, currRadius * 0.6);
 			RayTraceResult ray = loc.getWorld().rayTrace(loc, dir, inc, FluidCollisionMode.ALWAYS, true, currRadius, null);
 			if (ray != null) {
 				boolean br = false;
@@ -88,7 +85,7 @@ public class FlamethrowerInstance extends FireAbilityInstance {
 					if (ray.getHitBlock().getType().isSolid()) {
 						Block place = ray.getHitBlock().getRelative(ray.getHitBlockFace());
 						if (place.isEmpty() && place.getRelative(BlockFace.DOWN).getType().isSolid()) {
-							TempBlock.from(ray.getHitBlock().getRelative(ray.getHitBlockFace())).setData(getFireType().createBlockData(), fireLifetime + ThreadLocalRandom.current().nextLong(1000) - 500);
+							//TempBlock.from(ray.getHitBlock().getRelative(ray.getHitBlockFace())).setData(getFireType().createBlockData(), fireLifetime + ThreadLocalRandom.current().nextLong(1000) - 500);
 						}
 					}
 
@@ -116,10 +113,6 @@ public class FlamethrowerInstance extends FireAbilityInstance {
 	}
 
 	@Override
-	protected void postUpdate() {
-	}
-
-	@Override
 	protected void onStop() {
 		user.addCooldown(provider, cooldown);
 	}
@@ -127,12 +120,6 @@ public class FlamethrowerInstance extends FireAbilityInstance {
 	@Override
 	public String getName() {
 		return provider.getName();
-	}
-
-	@Override
-	protected void preUpdate() {
-		// TODO Auto-generated method stub
-
 	}
 
 }

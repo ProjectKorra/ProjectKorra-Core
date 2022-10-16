@@ -11,8 +11,8 @@ import com.projectkorra.core.ability.AbilityInstance;
 import com.projectkorra.core.ability.AbilityUser;
 import com.projectkorra.core.ability.activation.Activation;
 import com.projectkorra.core.ability.type.Bindable;
+import com.projectkorra.core.game.AvatarSkills;
 import com.projectkorra.core.game.BendingBlocks;
-import com.projectkorra.core.skill.Skill;
 import com.projectkorra.core.temporary.TempBlock;
 import com.projectkorra.core.util.configuration.Configure;
 
@@ -32,7 +32,7 @@ public class Shockwave extends Ability implements Bindable {
 	double damage = 1;
 
 	public Shockwave() {
-		super("Shockwave", "Send a small shockwave through the earth to knock foes off balance", "ProjectKorra", "CORE", Skill.EARTHBENDING);
+		super("Shockwave", "Send a small shockwave through the earth to knock foes off balance", "ProjectKorra", "CORE", AvatarSkills.EARTHBENDING);
 	}
 
 	@Override
@@ -42,7 +42,7 @@ public class Shockwave extends Ability implements Bindable {
 
 	@Override
 	protected AbilityInstance activate(AbilityUser user, Activation trigger, Event provider) {
-		if (user.isOnCooldown(this)) {
+		if (user.hasCooldown(this)) {
 			return null;
 		}
 

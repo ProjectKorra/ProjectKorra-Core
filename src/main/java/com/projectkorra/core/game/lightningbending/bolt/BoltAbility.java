@@ -1,10 +1,11 @@
 package com.projectkorra.core.game.lightningbending.bolt;
 
+import java.util.Optional;
+
 import org.bukkit.event.Event;
 
 import com.projectkorra.core.ability.Ability;
 import com.projectkorra.core.ability.AbilityInstance;
-import com.projectkorra.core.ability.AbilityManager;
 import com.projectkorra.core.ability.AbilityUser;
 import com.projectkorra.core.ability.activation.Activation;
 import com.projectkorra.core.ability.type.Bindable;
@@ -38,7 +39,7 @@ public class BoltAbility extends Ability implements Bindable {
 	double staminaCost = 0.45;
 
 	public BoltAbility() {
-		super("Bolt", "Shoot a lightning bolt!", "ProjectKorra", "CORE", Skill.LIGHTNINGBENDING);
+		super("Bolt", "Shoot a lightning bolt!", "ProjectKorra", "CORE", Skill.of("lightningbending"));
 	}
 
 	@Override
@@ -53,8 +54,10 @@ public class BoltAbility extends Ability implements Bindable {
 	@Override
 	protected AbilityInstance activate(AbilityUser user, Activation trigger, Event provider) {
 		if (trigger == RedirectionPassive.TRIGGER) {
-			if (AbilityManager.hasInstance(user, BoltInstance.class)) {
-				AbilityManager.getInstance(user, BoltInstance.class).ifPresent(BoltInstance::charge);
+			Optional<BoltInstance> active = user.getInstance(BoltInstance.class);
+			
+			if (active.isPresent()) {
+				active.ifPresent(BoltInstance::charge);
 			} else {
 				BoltInstance bolt = new BoltInstance(this, user, false);
 				bolt.charge();
@@ -62,7 +65,7 @@ public class BoltAbility extends Ability implements Bindable {
 			}
 		}
 
-		if (user.isOnCooldown(this)) {
+		if (user.hasCooldown(this)) {
 			return null;
 		}
 
@@ -71,7 +74,7 @@ public class BoltAbility extends Ability implements Bindable {
 		}
 
 		if (trigger == Activation.SNEAK_UP) {
-			AbilityManager.getInstance(user, BoltInstance.class).ifPresent(BoltInstance::releaseSneak);
+			user.getInstance(BoltInstance.class).ifPresent(BoltInstance::releaseSneak);
 		}
 
 		return null;

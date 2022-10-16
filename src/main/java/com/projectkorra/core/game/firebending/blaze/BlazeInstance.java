@@ -9,13 +9,13 @@ import org.bukkit.block.Block;
 import org.bukkit.block.BlockFace;
 import org.bukkit.block.data.BlockData;
 
+import com.projectkorra.core.ability.AbilityInstance;
 import com.projectkorra.core.ability.AbilityUser;
 import com.projectkorra.core.ability.attribute.Attribute;
-import com.projectkorra.core.game.firebending.FireAbilityInstance;
 import com.projectkorra.core.temporary.TempBlock;
 import com.projectkorra.core.util.Blocks;
 
-public class BlazeInstance extends FireAbilityInstance {
+public class BlazeInstance extends AbilityInstance {
 
 	@Attribute(RANGE)
 	private double range;

@@ -6,26 +6,20 @@ import com.projectkorra.core.ability.Ability;
 import com.projectkorra.core.ability.AbilityInstance;
 import com.projectkorra.core.ability.AbilityUser;
 import com.projectkorra.core.ability.activation.Activation;
-import com.projectkorra.core.ability.type.Passive;
 import com.projectkorra.core.skill.Skill;
 import com.projectkorra.core.util.configuration.Configure;
 
-public class WellbeingPassive extends Ability implements Passive {
+public class WellbeingPassive extends Ability {
 
 	@Configure("health")
 	private double health = 40;
 
 	public WellbeingPassive() {
-		super("Wellbeing", "description", "ProjectKorra", "CORE", Skill.PHYSIQUE);
+		super("Wellbeing", "description", "ProjectKorra", "CORE", Skill.of("physique"));
 	}
 
 	@Override
 	public void postProcessed() {
-	}
-
-	@Override
-	public Activation getTrigger() {
-		return Activation.PASSIVE;
 	}
 
 	@Override
@@ -41,4 +35,8 @@ public class WellbeingPassive extends Ability implements Passive {
 	protected void onRegister() {
 	}
 
+	@Override
+	public boolean hasPassive() {
+		return true;
+	}
 }

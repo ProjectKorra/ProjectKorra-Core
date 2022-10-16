@@ -1,6 +1,10 @@
 package com.projectkorra.core.ability;
 
 import java.util.HashMap;
+import java.util.HashSet;
+import java.util.Iterator;
+import java.util.LinkedList;
+import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 import java.util.PriorityQueue;
@@ -16,6 +20,7 @@ import org.bukkit.inventory.MainHand;
 import org.bukkit.util.RayTraceResult;
 import org.bukkit.util.Vector;
 
+import com.projectkorra.core.ability.activation.Activation;
 import com.projectkorra.core.ability.type.Bindable;
 import com.projectkorra.core.event.user.UserBindChangeEvent;
 import com.projectkorra.core.event.user.UserBindCopyEvent;
@@ -32,15 +37,83 @@ public abstract class AbilityUser extends SkillHolder {
 
 	private AbilityBinds binds = new AbilityBinds();
 	private Map<String, Cooldown> cooldowns = new HashMap<>();
-	private PriorityQueue<Cooldown> cdQueue = new PriorityQueue<>(32, (a, b) -> (int) (a.getEndTime() - b.getEndTime()));
+	private PriorityQueue<Cooldown> cdQueue = new PriorityQueue<>(32, (a, b) -> (int) (b.getEndTime() - a.getEndTime()));
 	private LivingEntity entity;
 	private Stamina stamina;
+	private List<ComboValidator> sequences = new LinkedList<>();
+	
+	Set<AbilityInstance> active = new HashSet<>();
 
 	public boolean immune = false;
 
 	public AbilityUser(LivingEntity entity) {
 		this.entity = entity;
 		this.stamina = new Stamina(this, 0.1);
+	}
+
+	ComboValidator updateCombos(Ability ability, Activation trigger) {
+		ComboValidator completed = null;
+		sequences.add(new ComboValidator());
+		Iterator<ComboValidator> iter = sequences.iterator();
+		outer: while (iter.hasNext()) {
+			ComboValidator agent = iter.next();
+
+			switch (agent.update(ability, trigger)) {
+				case COMPLETE:
+					completed = agent;
+					break outer;
+				case FAILED:
+					iter.remove();
+				case INCOMPLETE:
+					break;
+			}
+		}
+
+		if (completed != null) {
+			sequences.clear();
+		}
+
+		return completed;
+	}
+	
+	public <T extends AbilityInstance> Optional<T> getInstance(Class<T> clazz) {
+		return getInstance(clazz, (t) -> true);
+	}
+	
+	public <T extends AbilityInstance> Optional<T> getInstance(Class<T> clazz, Predicate<T> filter) {
+		for (AbilityInstance inst : active) {
+			if (!inst.getClass().isAssignableFrom(clazz)) {
+				continue;
+			}
+			
+			T found = clazz.cast(inst);
+			if (filter.test(found)) {
+				return Optional.of(found);
+			}
+		}
+		
+		return Optional.empty();
+	}
+	
+	public <T extends AbilityInstance> Set<T> getInstances(Class<T> clazz) {
+		return getInstances(clazz, (t) -> true);
+	}
+	
+	public <T extends AbilityInstance> Set<T> getInstances(Class<T> clazz, Predicate<T> filter) {
+		Set<T> found = new HashSet<>();
+		
+		for (AbilityInstance inst : active) {
+			if (!inst.getClass().isAssignableFrom(clazz)) {
+				continue;
+			}
+			
+			T tInst = clazz.cast(inst);
+			if (filter.test(tInst)) {
+				found.add(tInst);
+			}
+		}
+		
+		return found;
 	}
 
 	public LivingEntity getEntity() {
@@ -116,7 +189,7 @@ public abstract class AbilityUser extends SkillHolder {
 	 * 
 	 * @param slots Slots to be cleared
 	 */
-	public final void clearBinds(int... slots) {
+	public final void clearBinds(int...slots) {
 		for (int slot : slots) {
 			clearBind(slot);
 		}
@@ -232,7 +305,7 @@ public abstract class AbilityUser extends SkillHolder {
 		return true;
 	}
 
-	public final void progressCooldowns() {
+	public final void updateCooldowns() {
 		while (cdQueue.peek() != null) {
 			if (cdQueue.peek().getRemaining() >= 0) {
 				break;
@@ -249,11 +322,11 @@ public abstract class AbilityUser extends SkillHolder {
 	 * @param ability Ability to check for cooldowns
 	 * @return true if any of the ability's cooldown tags are found for this user
 	 */
-	public final boolean isOnCooldown(Ability ability) {
+	public final boolean hasCooldown(Ability ability) {
 		return cooldowns.containsKey(ability.getName());
 	}
 
-	public final boolean isOnCooldown(String tag) {
+	public final boolean hasCooldown(String tag) {
 		return cooldowns.containsKey(tag);
 	}
 

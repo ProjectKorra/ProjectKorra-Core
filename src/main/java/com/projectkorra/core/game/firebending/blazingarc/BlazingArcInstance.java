@@ -2,6 +2,7 @@ package com.projectkorra.core.game.firebending.blazingarc;
 
 import java.util.HashMap;
 import java.util.Map;
+import java.util.Optional;
 
 import org.bukkit.FluidCollisionMode;
 import org.bukkit.Location;
@@ -12,16 +13,17 @@ import org.bukkit.util.BoundingBox;
 import org.bukkit.util.RayTraceResult;
 import org.bukkit.util.Vector;
 
+import com.projectkorra.core.ability.AbilityInstance;
 import com.projectkorra.core.ability.AbilityUser;
 import com.projectkorra.core.ability.attribute.Attribute;
 import com.projectkorra.core.collision.Collidable;
-import com.projectkorra.core.game.firebending.FireAbilityInstance;
 import com.projectkorra.core.physics.Collider;
 import com.projectkorra.core.util.Effects;
 import com.projectkorra.core.util.Vectors;
 import com.projectkorra.core.util.Velocity;
+import com.projectkorra.core.util.effect.Effect;
 
-public class BlazingArcInstance extends FireAbilityInstance implements Collidable {
+public class BlazingArcInstance extends AbilityInstance implements Collidable {
 
 	@Attribute(DAMAGE)
 	private double damage;
@@ -43,6 +45,7 @@ public class BlazingArcInstance extends FireAbilityInstance implements Collidabl
 	private boolean[] blocked = new boolean[51];
 	private Map<BoundingBox, Double> ts = new HashMap<>();
 	private Collider collider;
+	private Effect flames;
 
 	public BlazingArcInstance(BlazingArc provider, AbilityUser user) {
 		super(provider, user);
@@ -59,6 +62,7 @@ public class BlazingArcInstance extends FireAbilityInstance implements Collidabl
 		dirs[0] = user.getDirection();
 		user.addCooldown(provider, cooldown);
 		this.collider = new Collider(user.getLocation());
+		this.flames = provider.getSkill().getParticleEffect(user).build("blazingarc_flames", Optional.of(this));
 		return true;
 	}
 
@@ -102,7 +106,7 @@ public class BlazingArcInstance extends FireAbilityInstance implements Collidabl
 			collider.add(hitbox);
 
 			if (Math.random() < 0.6) {
-				particles(display, 1, 0, 0, 0);
+				flames.spawn(display);
 			}
 
 			if (rayCast(display, speed * timeDelta)) {
@@ -175,9 +179,10 @@ public class BlazingArcInstance extends FireAbilityInstance implements Collidabl
 	}
 
 	@Override
-	public void onCollide(BoundingBox hitbox) {
+	public void onCollide(BoundingBox hitbox, Location center) {
 		if (ts.containsKey(hitbox)) {
 			blocked[(int) Math.round(ts.get(hitbox) * (blocked.length - 1))] = true;
+			//Particles.spawnBlockCrack(getFireType().createBlockData(), center);
 		}
 	}
 }

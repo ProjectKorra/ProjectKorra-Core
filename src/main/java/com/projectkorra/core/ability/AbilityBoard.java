@@ -131,7 +131,7 @@ public class AbilityBoard {
 	public void updateBind(int slot, Ability ability) {
 		ChatColor color = slot == oldSlot ? ChatColor.WHITE : ChatColor.DARK_GRAY;
 		slots[slot].update(color + "> ", ability == null ? color + "empty" : ability.getDisplay());
-		if (ability != null && user.isOnCooldown(ability)) {
+		if (ability != null && user.hasCooldown(ability)) {
 			bindCooldown(slot, true);
 		}
 	}

@@ -2,7 +2,6 @@ package com.projectkorra.core.command;
 
 import java.util.Arrays;
 import java.util.List;
-import java.util.Optional;
 import java.util.Set;
 
 import org.bukkit.command.CommandSender;
@@ -33,21 +32,21 @@ public class AbilitiesCommand extends PKSubCommand {
 			return;
 		}
 		
-		Optional<Skill> skill = Skill.of(args[0]);
+		Skill skill = Skill.of(args[0]);
 		
-		if (!skill.isPresent()) {
+		if (skill == null) {
 			sender.sendMessage(ChatColor.RED + "No skill found from '" + ChatColor.GOLD + args[0] + ChatColor.RED + "'");
 			return;
 		}
 		
-		Set<Ability> abils = AbilityManager.getAbilities(skill.get());
+		Set<Ability> abils = AbilityManager.getAbilities(skill);
 		
 		if (abils.isEmpty()) {
-			sender.sendMessage(ChatColor.RED + "No " + skill.get().getDisplay().getColoredNoun() + ChatColor.RED + " abilities were found!");
+			sender.sendMessage(ChatColor.RED + "No " + skill.getDisplay().getColoredNoun() + ChatColor.RED + " abilities were found!");
 			return;
 		}
 		
-		ComponentBuilder builder = new ComponentBuilder(skill.get().getDisplay().getNoun().toUpperCase()).color(skill.get().getDisplay().getColor()).bold(true);
+		ComponentBuilder builder = new ComponentBuilder(skill.getDisplay().getNoun().toUpperCase()).color(skill.getDisplay().getColor()).bold(true);
 		
 		for (Ability ability : abils) {
 			if (sender.hasPermission("projectkorra.ability." + ability.getName())) {

@@ -21,10 +21,10 @@ import com.projectkorra.core.ability.AbilityManager;
 import com.projectkorra.core.ability.AbilityUser;
 import com.projectkorra.core.ability.attribute.Attribute;
 import com.projectkorra.core.collision.Collidable;
+import com.projectkorra.core.game.AvatarSkills;
 import com.projectkorra.core.game.BendingBlocks;
 import com.projectkorra.core.game.earthbending.EarthAbilityInstance;
 import com.projectkorra.core.physics.Collider;
-import com.projectkorra.core.skill.Skill;
 import com.projectkorra.core.temporary.TempBlock;
 import com.projectkorra.core.util.Blocks;
 import com.projectkorra.core.util.Effects;
@@ -62,7 +62,7 @@ public class EarthboltInstance extends EarthAbilityInstance implements Collidabl
 	@Override
 	protected boolean onStart() {
 		Predicate<Block> bendable = (b) -> BendingBlocks.isEarthbendable(b);
-		if (user.hasSkill(Skill.LAVABENDING)) {
+		if (user.hasSkill(AvatarSkills.LAVABENDING)) {
 			bendable = bendable.or((b) -> BendingBlocks.isLavabendable(b));
 		}
 
@@ -215,8 +215,9 @@ public class EarthboltInstance extends EarthAbilityInstance implements Collidabl
 	}
 
 	@Override
-	public void onCollide(BoundingBox hitbox) {
+	public void onCollide(BoundingBox hitbox, Location center) {
 		block.remove();
 		AbilityManager.remove(this);
+		Particles.spawnBlockCrack(block.getBlockData(), center);
 	}
 }

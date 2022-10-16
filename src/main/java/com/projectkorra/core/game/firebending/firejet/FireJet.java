@@ -37,7 +37,7 @@ public class FireJet extends Ability implements Bindable {
 	double jumpStamina = 0.15;
 
 	public FireJet() {
-		super("FireJet", "Use firebending to create jet propulsion from your hands and feet.", "ProjectKorra", "CORE", Skill.FIREBENDING);
+		super("FireJet", "Use firebending to create jet propulsion from your hands and feet.", "ProjectKorra", "CORE", Skill.of("firebending"));
 	}
 
 	@Override
@@ -51,20 +51,20 @@ public class FireJet extends Ability implements Bindable {
 
 	@Override
 	protected AbilityInstance activate(AbilityUser user, Activation trigger, Event provider) {
-		if (trigger == Activation.LEFT_CLICK && !user.isOnCooldown("JetExtra") && user.getStamina().consume(dashStamina)) {
+		if (trigger == Activation.LEFT_CLICK && !user.hasCooldown("JetExtra") && user.getStamina().consume(dashStamina)) {
 			return new JetDashInstance(this, user);
 		}
 
 		if (trigger == Activation.SNEAK_DOWN) {
-			if (user.getEntity().isOnGround() && !user.isOnCooldown("JetExtra") && user.getStamina().consume(jumpStamina)) {
+			if (user.getEntity().isOnGround() && !user.hasCooldown("JetExtra") && user.getStamina().consume(jumpStamina)) {
 				return new JetJumpInstance(this, user);
-			} else if (!user.isOnCooldown(this)) {
+			} else if (!user.hasCooldown(this)) {
 				return new FireJetInstance(this, user);
 			}
 		}
 
 		if (trigger == Activation.SNEAK_UP) {
-			AbilityManager.getInstance(user, FireJetInstance.class).ifPresent(AbilityManager::remove);
+			user.getInstance(FireJetInstance.class).ifPresent(AbilityManager::remove);
 		}
 
 		return null;

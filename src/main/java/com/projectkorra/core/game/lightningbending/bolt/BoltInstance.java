@@ -6,9 +6,12 @@ import java.util.concurrent.ThreadLocalRandom;
 
 import org.bukkit.FluidCollisionMode;
 import org.bukkit.Location;
+import org.bukkit.Material;
 import org.bukkit.Particle;
 import org.bukkit.Sound;
 import org.bukkit.World;
+import org.bukkit.block.data.BlockData;
+import org.bukkit.block.data.type.Light;
 import org.bukkit.entity.LivingEntity;
 import org.bukkit.util.BoundingBox;
 import org.bukkit.util.RayTraceResult;
@@ -20,6 +23,7 @@ import com.projectkorra.core.ability.AbilityUser;
 import com.projectkorra.core.ability.attribute.Attribute;
 import com.projectkorra.core.collision.Collidable;
 import com.projectkorra.core.physics.Collider;
+import com.projectkorra.core.temporary.TempBlock;
 import com.projectkorra.core.util.Effects;
 import com.projectkorra.core.util.Particles;
 import com.projectkorra.core.util.Vectors;
@@ -27,6 +31,12 @@ import com.projectkorra.core.util.Velocity;
 import com.projectkorra.core.util.math.AngleType;
 
 public class BoltInstance extends AbilityInstance implements Collidable {
+	
+	private static final BlockData LIGHT = Material.LIGHT.createBlockData();
+	
+	static {
+		((Light) LIGHT).setLevel(15);
+	}
 
 	@Attribute("max_charge_time")
 	private long maxChargeTime;
@@ -116,6 +126,9 @@ public class BoltInstance extends AbilityInstance implements Collidable {
 
 			double size = 0.1 * range / maxRange;
 			double len = speed * timeDelta / 2 / Math.cos(loc.getDirection().angle(out));
+			
+			TempBlock.from(loc.getBlock()).setData(LIGHT, 500);
+			
 			for (double d = 0; d < len; d += 0.1) {
 				loc.add(out);
 				Particles.lightning(loc, 15, size, size, size);
@@ -135,6 +148,7 @@ public class BoltInstance extends AbilityInstance implements Collidable {
 			}
 
 			collider.shift(loc);
+			TempBlock.from(loc.getBlock()).setData(LIGHT, 500);
 
 			for (double d = 0; d <= len; d += 0.1) {
 				loc.add(in);
@@ -147,6 +161,7 @@ public class BoltInstance extends AbilityInstance implements Collidable {
 			}
 
 			collider.set(hitboxes);
+			TempBlock.from(loc.getBlock()).setData(LIGHT, 500);
 
 			if (subarcChance >= 1 || ThreadLocalRandom.current().nextInt(100) < subarcChance * 100) {
 				BoltInstance subArc = new BoltInstance((BoltAbility) provider, user, true);
@@ -239,8 +254,9 @@ public class BoltInstance extends AbilityInstance implements Collidable {
 	}
 
 	@Override
-	public void onCollide(BoundingBox hitbox) {
+	public void onCollide(BoundingBox hitbox, Location center) {
 		AbilityManager.remove(this);
+		Particles.spawn(Particle.EXPLOSION_LARGE, center);
 	}
 
 	@Override

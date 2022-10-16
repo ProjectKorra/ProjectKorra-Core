@@ -22,7 +22,7 @@ public class FireWheel extends Ability implements Combo {
 	@Configure double radius = 1.2;
 
 	public FireWheel() {
-		super("FireWheel", "Create a flaming wheel that hurtles toward your enemy!", "ProjectKorra", "CORE", Skill.FIREBENDING);
+		super("FireWheel", "Create a flaming wheel that hurtles toward your enemy!", "ProjectKorra", "CORE", Skill.of("firebending"));
 	}
 
 	@Override
@@ -32,7 +32,7 @@ public class FireWheel extends Ability implements Combo {
 
 	@Override
 	protected AbilityInstance activate(AbilityUser user, Activation trigger, Event provider) {
-		if (user.isOnCooldown(this)) {
+		if (user.hasCooldown(this)) {
 			return null;
 		}
 		

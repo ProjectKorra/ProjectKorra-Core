@@ -74,9 +74,12 @@ public abstract class Ability implements Configurable, Listener {
 	 * @return
 	 */
 	protected abstract AbilityInstance activate(AbilityUser user, Activation trigger, Event provider);
+	
+	public boolean hasPassive() {
+		return false;
+	}
 
-	protected void onRegister() {
-	};
+	protected void onRegister() {};
 
 	public boolean canActivate(AbilityUser user, Activation trigger) {
 		return user.hasSkill(getSkill());

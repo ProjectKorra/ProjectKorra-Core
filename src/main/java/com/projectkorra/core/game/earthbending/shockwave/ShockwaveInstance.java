@@ -19,9 +19,9 @@ import org.bukkit.plugin.java.JavaPlugin;
 import com.projectkorra.core.ProjectKorra;
 import com.projectkorra.core.ability.AbilityUser;
 import com.projectkorra.core.ability.attribute.Attribute;
+import com.projectkorra.core.game.AvatarSkills;
 import com.projectkorra.core.game.BendingBlocks;
 import com.projectkorra.core.game.earthbending.EarthAbilityInstance;
-import com.projectkorra.core.skill.Skill;
 import com.projectkorra.core.temporary.TempBlock;
 import com.projectkorra.core.temporary.TempBlock.TempData;
 import com.projectkorra.core.util.Blocks;
@@ -72,7 +72,7 @@ public class ShockwaveInstance extends EarthAbilityInstance {
 		Arrays.fill(blocked, false);
 		this.maxRange = this.range;
 		this.bendable = (b) -> BendingBlocks.isEarthbendable(b);
-		if (user.hasSkill(Skill.LAVABENDING)) {
+		if (user.hasSkill(AvatarSkills.LAVABENDING)) {
 			bendable = bendable.or((b) -> BendingBlocks.isLavabendable(b));
 		}
 

@@ -5,14 +5,14 @@ import org.bukkit.block.Block;
 import org.bukkit.block.BlockFace;
 import org.bukkit.util.Vector;
 
+import com.projectkorra.core.ability.AbilityInstance;
 import com.projectkorra.core.ability.AbilityUser;
 import com.projectkorra.core.ability.attribute.Attribute;
-import com.projectkorra.core.game.firebending.FireAbilityInstance;
 import com.projectkorra.core.util.Blocks;
 import com.projectkorra.core.util.Vectors;
 import com.projectkorra.core.util.data.RemovalPolicy;
 
-public class FireWheelInstance extends FireAbilityInstance {
+public class FireWheelInstance extends AbilityInstance {
 	
 	@Attribute(RANGE)
 	private double range;
@@ -58,7 +58,7 @@ public class FireWheelInstance extends FireAbilityInstance {
 		loc.setY(top.getY() + 1);
 		angle += speed / radius;
 		
-		this.particles(loc.clone().add(0, radius, 0).add(dir.clone().normalize().multiply(Math.cos(angle)).setY(Math.sin(angle)).multiply(radius)), 2, 0.05, 0.05, 0.05);
+		//this.particles(loc.clone().add(0, radius, 0).add(dir.clone().normalize().multiply(Math.cos(angle)).setY(Math.sin(angle)).multiply(radius)), 2, 0.05, 0.05, 0.05);
 		
 		/*
 		for (double d = 0; d < 2 * Math.PI; d += move / radius) {
@@ -73,19 +73,7 @@ public class FireWheelInstance extends FireAbilityInstance {
 	}
 
 	@Override
-	protected void preUpdate() {
-		
-	}
-
-	@Override
-	protected void postUpdate() {
-		
-	}
-
-	@Override
-	protected void onStop() {
-		
-	}
+	protected void onStop() {}
 
 	@Override
 	public String getName() {

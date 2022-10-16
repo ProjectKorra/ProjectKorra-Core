@@ -4,11 +4,13 @@ import java.sql.ResultSet;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Map;
-import java.util.Optional;
 import java.util.Set;
 import java.util.UUID;
 import java.util.function.Function;
 import java.util.stream.Collectors;
+
+import org.bukkit.entity.LivingEntity;
+import org.bukkit.entity.Player;
 
 import com.projectkorra.core.ability.Ability;
 import com.projectkorra.core.ability.AbilityManager;
@@ -17,9 +19,7 @@ import com.projectkorra.core.entity.PlayerUser;
 import com.projectkorra.core.event.user.UserCreationEvent;
 import com.projectkorra.core.skill.Skill;
 import com.projectkorra.core.util.Events;
-
-import org.bukkit.entity.LivingEntity;
-import org.bukkit.entity.Player;
+import com.projectkorra.core.util.storage.DBConnection;
 
 public final class UserManager {
 
@@ -40,7 +40,7 @@ public final class UserManager {
 
 		for (AbilityUser user : USERS.values()) {
 			user.getStamina().regen(deltaTime);
-			user.progressCooldowns();
+			user.updateCooldowns();
 		}
 
 		prevTime = System.currentTimeMillis();
@@ -78,15 +78,15 @@ public final class UserManager {
 			if (ProjectKorra.database().read("SELECT * FROM t_pk_player WHERE uuid = '" + player.getUniqueId() + "'").next()) {
 				ResultSet skillQuery = ProjectKorra.database().read("SELECT * FROM t_pk_player_skills WHERE uuid = '" + player.getUniqueId() + "'");
 				while (skillQuery.next()) {
-					Optional<Skill> skill = Skill.of(skillQuery.getString("skill_name"));
+					Skill skill = Skill.of(skillQuery.getString("skill_name"));
 
-					if (!skill.isPresent()) {
+					if (skill == null) {
 						continue;
 					}
 
-					user.addSkill(skill.get());
+					user.addSkill(skill);
 					if (skillQuery.getInt("toggled") != 0) {
-						user.toggle(skill.get());
+						user.toggle(skill);
 					}
 				}
 
@@ -113,21 +113,23 @@ public final class UserManager {
 		if (user == null) {
 			return;
 		}
+		
+		DBConnection db = ProjectKorra.database();
 
 		try {
-			if (ProjectKorra.database().read("SELECT * FROM t_pk_player WHERE uuid = '" + player.getUniqueId() + "'").next()) {
+			if (db.read("SELECT * FROM t_pk_player WHERE uuid = '" + player.getUniqueId() + "'").next()) {
 				// update eventually when t_pk_player has more columns
 			} else {
-				ProjectKorra.database().modify("INSERT INTO t_pk_player VALUES ('" + player.getUniqueId() + "')");
+				db.send("INSERT INTO t_pk_player VALUES ('" + player.getUniqueId() + "')");
 			}
 
 			for (Skill skill : Skill.values()) {
 				if (!user.hasSkill(skill)) {
-					ProjectKorra.database().modify("DELETE FROM t_pk_player_skills WHERE uuid = '" + player.getUniqueId() + "' AND skill_name = '" + skill.getInternalName() + "'");
-				} else if (ProjectKorra.database().read("SELECT * FROM t_pk_player_skills WHERE uuid = '" + player.getUniqueId() + "' AND skill_name = '" + skill.getInternalName() + "'").next()) {
-					ProjectKorra.database().modify("UPDATE t_pk_player_skills SET toggled = " + (user.isToggled(skill) ? 1 : 0) + " WHERE uuid = '" + player.getUniqueId() + "' AND skill_name = '" + skill.getInternalName() + "'");
+					db.send("DELETE FROM t_pk_player_skills WHERE uuid = '" + player.getUniqueId() + "' AND skill_name = '" + skill.getInternalName() + "'");
+				} else if (db.read("SELECT * FROM t_pk_player_skills WHERE uuid = '" + player.getUniqueId() + "' AND skill_name = '" + skill.getInternalName() + "'").next()) {
+					db.send("UPDATE t_pk_player_skills SET toggled = " + (user.isToggled(skill) ? 1 : 0) + " WHERE uuid = '" + player.getUniqueId() + "' AND skill_name = '" + skill.getInternalName() + "'");
 				} else {
-					ProjectKorra.database().modify("INSERT INTO t_pk_player_skills VALUES ('" + player.getUniqueId() + "', '" + skill.getInternalName() + "', " + (user.isToggled(skill) ? 1 : 0) + ")");
+					db.send("INSERT INTO t_pk_player_skills VALUES ('" + player.getUniqueId() + "', '" + skill.getInternalName() + "', " + (user.isToggled(skill) ? 1 : 0) + ")");
 				}
 			}
 
@@ -135,11 +137,11 @@ public final class UserManager {
 			for (Ability ability : user.getBinds()) {
 				++slot;
 				if (ability == null) {
-					ProjectKorra.database().modify("DELETE FROM t_pk_player_binds WHERE uuid = '" + player.getUniqueId() + "' AND bound_slot = " + slot);
-				} else if (ProjectKorra.database().read("SELECT * FROM t_pk_player_binds WHERE uuid = '" + player.getUniqueId() + "' AND bound_slot = " + slot).next()) {
-					ProjectKorra.database().modify("UPDATE t_pk_player_binds SET ability_name = '" + ability.getName() + "' WHERE uuid = '" + player.getUniqueId() + "' AND bound_slot = " + slot);
+					db.send("DELETE FROM t_pk_player_binds WHERE uuid = '" + player.getUniqueId() + "' AND bound_slot = " + slot);
+				} else if (db.read("SELECT * FROM t_pk_player_binds WHERE uuid = '" + player.getUniqueId() + "' AND bound_slot = " + slot).next()) {
+					db.send("UPDATE t_pk_player_binds SET ability_name = '" + ability.getName() + "' WHERE uuid = '" + player.getUniqueId() + "' AND bound_slot = " + slot);
 				} else {
-					ProjectKorra.database().modify("INSERT INTO t_pk_player_binds VALUES ('" + player.getUniqueId() + "', " + slot + ", '" + ability.getName() + "')");
+					db.send("INSERT INTO t_pk_player_binds VALUES ('" + player.getUniqueId() + "', " + slot + ", '" + ability.getName() + "')");
 				}
 			}
 		} catch (Exception e) {

@@ -5,15 +5,15 @@ import org.bukkit.World;
 import org.bukkit.entity.LivingEntity;
 import org.bukkit.util.BoundingBox;
 
+import com.projectkorra.core.ability.AbilityInstance;
 import com.projectkorra.core.ability.AbilityManager;
 import com.projectkorra.core.ability.AbilityUser;
 import com.projectkorra.core.ability.attribute.Attribute;
 import com.projectkorra.core.collision.Collidable;
-import com.projectkorra.core.game.firebending.FireAbilityInstance;
 import com.projectkorra.core.physics.Collider;
 import com.projectkorra.core.util.Effects;
 
-public class FlameShieldInstance extends FireAbilityInstance implements Collidable {
+public class FlameShieldInstance extends AbilityInstance implements Collidable {
 
 	@Attribute(RADIUS)
 	private double radius;
@@ -68,12 +68,14 @@ public class FlameShieldInstance extends FireAbilityInstance implements Collidab
 					double ox = 0.1 * Math.cos(theta) * (Math.random() - 0.5);
 					double oz = 0.1 * Math.sin(theta) * (Math.random() - 0.5);
 
-					loc.getWorld().spawnParticle(getParticle(), x, y, z, 0, ox, 0.1, oz, 0.5);
+					//loc.getWorld().spawnParticle(getParticle(), x, y, z, 0, ox, 0.1, oz, 0.5);
 				}
 			}
 
 			angle += 0.01;
 		}
+		
+		//placeLight(user.getEyeLocation());
 
 		Effects.forNearbyEntities(loc, radius + 0.2, (e) -> e instanceof LivingEntity && !e.getUniqueId().equals(user.getUniqueID()), (e) -> {
 			Effects.damage((LivingEntity) e, damage, FlameShieldInstance.this, false);
@@ -81,10 +83,6 @@ public class FlameShieldInstance extends FireAbilityInstance implements Collidab
 		});
 
 		return true;
-	}
-
-	@Override
-	protected void postUpdate() {
 	}
 
 	@Override
@@ -113,17 +111,11 @@ public class FlameShieldInstance extends FireAbilityInstance implements Collidab
 	}
 
 	@Override
-	public void onCollide(BoundingBox hitbox) {
+	public void onCollide(BoundingBox hitbox, Location center) {
 		health -= collisionDamage;
 		if (health <= 0) {
 			AbilityManager.remove(this);
 		}
-	}
-
-	@Override
-	protected void preUpdate() {
-		// TODO Auto-generated method stub
-
 	}
 
 }

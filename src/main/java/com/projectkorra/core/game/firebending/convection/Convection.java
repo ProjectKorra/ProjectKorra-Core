@@ -36,7 +36,7 @@ public class Convection extends Ability implements Bindable {
 	long extinguishCooldown = 1500;
 
 	public Convection() {
-		super("Convection", "Transfer heat into or out of nearby objects! Useful against fire and lava", "ProjectKorra", "CORE", Skill.FIREBENDING);
+		super("Convection", "Transfer heat into or out of nearby objects! Useful against fire and lava", "ProjectKorra", "CORE", Skill.of("firebending"));
 	}
 
 	@Override
@@ -51,15 +51,19 @@ public class Convection extends Ability implements Bindable {
 
 	@Override
 	protected AbilityInstance activate(AbilityUser user, Activation trigger, Event provider) {
-		if (user.isOnCooldown(this)) {
+		if (user.hasCooldown(this)) {
 			return null;
 		}
 
 		if (trigger == Activation.SNEAK_DOWN) {
 			return new MeltingInstance(this, user);
 		} else if (trigger == Activation.SNEAK_UP) {
-			AbilityManager.getInstance(user, MeltingInstance.class).ifPresent(AbilityManager::remove);
-		} else if (trigger == Activation.LEFT_CLICK && !AbilityManager.hasInstance(user, MeltingInstance.class)) {
+			user.getInstance(MeltingInstance.class).ifPresent(AbilityManager::remove);
+		} else if (trigger == Activation.LEFT_CLICK) {
+			if (user.getInstance(MeltingInstance.class).isPresent()) {
+				return null;
+			}
+			
 			return new ExtinguishInstance(this, user);
 		}
 

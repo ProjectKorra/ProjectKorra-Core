@@ -22,13 +22,11 @@ public class Activation {
 
 	private String id, display;
 	private boolean comboable;
-	private int bitIndex;
 
-	private Activation(String id, String display, boolean comboable, int bitIndex) {
+	private Activation(String id, String display, boolean comboable) {
 		this.id = id;
 		this.display = display;
 		this.comboable = comboable;
-		this.bitIndex = bitIndex;
 	}
 
 	public String getDisplay() {
@@ -39,16 +37,12 @@ public class Activation {
 		return comboable;
 	}
 
-	public int getFlagIndex() {
-		return bitIndex;
-	}
-
-	public boolean matchAny(Activation... triggers) {
-		long flags = 0;
+	public boolean matchAny(Activation...triggers) {
 		for (Activation a : triggers) {
-			flags |= (1L << a.getFlagIndex());
+			if (this == a) return true;
 		}
-		return (flags & (1L << this.getFlagIndex())) != 0L;
+		
+		return false;
 	}
 
 	@Override
@@ -77,6 +71,6 @@ public class Activation {
 			return null;
 		}
 
-		return CACHE.computeIfAbsent(id.toLowerCase(), (s) -> new Activation(s, display, comboable, CACHE.size()));
+		return CACHE.computeIfAbsent(id.toLowerCase(), (s) -> new Activation(s, display, comboable));
 	}
 }

@@ -8,7 +8,7 @@ import com.projectkorra.core.ability.AbilityManager;
 import com.projectkorra.core.ability.AbilityUser;
 import com.projectkorra.core.ability.activation.Activation;
 import com.projectkorra.core.ability.type.Bindable;
-import com.projectkorra.core.skill.Skill;
+import com.projectkorra.core.game.AvatarSkills;
 import com.projectkorra.core.util.configuration.Configure;
 
 public class Blaze extends Ability implements Bindable {
@@ -21,7 +21,7 @@ public class Blaze extends Ability implements Bindable {
 	long fireDuration = 15000;
 
 	public Blaze() {
-		super("Blaze", "Expand existing fire into a glorious blaze", "ProjectKorra", "CORE", Skill.FIREBENDING);
+		super("Blaze", "Expand existing fire into a glorious blaze", "ProjectKorra", "CORE", AvatarSkills.FIREBENDING);
 	}
 
 	@Override
@@ -35,14 +35,14 @@ public class Blaze extends Ability implements Bindable {
 
 	@Override
 	protected AbilityInstance activate(AbilityUser user, Activation trigger, Event provider) {
-		if (user.isOnCooldown(this)) {
+		if (user.hasCooldown(this)) {
 			return null;
 		}
 
 		if (trigger == Activation.SNEAK_DOWN) {
 			return new BlazeInstance(this, user);
 		} else if (trigger == Activation.SNEAK_UP) {
-			AbilityManager.getInstance(user, BlazeInstance.class).ifPresent(AbilityManager::remove);
+			user.getInstance(BlazeInstance.class).ifPresent(AbilityManager::remove);
 		}
 
 		return null;

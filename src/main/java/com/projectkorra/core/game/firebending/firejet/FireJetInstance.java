@@ -5,12 +5,12 @@ import org.bukkit.Sound;
 import org.bukkit.util.RayTraceResult;
 import org.bukkit.util.Vector;
 
+import com.projectkorra.core.ability.AbilityInstance;
 import com.projectkorra.core.ability.AbilityUser;
 import com.projectkorra.core.ability.attribute.Attribute;
-import com.projectkorra.core.game.firebending.FireAbilityInstance;
 import com.projectkorra.core.util.Effects;
 
-public class FireJetInstance extends FireAbilityInstance {
+public class FireJetInstance extends AbilityInstance {
 
 	@Attribute("max_speed")
 	private double maxSpeed;
@@ -51,7 +51,7 @@ public class FireJetInstance extends FireAbilityInstance {
 		velocity.add(user.getDirection().multiply(acceleration * timeDelta));
 		RayTraceResult ray = user.getLocation().getWorld().rayTraceBlocks(user.getLocation(), new Vector(0, -1, 0), 3, FluidCollisionMode.ALWAYS, true);
 		if (ray != null) {
-			this.particles(user.getLocation().subtract(0, 0.2, 0), 13, 0.1, 0.4, 0.1);
+			//this.particles(user.getLocation().subtract(0, 0.2, 0), 13, 0.1, 0.4, 0.1);
 		} else if (velocity.getY() > 0) {
 			double v = velocity.length();
 			velocity.setY(velocity.getY() * 0.5).normalize().multiply(v);
@@ -63,7 +63,7 @@ public class FireJetInstance extends FireAbilityInstance {
 
 		user.getEntity().setVelocity(velocity);
 		user.getEntity().setFallDistance(0);
-		this.particles(user.getLocation(), 7, 0.2, 0.2, 0.2);
+		//this.particles(user.getLocation(), 7, 0.2, 0.2, 0.2);
 		Effects.playSound(user.getLocation(), Sound.BLOCK_FIRE_AMBIENT, 1f, 1.8f);
 		return true;
 	}

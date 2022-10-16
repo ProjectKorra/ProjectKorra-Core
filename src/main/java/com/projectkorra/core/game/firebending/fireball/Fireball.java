@@ -2,12 +2,12 @@ package com.projectkorra.core.game.firebending.fireball;
 
 import java.util.Arrays;
 import java.util.List;
+import java.util.Optional;
 
 import org.bukkit.event.Event;
 
 import com.projectkorra.core.ability.Ability;
 import com.projectkorra.core.ability.AbilityInstance;
-import com.projectkorra.core.ability.AbilityManager;
 import com.projectkorra.core.ability.AbilityUser;
 import com.projectkorra.core.ability.activation.Activation;
 import com.projectkorra.core.ability.activation.SequenceInfo;
@@ -58,7 +58,7 @@ public class Fireball extends Ability implements Bindable, Combo {
 	long comboCooldown = 3000;
 
 	public Fireball() {
-		super("Fireball", "Throw fireballs!", "ProjectKorra", "CORE", Skill.FIREBENDING);
+		super("Fireball", "Throw fireballs!", "ProjectKorra", "CORE", Skill.of("firebending"));
 	}
 
 	@Override
@@ -67,13 +67,14 @@ public class Fireball extends Ability implements Bindable, Combo {
 
 	@Override
 	protected AbilityInstance activate(AbilityUser user, Activation trigger, Event provider) {
-		if (user.isOnCooldown("ChargedFireball")) {
+		if (user.hasCooldown("ChargedFireball")) {
 			return null;
 		}
 
-		if (!user.isOnCooldown(this) && trigger == Activation.SNEAK_DOWN) {
-			if (AbilityManager.hasInstance(user, ChargedFireballInstance.class)) {
-				AbilityManager.getInstance(user, ChargedFireballInstance.class).get().pressSneak();
+		if (trigger == Activation.SNEAK_DOWN && !user.hasCooldown(this)) {
+			Optional<ChargedFireballInstance> cfb = user.getInstance(ChargedFireballInstance.class);
+			if (cfb.isPresent()) {
+				cfb.get().pressSneak();
 				return null;
 			}
 
@@ -81,26 +82,25 @@ public class Fireball extends Ability implements Bindable, Combo {
 		}
 
 		if (trigger == Activation.SNEAK_UP) {
-			AbilityManager.getInstance(user, ChargedFireballInstance.class).ifPresent(ChargedFireballInstance::releaseSneak);
+			user.getInstance(ChargedFireballInstance.class).ifPresent(ChargedFireballInstance::releaseSneak);
 		}
 
 		if (trigger == Activation.LEFT_CLICK) {
-			if (AbilityManager.hasInstance(user, ChargedFireballInstance.class)) {
-				ChargedFireballInstance chrg = AbilityManager.getInstance(user, ChargedFireballInstance.class).get();
-				if (chrg.canShoot()) {
-					chrg.shoot();
+			Optional<ChargedFireballInstance> cfb = user.getInstance(ChargedFireballInstance.class);
+			
+			if (cfb.isPresent()) {
+				if (cfb.get().canShoot()) {
+					cfb.get().shoot();
 				}
 				return null;
-			} else if (user.isOnCooldown(this)) {
-				return null;
-			} else if (!user.getStamina().consume(staminaCost)) {
+			} else if (user.hasCooldown(this) || !user.getStamina().consume(staminaCost)) {
 				return null;
 			}
 
 			return new FireballInstance(this, user, false);
 		}
 
-		if (user.isOnCooldown(this) && !user.isOnCooldown("FireballCombo") && trigger == Activation.COMBO && user.getStamina().consume(staminaCost)) {
+		if (trigger == Activation.COMBO && user.hasCooldown(this) && !user.hasCooldown("FireballCombo") && user.getStamina().consume(staminaCost)) {
 			user.addCooldown("FireballCombo", comboCooldown);
 			return new FireballInstance(this, user, true);
 		}

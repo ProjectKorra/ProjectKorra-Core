@@ -32,7 +32,7 @@ public class DBConnection {
 		return null;
 	}
 
-	public void modify(String query) {
+	public void send(String query) {
 		new Thread(() -> execute(query)).start();
 	}
 

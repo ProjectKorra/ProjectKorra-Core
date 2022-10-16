@@ -22,7 +22,7 @@ public abstract class AbilityInstance {
 
 	protected final AbilityUser user;
 	protected final Ability provider;
-	protected final RemovalPolicy removal = RemovalPolicy.EMPTY;
+	protected RemovalPolicy removal = RemovalPolicy.EMPTY;
 	private int counter = -1;
 	private long startTime = -1;
 
@@ -88,6 +88,7 @@ public abstract class AbilityInstance {
 
 	final boolean start() {
 		startTime = System.currentTimeMillis();
+		user.active.add(this);
 		return onStart();
 	}
 
@@ -103,6 +104,7 @@ public abstract class AbilityInstance {
 
 	final void stop() {
 		onStop();
+		user.active.remove(this);
 		startTime = -1;
 		counter = -1;
 	}
@@ -121,12 +123,15 @@ public abstract class AbilityInstance {
 	 */
 	protected abstract boolean onUpdate(double timeDelta);
 
-	protected abstract void preUpdate();
+	/**
+	 * Method called before instance is updated
+	 */
+	protected void preUpdate() {}
 
 	/**
 	 * Method called after instance has been successfully updated
 	 */
-	protected abstract void postUpdate();
+	protected void postUpdate() {}
 
 	/**
 	 * Method called when instance is stopped

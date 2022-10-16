@@ -7,6 +7,7 @@ import com.projectkorra.core.ability.AbilityInstance;
 import com.projectkorra.core.event.ability.InstanceDamageEntityEvent;
 import com.projectkorra.core.event.ability.InstanceIgniteEntityEvent;
 import com.projectkorra.core.event.ability.InstanceMoveEntityEvent;
+import com.projectkorra.core.util.data.AbilityDamage;
 
 import org.bukkit.Location;
 import org.bukkit.Sound;
@@ -47,7 +48,7 @@ public final class Effects {
 			damage /= 1 - (Math.min(20, Math.max(defense / 5, defense - 4 * damage / (toughness + 8)))) / 25;
 		}
 
-		target.damage(damage, source.getUser().getEntity());
+		target.damage(damage, new AbilityDamage(source));
 		return true;
 	}
 

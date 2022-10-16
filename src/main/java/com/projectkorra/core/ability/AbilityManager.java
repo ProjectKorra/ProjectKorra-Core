@@ -1,13 +1,9 @@
 package com.projectkorra.core.ability;
 
 import java.lang.reflect.Field;
-import java.util.ArrayList;
-import java.util.Collections;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Iterator;
-import java.util.LinkedList;
-import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
 import java.util.Optional;
@@ -24,7 +20,6 @@ import com.projectkorra.core.ability.attribute.AttributeGroup;
 import com.projectkorra.core.ability.attribute.Modifier;
 import com.projectkorra.core.ability.type.Combo;
 import com.projectkorra.core.ability.type.ExpanderInstance;
-import com.projectkorra.core.ability.type.Passive;
 import com.projectkorra.core.collision.Collidable;
 import com.projectkorra.core.collision.CollisionManager;
 import com.projectkorra.core.event.ability.InstanceStartEvent;
@@ -40,8 +35,7 @@ import com.projectkorra.core.util.reflection.ReflectionUtil;
 
 public final class AbilityManager {
 
-	private AbilityManager() {
-	}
+	private AbilityManager() {}
 
 	// static ability info
 	private static final Map<Class<? extends Ability>, Ability> ABILITIES_BY_CLASS = new HashMap<>();
@@ -49,16 +43,15 @@ public final class AbilityManager {
 	private static final Map<Skill, Set<Ability>> ABILITIES_BY_SKILL = new HashMap<>();
 
 	// instance info
-	private static final Set<AbilityInstance> ACTIVE = new HashSet<>(256);
+	private static final Set<AbilityInstance> ACTIVE = new HashSet<>(256), REMOVAL = new HashSet<>(), STARTED = new HashSet<>();
 	private static final Map<Class<? extends AbilityInstance>, Map<String, Field>> ATTRIBUTES = new HashMap<>();
 	private static final Map<AbilityInstance, Map<Field, Modifier>> MODIFIERS = new HashMap<>();
-	private static final Map<AbilityUser, ActiveInfo> USER_INFO = new HashMap<>();
 
 	// combo management
 	private static final Map<String, Ability> COMBOS = new HashMap<>();
 
 	// passive management
-	private static final Map<Skill, Map<Activation, Set<Ability>>> PASSIVES = new HashMap<>();
+	private static final Map<Skill, Set<Ability>> PASSIVES = new HashMap<>();
 
 	private static boolean init = false;
 	private static ProjectKorra plugin;
@@ -73,10 +66,6 @@ public final class AbilityManager {
 		init = true;
 		plugin = pk;
 		plugin.getServer().getScheduler().scheduleSyncRepeatingTask(plugin, () -> tick(), 0, 1);
-	}
-
-	private static ActiveInfo info(AbilityUser user) {
-		return USER_INFO.computeIfAbsent(user, (u) -> new ActiveInfo(u));
 	}
 
 	public static Optional<Ability> getAbility(String name) {
@@ -109,27 +98,6 @@ public final class AbilityManager {
 		}
 
 		return abilities;
-	}
-
-	public static <T extends AbilityInstance> Optional<T> getInstance(AbilityUser user, Class<T> clazz) {
-		LinkedList<AbilityInstance> instances = info(user).getInstances(clazz);
-		if (instances == null) {
-			return Optional.ofNullable(null);
-		} else {
-			return Optional.ofNullable(clazz.cast(instances.peek()));
-		}
-	}
-
-	public static List<AbilityInstance> getInstances(AbilityUser user, Class<? extends AbilityInstance> clazz) {
-		if (!hasInstance(user, clazz)) {
-			return Collections.emptyList();
-		}
-
-		return new ArrayList<>(info(user).getInstances(clazz));
-	}
-
-	public static boolean hasInstance(AbilityUser user, Class<? extends AbilityInstance> clazz) {
-		return info(user).hasInstance(clazz);
 	}
 
 	public static boolean hasAttribute(AbilityInstance instance, String attribute) {
@@ -212,8 +180,8 @@ public final class AbilityManager {
 			}
 		}
 
-		if (ability instanceof Passive) {
-			PASSIVES.computeIfAbsent(ability.getSkill(), (s) -> new HashMap<>()).computeIfAbsent(((Passive) ability).getTrigger(), (t) -> new HashSet<>()).add(ability);
+		if (ability.hasPassive()) {
+			PASSIVES.computeIfAbsent(ability.getSkill(), (t) -> new HashSet<>()).add(ability);
 		}
 
 		return Config.process(Events.register(ability));
@@ -259,18 +227,18 @@ public final class AbilityManager {
 			return false;
 		}
 
+		if (Events.call(new UserActivationEvent(user, trigger, provider)).isCancelled()) {
+			return false;
+		}
+
 		Ability ability = user.getBoundAbility().orElseGet(() -> null);
 
 		if (ability == null) {
 			return false;
 		}
 
-		if (Events.call(new UserActivationEvent(user, trigger, provider)).isCancelled()) {
-			return false;
-		}
-
 		if (trigger.canCombo()) {
-			ComboValidator combo = USER_INFO.computeIfAbsent(user, (u) -> new ActiveInfo(u)).updateCombos(ability, trigger);
+			ComboValidator combo = user.updateCombos(ability, trigger);
 			if (combo != null) {
 				ability = COMBOS.get(SequenceInfo.stringify(combo.getSequence()));
 				trigger = Activation.COMBO;
@@ -313,35 +281,26 @@ public final class AbilityManager {
 
 		if (!instance.start()) {
 			return false;
-		} else if (!info(instance.getUser()).addInstance(instance)) {
-			return false;
 		}
 		
 		if (instance.hasUpdate()) {
-			ACTIVE.add(instance);
+			STARTED.add(instance);
 		}
 
 		return true;
 	}
 
 	public static void refreshPassives(AbilityUser user) {
+		removeAll(user);
 		for (Skill skill : user.getSkills()) {
 			if (!PASSIVES.containsKey(skill)) {
 				continue;
-			} else if (PASSIVES.get(skill) == null) {
-				continue;
-			} else if (!PASSIVES.get(skill).containsKey(Activation.PASSIVE)) {
-				continue;
 			}
 
-			for (Ability passive : PASSIVES.get(skill).get(Activation.PASSIVE)) {
+			for (Ability passive : PASSIVES.get(skill)) {
 				start(passive.activate(user, Activation.PASSIVE, null));
 			}
 		}
-	}
-
-	public static void removeAll(AbilityUser user) {
-		info(user).clear();
 	}
 
 	public static void remove(AbilityInstance instance) {
@@ -349,17 +308,30 @@ public final class AbilityManager {
 			return;
 		}
 
-		ACTIVE.remove(instance);
+		REMOVAL.add(instance);
 		stop(instance, Reason.FORCED);
+	}
+	
+	public static void removeAll(AbilityUser user) {
+		for (Iterator<AbilityInstance> iter = user.active.iterator(); iter.hasNext();) {
+			AbilityInstance inst = iter.next();
+			iter.remove();
+			remove(inst);
+		}
 	}
 
 	private static void stop(AbilityInstance instance, Reason reason) {
 		Events.call(new InstanceStopEvent(instance, reason));
-		USER_INFO.get(instance.getUser()).removeInstance(instance);
 		instance.stop();
 	}
 
 	static void tick() {
+		ACTIVE.removeAll(REMOVAL);
+		REMOVAL.clear();
+		
+		ACTIVE.addAll(STARTED);
+		STARTED.clear();
+		
 		double timeDelta = (System.currentTimeMillis() - prev) / 1000D;
 		Iterator<AbilityInstance> iter = ACTIVE.iterator();
 		
@@ -374,8 +346,8 @@ public final class AbilityManager {
 			}
 
 			instance.postUpdate();
-			if (instance instanceof Collidable) {
-				CollisionManager.addCollidable((Collidable) instance);
+			if (instance instanceof Collidable collider) {
+				CollisionManager.addCollidable(collider);
 			}
 		}
 

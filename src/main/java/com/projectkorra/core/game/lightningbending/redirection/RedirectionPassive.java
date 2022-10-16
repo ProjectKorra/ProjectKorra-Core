@@ -1,5 +1,7 @@
 package com.projectkorra.core.game.lightningbending.redirection;
 
+import java.util.Optional;
+
 import org.bukkit.event.Event;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.entity.EntityDamageByEntityEvent;
@@ -12,15 +14,14 @@ import com.projectkorra.core.ability.AbilityInstance;
 import com.projectkorra.core.ability.AbilityManager;
 import com.projectkorra.core.ability.AbilityUser;
 import com.projectkorra.core.ability.activation.Activation;
-import com.projectkorra.core.ability.type.Passive;
 import com.projectkorra.core.entity.PlayerUser;
 import com.projectkorra.core.event.ability.InstanceDamageEntityEvent;
+import com.projectkorra.core.game.AvatarSkills;
 import com.projectkorra.core.game.lightningbending.bolt.BoltAbility;
 import com.projectkorra.core.game.lightningbending.bolt.BoltInstance;
-import com.projectkorra.core.skill.Skill;
 import com.projectkorra.core.util.configuration.Configure;
 
-public class RedirectionPassive extends Ability implements Passive {
+public class RedirectionPassive extends Ability {
 
 	public static final Activation TRIGGER = Activation.of("redirection_trigger", "Redirection", false);
 
@@ -28,24 +29,14 @@ public class RedirectionPassive extends Ability implements Passive {
 	double staminaCost = 0.05;
 
 	public RedirectionPassive() {
-		super("Redirection", "Lightningbenders can take in lightning and release it again!", "ProjectKorra", "CORE", Skill.LIGHTNINGBENDING);
+		super("Redirection", "Lightningbenders can take in lightning and release it again!", "ProjectKorra", "CORE", AvatarSkills.LIGHTNINGBENDING);
 	}
 
 	@Override
-	public void postProcessed() {
-	}
+	public void postProcessed() {}
 
 	@Override
 	protected AbilityInstance activate(AbilityUser user, Activation trigger, Event provider) {
-		return null;
-	}
-
-	@Override
-	protected void onRegister() {
-	}
-
-	@Override
-	public Activation getTrigger() {
 		return null;
 	}
 
@@ -56,11 +47,11 @@ public class RedirectionPassive extends Ability implements Passive {
 		}
 
 		PlayerUser user = UserManager.from(event.getTarget().getUniqueId()).getAs(PlayerUser.class);
-		if (user == null) {
+		Optional<BoltInstance> bolt = user.getInstance(BoltInstance.class);
+		
+		if (!user.getEntity().isSneaking() || !user.getBoundAbility().filter((a) -> a instanceof BoltAbility).isPresent()) {
 			return;
-		} else if (!user.getEntity().isSneaking() || !user.getBoundAbility().filter((a) -> a instanceof BoltAbility).isPresent()) {
-			return;
-		} else if (AbilityManager.hasInstance(user, BoltInstance.class) && !AbilityManager.getInstance(user, BoltInstance.class).get().canRedirect()) {
+		} else if (bolt.isPresent() && !bolt.get().canRedirect()) {
 			return;
 		} else if (!user.getStamina().consume(staminaCost)) {
 			return;
@@ -79,11 +70,11 @@ public class RedirectionPassive extends Ability implements Passive {
 		}
 
 		PlayerUser user = UserManager.from(event.getEntity().getUniqueId()).getAs(PlayerUser.class);
-		if (user == null) {
+		Optional<BoltInstance> bolt = user.getInstance(BoltInstance.class);
+		
+		if (!user.getEntity().isSneaking() || !user.getBoundAbility().filter((a) -> a instanceof BoltAbility).isPresent()) {
 			return;
-		} else if (!user.getEntity().isSneaking() || !user.getBoundAbility().filter((a) -> a instanceof BoltAbility).isPresent()) {
-			return;
-		} else if (AbilityManager.hasInstance(user, BoltInstance.class) && !AbilityManager.getInstance(user, BoltInstance.class).get().canRedirect()) {
+		} else if (bolt.isPresent() && !bolt.get().canRedirect()) {
 			return;
 		} else if (!user.getStamina().consume(staminaCost)) {
 			return;

@@ -1,5 +1,7 @@
 package com.projectkorra.core.game.earthbending.earthbolt;
 
+import java.util.Optional;
+
 import org.bukkit.entity.FallingBlock;
 import org.bukkit.event.Event;
 import org.bukkit.event.EventHandler;
@@ -7,11 +9,10 @@ import org.bukkit.event.entity.EntityChangeBlockEvent;
 
 import com.projectkorra.core.ability.Ability;
 import com.projectkorra.core.ability.AbilityInstance;
-import com.projectkorra.core.ability.AbilityManager;
 import com.projectkorra.core.ability.AbilityUser;
 import com.projectkorra.core.ability.activation.Activation;
 import com.projectkorra.core.ability.type.Bindable;
-import com.projectkorra.core.skill.Skill;
+import com.projectkorra.core.game.AvatarSkills;
 import com.projectkorra.core.util.configuration.Configure;
 
 public class Earthbolt extends Ability implements Bindable {
@@ -28,7 +29,7 @@ public class Earthbolt extends Ability implements Bindable {
 	double staminaCost = 0.15;
 
 	public Earthbolt() {
-		super("Earthbolt", "Raise and launch large pieces of rock at your enemies!", "ProjectKorra", "CORE", Skill.EARTHBENDING);
+		super("Earthbolt", "Raise and launch large pieces of rock at your enemies!", "ProjectKorra", "CORE", AvatarSkills.EARTHBENDING);
 	}
 
 	@Override
@@ -38,15 +39,18 @@ public class Earthbolt extends Ability implements Bindable {
 
 	@Override
 	protected AbilityInstance activate(AbilityUser user, Activation trigger, Event provider) {
-		if (user.isOnCooldown(this)) {
+		if (user.hasCooldown(this)) {
 			return null;
 		}
+		
+		Optional<EarthboltInstance> bolt = user.getInstance(EarthboltInstance.class);
 
-		if (trigger == Activation.SNEAK_DOWN && !AbilityManager.hasInstance(user, EarthboltInstance.class)) {
+		if (trigger == Activation.SNEAK_DOWN && !bolt.isPresent()) {
 			return new EarthboltInstance(this, user);
 		}
+		
 		if (trigger == Activation.LEFT_CLICK) {
-			AbilityManager.getInstance(user, EarthboltInstance.class).ifPresent(EarthboltInstance::launch);
+			bolt.ifPresent(EarthboltInstance::launch);
 		}
 
 		return null;

@@ -5,15 +5,13 @@ import org.bukkit.event.EventHandler;
 
 import com.projectkorra.core.ability.Ability;
 import com.projectkorra.core.ability.AbilityInstance;
-import com.projectkorra.core.ability.AbilityManager;
 import com.projectkorra.core.ability.AbilityUser;
 import com.projectkorra.core.ability.activation.Activation;
-import com.projectkorra.core.ability.type.Passive;
 import com.projectkorra.core.event.ability.InstanceStartEvent;
 import com.projectkorra.core.skill.Skill;
 import com.projectkorra.core.util.configuration.Configure;
 
-public class SunlightPassive extends Ability implements Passive {
+public class SunlightPassive extends Ability {
 
 	@Configure("multiplier.damage")
 	double modDamage = 1.05;
@@ -25,33 +23,28 @@ public class SunlightPassive extends Ability implements Passive {
 	double modSize = 1.025;
 
 	public SunlightPassive() {
-		super("Sunlight", "Firebenders are stronger during the day!", "ProjectKorra", "CORE", Skill.FIREBENDING);
+		super("Sunlight", "Firebenders are stronger during the day!", "ProjectKorra", "CORE", Skill.of("firebending"));
+	}
+	
+	@Override
+	public boolean hasPassive() {
+		return true;
 	}
 
 	@Override
-	public void postProcessed() {
-	}
-
-	@Override
-	public Activation getTrigger() {
-		return Activation.PASSIVE;
-	}
+	public void postProcessed() {}
 
 	@Override
 	protected AbilityInstance activate(AbilityUser user, Activation trigger, Event provider) {
 		return null;
 	}
 
-	@Override
-	protected void onRegister() {
-	}
-
 	@EventHandler
 	public void onAbilityStart(InstanceStartEvent event) {
-		if (event.getInstance().getProvider().getSkill() != Skill.FIREBENDING) {
+		if (event.getInstance().getProvider().getSkill() != Skill.of("firebending")) {
 			return;
 		}
 
-		AbilityManager.getInstance(event.getInstance().getUser(), SunlightInstance.class).ifPresent((sl) -> sl.applyBuffs(event.getInstance()));
+		event.getInstance().getUser().getInstance(SunlightInstance.class).ifPresent((sl) -> sl.applyBuffs(event.getInstance()));
 	}
 }

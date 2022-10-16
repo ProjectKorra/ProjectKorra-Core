@@ -80,9 +80,9 @@ public class ProjectKorra extends JavaPlugin {
 
 	private void setupDatabase() {
 		database = new DBConnection(new SQLiteDatabase(new File(this.getDataFolder(), "storage.db")));
-		database.modify("CREATE TABLE IF NOT EXISTS t_pk_player (uuid TEXT)");
-		database.modify("CREATE TABLE IF NOT EXISTS t_pk_player_skills (uuid TEXT, skill_name TEXT, toggled NUMBER, PRIMARY KEY (uuid, skill_name))");
-		database.modify("CREATE TABLE IF NOT EXISTS t_pk_player_binds (uuid TEXT, bound_slot NUMBER, ability_name TEXT, PRIMARY KEY (uuid, bound_slot))");
+		database.send("CREATE TABLE IF NOT EXISTS t_pk_player (uuid TEXT)");
+		database.send("CREATE TABLE IF NOT EXISTS t_pk_player_skills (uuid TEXT, skill_name TEXT, toggled NUMBER, PRIMARY KEY (uuid, skill_name))");
+		database.send("CREATE TABLE IF NOT EXISTS t_pk_player_binds (uuid TEXT, bound_slot NUMBER, ability_name TEXT, PRIMARY KEY (uuid, bound_slot))");
 	}
 
 	public static DBConnection database() {

@@ -14,18 +14,18 @@ import org.bukkit.entity.LivingEntity;
 import org.bukkit.util.BoundingBox;
 import org.bukkit.util.Vector;
 
+import com.projectkorra.core.ability.AbilityInstance;
 import com.projectkorra.core.ability.AbilityManager;
 import com.projectkorra.core.ability.AbilityUser;
 import com.projectkorra.core.ability.attribute.Attribute;
 import com.projectkorra.core.collision.Collidable;
-import com.projectkorra.core.game.firebending.FireAbilityInstance;
 import com.projectkorra.core.physics.Collider;
 import com.projectkorra.core.util.Blocks;
 import com.projectkorra.core.util.Effects;
 import com.projectkorra.core.util.Vectors;
 import com.projectkorra.core.util.Velocity;
 
-public class FlamingWallInstance extends FireAbilityInstance implements Collidable {
+public class FlamingWallInstance extends AbilityInstance implements Collidable {
 
 	@Attribute(DAMAGE)
 	private double damage;
@@ -106,7 +106,7 @@ public class FlamingWallInstance extends FireAbilityInstance implements Collidab
 		for (double d = -width / 2; d <= width / 2; d += 1) {
 			Location bot = loc.clone().add(hori.clone().multiply(d));
 			Block top = Blocks.findTop(bot, height);
-			if (top.isEmpty() || !top.getRelative(BlockFace.UP).isEmpty()) {
+			if (top.isEmpty() || !top.getRelative(BlockFace.UP).isPassable()) {
 				continue;
 			}
 
@@ -117,7 +117,8 @@ public class FlamingWallInstance extends FireAbilityInstance implements Collidab
 					break;
 				}
 
-				part.getWorld().spawnParticle(getParticle(), part.getX() + (Math.random() - 0.5), part.getY() + (Math.random() - 0.5), part.getZ() + (Math.random() - 0.5), 0, 0.1 * (Math.random() - 0.5), 0.1, 0.1 * (Math.random() - 0.5));
+				//part.getWorld().spawnParticle(getParticle(), part.getX() + (Math.random() - 0.5), part.getY() + (Math.random() - 0.5), part.getZ() + (Math.random() - 0.5), 0, 0.1 * (Math.random() - 0.5), 0.1, 0.1 * (Math.random() - 0.5));
+				//placeLight(part);
 
 				Effects.forNearbyEntities(part, 0.5, (e) -> e instanceof LivingEntity && !e.getUniqueId().equals(user.getUniqueID()), this::affect);
 				locs.add(part);
@@ -204,7 +205,7 @@ public class FlamingWallInstance extends FireAbilityInstance implements Collidab
 	}
 
 	@Override
-	public void onCollide(BoundingBox hitbox) {
+	public void onCollide(BoundingBox hitbox, Location center) {
 		AbilityManager.remove(this);
 	}
 

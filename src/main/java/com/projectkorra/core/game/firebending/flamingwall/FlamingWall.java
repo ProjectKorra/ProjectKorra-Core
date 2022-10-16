@@ -1,10 +1,11 @@
 package com.projectkorra.core.game.firebending.flamingwall;
 
+import java.util.Optional;
+
 import org.bukkit.event.Event;
 
 import com.projectkorra.core.ability.Ability;
 import com.projectkorra.core.ability.AbilityInstance;
-import com.projectkorra.core.ability.AbilityManager;
 import com.projectkorra.core.ability.AbilityUser;
 import com.projectkorra.core.ability.activation.Activation;
 import com.projectkorra.core.ability.type.Bindable;
@@ -41,7 +42,7 @@ public class FlamingWall extends Ability implements Bindable {
 	double staminaDrain = 0.05;
 
 	public FlamingWall() {
-		super("FlamingWall", "Create a blazing wall that prevents enemies from passing through", "ProjectKorra", "CORE", Skill.FIREBENDING);
+		super("FlamingWall", "Create a blazing wall that prevents enemies from passing through", "ProjectKorra", "CORE", Skill.of("firebending"));
 	}
 
 	@Override
@@ -50,16 +51,18 @@ public class FlamingWall extends Ability implements Bindable {
 
 	@Override
 	protected AbilityInstance activate(AbilityUser user, Activation trigger, Event provider) {
-		if (user.isOnCooldown(this)) {
+		if (user.hasCooldown(this)) {
 			return null;
 		}
+		
+		Optional<FlamingWallInstance> active = user.getInstance(FlamingWallInstance.class);
 
-		if (!AbilityManager.hasInstance(user, FlamingWallInstance.class) && trigger == Activation.LEFT_CLICK && user.getStamina().consume(staminaCost) && !Blocks.findTop(user.getLocation().add(Vectors.direction(user.getLocation().getYaw(), 0)), height).isEmpty()) {
+		if (!active.isPresent() && trigger == Activation.LEFT_CLICK && user.getStamina().consume(staminaCost) && !Blocks.findTop(user.getLocation().add(Vectors.direction(user.getLocation().getYaw(), 0)), height).isEmpty()) {
 			return new FlamingWallInstance(this, user);
 		} else if (trigger == Activation.SNEAK_DOWN) {
-			AbilityManager.getInstance(user, FlamingWallInstance.class).ifPresent(FlamingWallInstance::shove);
+			active.ifPresent(FlamingWallInstance::shove);
 		} else if (trigger == Activation.SNEAK_UP) {
-			AbilityManager.getInstance(user, FlamingWallInstance.class).ifPresent(FlamingWallInstance::unshove);
+			active.ifPresent(FlamingWallInstance::unshove);
 		}
 
 		return null;

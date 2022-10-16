@@ -7,12 +7,12 @@ import com.projectkorra.core.ability.AbilityInstance;
 import com.projectkorra.core.ability.AbilityUser;
 import com.projectkorra.core.ability.activation.Activation;
 import com.projectkorra.core.ability.type.Bindable;
-import com.projectkorra.core.skill.Skill;
+import com.projectkorra.core.game.AvatarSkills;
 
 public class Catapult extends Ability implements Bindable {
 
 	public Catapult() {
-		super("Catapult", "Raise the earth below you and launch into the air!", "ProjectKorra", "CORE", Skill.EARTHBENDING);
+		super("Catapult", "Raise the earth below you and launch into the air!", "ProjectKorra", "CORE", AvatarSkills.EARTHBENDING);
 	}
 
 	@Override

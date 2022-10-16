@@ -1,6 +1,9 @@
 package com.projectkorra.core.game.firebending.fireball;
 
+import java.util.Optional;
+
 import org.bukkit.FluidCollisionMode;
+import org.bukkit.Location;
 import org.bukkit.Particle;
 import org.bukkit.Sound;
 import org.bukkit.Tag;
@@ -12,20 +15,20 @@ import org.bukkit.util.BoundingBox;
 import org.bukkit.util.RayTraceResult;
 import org.bukkit.util.Vector;
 
+import com.projectkorra.core.ability.AbilityInstance;
 import com.projectkorra.core.ability.AbilityManager;
 import com.projectkorra.core.ability.AbilityUser;
 import com.projectkorra.core.ability.attribute.Attribute;
 import com.projectkorra.core.ability.type.BlastInstance;
 import com.projectkorra.core.collision.Collidable;
-import com.projectkorra.core.game.firebending.FireAbilityInstance;
 import com.projectkorra.core.physics.Collider;
-import com.projectkorra.core.temporary.TempBlock;
 import com.projectkorra.core.util.Effects;
 import com.projectkorra.core.util.Particles;
 import com.projectkorra.core.util.Vectors;
 import com.projectkorra.core.util.data.RemovalPolicy;
+import com.projectkorra.core.util.effect.Effect;
 
-public class FireballInstance extends FireAbilityInstance implements Collidable {
+public class FireballInstance extends AbilityInstance implements Collidable {
 
 	@Attribute(RANGE)
 	private double range;
@@ -39,6 +42,7 @@ public class FireballInstance extends FireAbilityInstance implements Collidable 
 	private double size = 0.25;
 	private Collider collider;
 	private BlastInstance blast;
+	private Effect flames;
 
 	public FireballInstance(Fireball provider, AbilityUser user, boolean combo) {
 		super(provider, user);
@@ -56,6 +60,7 @@ public class FireballInstance extends FireAbilityInstance implements Collidable 
 		user.addCooldown(provider, cooldown, true);
 		Effects.playSound(blast.getLocation(), Sound.ENTITY_GHAST_SHOOT, 1f, 0.6f);
 		removal.add(RemovalPolicy.COMMON);
+		flames = Effect.builder().add(provider.getSkill().getParticle(user).offsets(size).amount((int) (size * 25))).build("fireball_flames", Optional.of(this));
 		return true;
 	}
 
@@ -77,7 +82,7 @@ public class FireballInstance extends FireAbilityInstance implements Collidable 
 		double z = Math.sin(yaw) * xz * timeDelta * speed + 1.5 * size;
 
 		this.collider.add(BoundingBox.of(blast.getLocation(), x, y, z));
-		this.particles(blast.getLocation(), (int) (size * 50) / 2, size, size, size);
+		flames.spawn(blast.getLocation());
 
 		if (this.ticksLived() % 4 == 0) {
 			Effects.playSound(blast.getLocation(), Sound.BLOCK_FIRE_AMBIENT, 1f, 1.3f);
@@ -95,7 +100,7 @@ public class FireballInstance extends FireAbilityInstance implements Collidable 
 			if (ray.getHitBlock() != null) {
 				Block place = ray.getHitBlock().getRelative(ray.getHitBlockFace());
 				if (place.isPassable() && !Tag.FIRE.isTagged(place.getType()) && !place.isLiquid() && place.getRelative(BlockFace.DOWN).getType().isSolid()) {
-					TempBlock.from(place).setData(getFireType().createBlockData(), 10000);
+					//TempBlock.from(place).setData(getFireType().createBlockData(), 10000);
 				}
 
 				Particles.spawnBlockDust(ray.getHitBlock().getBlockData(), blast.getLocation(), 6);
@@ -131,17 +136,13 @@ public class FireballInstance extends FireAbilityInstance implements Collidable 
 	}
 
 	@Override
-	public void onCollide(BoundingBox hitbox) {
+	public void onCollide(BoundingBox hitbox, Location center) {
 		AbilityManager.remove(this);
-	}
-
-	@Override
-	protected void postUpdate() {
+		//Particles.spawnBlockCrack(getFireType().createBlockData(), blast.getLocation(), 4);
 	}
 
 	@Override
 	protected void preUpdate() {
 		collider.clear();
-
 	}
 }

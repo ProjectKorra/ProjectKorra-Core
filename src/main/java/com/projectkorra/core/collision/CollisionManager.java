@@ -6,6 +6,7 @@ import java.util.HashSet;
 import java.util.Map;
 import java.util.Set;
 
+import org.bukkit.Location;
 import org.bukkit.plugin.java.JavaPlugin;
 import org.bukkit.util.BoundingBox;
 
@@ -32,7 +33,7 @@ public final class CollisionManager {
 
 	private static CollisionTree tree = new CollisionTree(new BoundingBox(BOUNDING_MIN, BOUNDING_MIN, BOUNDING_MIN, BOUNDING_MAX, BOUNDING_MAX, BOUNDING_MAX), 5);
 	private static Set<Collidable> instances = new HashSet<>(), handled = new HashSet<>();
-	private static Set<Pair<Collidable, BoundingBox>> collided = new HashSet<>();
+	private static Set<Pair<Collidable, Pair<BoundingBox, Location>>> collided = new HashSet<>();
 	private static Map<Pair<String, String>, CollisionData> valids = new HashMap<>();
 	private static boolean init = false;
 
@@ -86,18 +87,18 @@ public final class CollisionManager {
 					}
 
 					if (event.isFirstBeingRemoved()) {
-						collided.add(Pairing.of(first, fb));
+						collided.add(Pairing.of(first, Pairing.of(fb, event.getCenter())));
 					}
 
 					if (event.isSecondBeingRemoved()) {
-						collided.add(Pairing.of(second, sb));
+						collided.add(Pairing.of(second, Pairing.of(sb, event.getCenter())));
 					}
 				}
 			}
 		}
 
-		for (Pair<Collidable, BoundingBox> collider : collided) {
-			collider.getLeft().onCollide(collider.getRight());
+		for (Pair<Collidable, Pair<BoundingBox, Location>> collider : collided) {
+			collider.getLeft().onCollide(collider.getRight().getLeft(), collider.getRight().getRight());
 		}
 
 		tree.reset();

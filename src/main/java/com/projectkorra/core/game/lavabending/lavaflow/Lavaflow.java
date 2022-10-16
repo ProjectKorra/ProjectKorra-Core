@@ -23,7 +23,7 @@ public class Lavaflow extends Ability implements Bindable {
 	@Configure long coolTime = 30000;
 
 	public Lavaflow() {
-		super("Lavaflow", "Turn the earth into lava", "ProjectKorra", "CORE", Skill.LAVABENDING);
+		super("Lavaflow", "Turn the earth into lava", "ProjectKorra", "CORE", Skill.of("lavabending"));
 	}
 	
 	@Override
@@ -40,14 +40,14 @@ public class Lavaflow extends Ability implements Bindable {
 
 	@Override
 	protected AbilityInstance activate(AbilityUser user, Activation trigger, Event provider) {
-		if (user.isOnCooldown(this)) {
+		if (user.hasCooldown(this)) {
 			return null;
 		}
 		
 		if (trigger == Activation.SNEAK_DOWN) {
 			return new LavaflowInstance(this, user);
 		} else if (trigger == Activation.SNEAK_UP) {
-			AbilityManager.getInstance(user, LavaflowInstance.class).ifPresent(AbilityManager::remove);
+			user.getInstance(LavaflowInstance.class).ifPresent(AbilityManager::remove);
 		}
 		
 		return null;

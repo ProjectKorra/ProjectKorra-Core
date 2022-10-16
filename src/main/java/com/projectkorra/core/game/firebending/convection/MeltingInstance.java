@@ -11,12 +11,12 @@ import org.bukkit.Tag;
 import org.bukkit.block.Block;
 import org.bukkit.util.RayTraceResult;
 
+import com.projectkorra.core.ability.AbilityInstance;
 import com.projectkorra.core.ability.AbilityUser;
 import com.projectkorra.core.ability.attribute.Attribute;
-import com.projectkorra.core.game.firebending.FireAbilityInstance;
 import com.projectkorra.core.temporary.TempBlock;
 
-public class MeltingInstance extends FireAbilityInstance {
+public class MeltingInstance extends AbilityInstance {
 
 	@Attribute(RANGE)
 	private double range;
@@ -63,7 +63,7 @@ public class MeltingInstance extends FireAbilityInstance {
 
 			Location hit = ray.getHitPosition().toLocation(eye.getWorld());
 			hit.getWorld().playSound(hit, Sound.BLOCK_FIRE_AMBIENT, 0.2f, 0.9f);
-			this.particles(hit, 2, 0.2, 0.2, 0.2);
+			//this.particles(hit, 2, 0.2, 0.2, 0.2);
 		}
 
 		return true;

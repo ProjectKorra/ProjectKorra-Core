@@ -25,7 +25,7 @@ public class LavaWave extends Ability implements Bindable {
 	@Configure long cooldown = 3000;
 
 	public LavaWave() {
-		super("LavaWave", "Create a wave of lava ahead of you", "ProjectKorra", "CORE", Skill.LAVABENDING);
+		super("LavaWave", "Create a wave of lava ahead of you", "ProjectKorra", "CORE", Skill.of("lavabending"));
 	}
 
 	@Override
@@ -35,14 +35,14 @@ public class LavaWave extends Ability implements Bindable {
 
 	@Override
 	protected AbilityInstance activate(AbilityUser user, Activation trigger, Event provider) {
-		if (user.isOnCooldown(this)) {
+		if (user.hasCooldown(this)) {
 			return null;
 		}
 		
 		if (trigger == Activation.SNEAK_DOWN) {
 			return new LavaWaveInstance(this, user);
 		} else if (trigger == Activation.SNEAK_UP) {
-			AbilityManager.getInstance(user, LavaWaveInstance.class).ifPresent(AbilityManager::remove);
+			user.getInstance(LavaWaveInstance.class).ifPresent(AbilityManager::remove);
 		}
 		
 		return null;

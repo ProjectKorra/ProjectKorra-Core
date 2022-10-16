@@ -21,7 +21,7 @@ public class BlazingArc extends Ability implements Bindable {
 	@Configure double staminaCost = 0.25;
 
 	public BlazingArc() {
-		super("BlazingArc", "Create an arcing blaze in front of you", "ProjectKorra", "CORE", Skill.FIREBENDING);
+		super("BlazingArc", "Create an arcing blaze in front of you", "ProjectKorra", "CORE", Skill.of("firebending"));
 	}
 
 	@Override
@@ -35,7 +35,7 @@ public class BlazingArc extends Ability implements Bindable {
 
 	@Override
 	protected AbilityInstance activate(AbilityUser user, Activation trigger, Event provider) {
-		if (user.isOnCooldown(this)) {
+		if (user.hasCooldown(this)) {
 			return null;
 		}
 

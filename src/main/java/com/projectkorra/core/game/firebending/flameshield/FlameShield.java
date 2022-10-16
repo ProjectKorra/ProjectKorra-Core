@@ -25,7 +25,7 @@ public class FlameShield extends Ability implements Bindable {
 	double damage = 1;
 
 	public FlameShield() {
-		super("FlameShield", "A small shield of flames to block basic abilities.", "ProjectKorra", "CORE", Skill.FIREBENDING);
+		super("FlameShield", "A small shield of flames to block basic abilities.", "ProjectKorra", "CORE", Skill.of("firebending"));
 	}
 
 	@Override
@@ -39,14 +39,14 @@ public class FlameShield extends Ability implements Bindable {
 
 	@Override
 	protected AbilityInstance activate(AbilityUser user, Activation trigger, Event provider) {
-		if (user.isOnCooldown(this)) {
+		if (user.hasCooldown(this)) {
 			return null;
 		}
 
 		if (trigger == Activation.SNEAK_DOWN && user.getStamina().consume(0.1 * staminaDrain)) {
 			return new FlameShieldInstance(this, user);
 		} else if (trigger == Activation.SNEAK_UP) {
-			AbilityManager.getInstance(user, FlameShieldInstance.class).ifPresent(AbilityManager::remove);
+			user.getInstance(FlameShieldInstance.class).ifPresent(AbilityManager::remove);
 		}
 
 		return null;

@@ -1,5 +1,7 @@
 package com.projectkorra.core.game.firebending.fireball;
 
+import java.util.Optional;
+
 import org.bukkit.FluidCollisionMode;
 import org.bukkit.Location;
 import org.bukkit.Particle;
@@ -11,17 +13,19 @@ import org.bukkit.util.BoundingBox;
 import org.bukkit.util.RayTraceResult;
 import org.bukkit.util.Vector;
 
+import com.projectkorra.core.ability.AbilityInstance;
 import com.projectkorra.core.ability.AbilityManager;
 import com.projectkorra.core.ability.AbilityUser;
 import com.projectkorra.core.ability.attribute.Attribute;
 import com.projectkorra.core.collision.Collidable;
-import com.projectkorra.core.game.firebending.FireAbilityInstance;
 import com.projectkorra.core.physics.Collider;
 import com.projectkorra.core.util.Effects;
 import com.projectkorra.core.util.Particles;
 import com.projectkorra.core.util.Velocity;
+import com.projectkorra.core.util.effect.Effect;
+import com.projectkorra.core.util.effect.ParticleData;
 
-public class ChargedFireballInstance extends FireAbilityInstance implements Collidable {
+public class ChargedFireballInstance extends AbilityInstance implements Collidable {
 
 	@Attribute("max_speed")
 	private double maxSpeed;
@@ -49,6 +53,7 @@ public class ChargedFireballInstance extends FireAbilityInstance implements Coll
 	private boolean shot = false, controlled = true;
 	private double range, speed, damage, steering;
 	private double minChargeTime;
+	private Effect flames, charging;
 
 	public ChargedFireballInstance(Fireball provider, AbilityUser user) {
 		super(provider, user);
@@ -70,6 +75,8 @@ public class ChargedFireballInstance extends FireAbilityInstance implements Coll
 		loc = user.getEyeLocation();
 		collider = new Collider(loc);
 		user.getStamina().pauseRegen(this);
+		flames = Effect.builder().add(provider.getSkill().getParticle(user).amount((int) (size * size * 100)).offsetX(size + 0.1).offsetY(size + 0.1).offsetZ(size + 0.1)).build("chargedfireball_flames", Optional.of(this));
+		charging = Effect.builder().add(new ParticleData(Particle.SMOKE_LARGE).offsetX(0.1).offsetY(0.1).offsetZ(0.1)).build("chargedfireball_charging", Optional.of(this));
 		return true;
 	}
 
@@ -85,7 +92,7 @@ public class ChargedFireballInstance extends FireAbilityInstance implements Coll
 
 			Location display = user.getEyeLocation().add(user.getDirection().multiply(0.7));
 			if (this.timeLived() >= chargeTime) {
-				this.particles(display, 1, 0.1, 0.1, 0.1);
+				charging.spawn(display);
 			} else if (this.timeLived() >= minChargeTime) {
 				double chargePercent = Math.min(((double) this.timeLived()) / chargeTime, 1.0);
 				display.getWorld().spawnParticle(Particle.SMOKE_NORMAL, display, 1, chargePercent * 0.1, chargePercent * 0.1, chargePercent * 0.1, 0, null);
@@ -107,7 +114,7 @@ public class ChargedFireballInstance extends FireAbilityInstance implements Coll
 
 		collider.shift(loc);
 		collider.add(BoundingBox.of(loc, size * 4, size * 4, size * 4));
-		this.particles(loc, (int) (size * size * 100), size + 0.1, size + 0.1, size + 0.1);
+		flames.spawn(loc);
 
 		if (this.ticksLived() % 4 == 0) {
 			Effects.playSound(loc, Sound.BLOCK_FIRE_AMBIENT, 1f, 1.5f);
@@ -210,8 +217,9 @@ public class ChargedFireballInstance extends FireAbilityInstance implements Coll
 	}
 
 	@Override
-	public void onCollide(BoundingBox hitbox) {
+	public void onCollide(BoundingBox hitbox, Location center) {
 		AbilityManager.remove(this);
+		//Particles.spawnBlockCrack(Material.FIRE.createBlockData(), loc, 10);
 	}
 
 	@Override

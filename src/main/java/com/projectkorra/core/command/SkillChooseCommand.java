@@ -3,16 +3,15 @@ package com.projectkorra.core.command;
 import java.util.Arrays;
 import java.util.HashSet;
 import java.util.List;
-import java.util.Optional;
 import java.util.Set;
-
-import com.projectkorra.core.UserManager;
-import com.projectkorra.core.ability.AbilityUser;
-import com.projectkorra.core.skill.Skill;
 
 import org.bukkit.Bukkit;
 import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
+
+import com.projectkorra.core.UserManager;
+import com.projectkorra.core.ability.AbilityUser;
+import com.projectkorra.core.skill.Skill;
 
 import net.md_5.bungee.api.ChatColor;
 
@@ -60,29 +59,29 @@ public class SkillChooseCommand extends PKSubCommand {
 			return;
 		}
 
-		Optional<Skill> skill = Skill.of(args[0]);
+		Skill skill = Skill.of(args[0]);
 
-		if (!skill.isPresent()) {
+		if (skill == null) {
 			sender.sendMessage(ChatColor.RED + "No skill found from '" + ChatColor.GOLD + args[0] + ChatColor.RED + "'");
 			return;
-		} else if (!skill.get().getParents().isEmpty()) {
+		} else if (!skill.getParents().isEmpty()) {
 			sender.sendMessage(ChatColor.RED + "Cannot choose a subskill, must choose a parent!");
 			return;
-		} else if (!user.hasPermission("projectkorra.skill." + skill.get().getInternalName())) {
+		} else if (!user.hasPermission("projectkorra.skill." + skill.getInternalName())) {
 			sender.sendMessage(ChatColor.RED + "User does not have permission to use that skill!");
 			return;
 		}
 
 		Set<Skill> toAdd = new HashSet<>();
-		toAdd.add(skill.get());
-		for (Skill child : skill.get().getChildren()) {
+		toAdd.add(skill);
+		for (Skill child : skill.getChildren()) {
 			if (user.hasPermission("projectkorra.skill." + child.getInternalName())) {
 				toAdd.add(child);
 			}
 		}
 
 		user.setSkills(toAdd);
-		sender.sendMessage(ChatColor.GOLD + "You have chosen " + skill.get().getDisplay().getColoredNoun());
+		sender.sendMessage(ChatColor.GOLD + "You have chosen " + skill.getDisplay().getColoredNoun());
 	}
 
 	@Override

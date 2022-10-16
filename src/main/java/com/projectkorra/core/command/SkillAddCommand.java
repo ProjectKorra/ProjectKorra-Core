@@ -2,15 +2,14 @@ package com.projectkorra.core.command;
 
 import java.util.Arrays;
 import java.util.List;
-import java.util.Optional;
-
-import com.projectkorra.core.UserManager;
-import com.projectkorra.core.ability.AbilityUser;
-import com.projectkorra.core.skill.Skill;
 
 import org.bukkit.Bukkit;
 import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
+
+import com.projectkorra.core.UserManager;
+import com.projectkorra.core.ability.AbilityUser;
+import com.projectkorra.core.skill.Skill;
 
 import net.md_5.bungee.api.ChatColor;
 
@@ -53,14 +52,14 @@ public class SkillAddCommand extends PKSubCommand {
 			user = UserManager.from((Player) sender).get();
 		}
 
-		Optional<Skill> skill = Skill.of(args[0]);
+		Skill skill = Skill.of(args[0]);
 
-		if (!skill.isPresent()) {
+		if (skill == null) {
 			sender.sendMessage(ChatColor.RED + "No skill found from '" + ChatColor.GOLD + args[0] + ChatColor.RED + "'");
 			return;
-		} else if (!skill.get().getParents().isEmpty()) {
+		} else if (!skill.getParents().isEmpty()) {
 			boolean hasParent = false;
-			for (Skill parent : skill.get().getParents()) {
+			for (Skill parent : skill.getParents()) {
 				hasParent |= user.hasSkill(parent);
 			}
 
@@ -70,8 +69,8 @@ public class SkillAddCommand extends PKSubCommand {
 			}
 		}
 
-		user.addSkill(skill.get());
-		sender.sendMessage(ChatColor.GOLD + "You have added " + skill.get().getDisplay().getColoredNoun());
+		user.addSkill(skill);
+		sender.sendMessage(ChatColor.GOLD + "You have added " + skill.getDisplay().getColoredNoun());
 	}
 
 	@Override

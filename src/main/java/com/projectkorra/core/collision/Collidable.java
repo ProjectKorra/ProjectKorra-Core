@@ -38,7 +38,7 @@ public interface Collidable {
 	 * 
 	 * @param hitbox TODO
 	 */
-	public void onCollide(BoundingBox hitbox);
+	public void onCollide(BoundingBox hitbox, Location center);
 
 	/**
 	 * Gets the location of this ability by converting the center of the hitbox into
