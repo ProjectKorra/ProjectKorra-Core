@@ -37,7 +37,7 @@ public abstract class AbilityUser extends SkillHolder {
 
 	private AbilityBinds binds = new AbilityBinds();
 	private Map<String, Cooldown> cooldowns = new HashMap<>();
-	private PriorityQueue<Cooldown> cdQueue = new PriorityQueue<>(32, (a, b) -> (int) (b.getEndTime() - a.getEndTime()));
+	private PriorityQueue<Cooldown> cdQueue = new PriorityQueue<>(12, (a, b) -> (int) (a.getEndTime() - b.getEndTime()));
 	private LivingEntity entity;
 	private Stamina stamina;
 	private List<ComboValidator> sequences = new LinkedList<>();
