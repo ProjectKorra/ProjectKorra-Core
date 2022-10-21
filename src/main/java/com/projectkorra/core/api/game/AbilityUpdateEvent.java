@@ -4,16 +4,16 @@ import org.bukkit.block.Block;
 import org.bukkit.entity.Player;
 import org.bukkit.event.block.BlockBreakEvent;
 
-import com.projectkorra.core.api.Ability;
+import com.projectkorra.core.api.AbilityInstance;
 import com.projectkorra.core.api.AbilityManager;
 import com.projectkorra.core.api.User;
 
 public class AbilityUpdateEvent extends BlockBreakEvent {
 
     private User user;
-    private Ability ability;
+    private AbilityInstance ability;
 
-    public AbilityUpdateEvent(Block theBlock, User player, Ability ability) {
+    public AbilityUpdateEvent(Block theBlock, User player, AbilityInstance ability) {
         super(theBlock, player.getEntity() instanceof Player ? (Player) player.getEntity() : null);
         this.user = player;
         this.ability = ability;

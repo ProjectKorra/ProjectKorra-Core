@@ -42,11 +42,11 @@ public class UserManager {
 		List<AbilityInfo> infos = AbilityManager.infos.stream().filter(i -> user.canBend(i)).toList();
 
 		for (AbilityInfo i : infos) {
-			user.getActivations(false).add(new Pair<>(i, i.getActivation()));
+			user.getSequences(false).add(new Pair<>(i, i.getActivationSequence()));
 		}
 	}
 
-	public static void addCooldown(Ability abil, long cooldown) {
+	public static void addCooldown(AbilityInstance abil, long cooldown) {
 		abil.getUser().addCooldown(abil.getInfo(), cooldown);
 	}
 

@@ -1,6 +1,6 @@
 package com.projectkorra.core.api;
 
-public abstract class Ability {
+public abstract class AbilityInstance {
 	private boolean started = false;
 	private boolean stopped = false;
 	private long startTime;
@@ -9,10 +9,11 @@ public abstract class Ability {
 
 	public final AbilityInfo info;
 
-	public Ability(User user, AbilityInfo info, int priority) {
+	public AbilityInstance(User user, AbilityInfo info, int priority) {
 		this.user = user;
 		this.info = info;
 		this.priority = priority;
+		this.user.getInstances().add(this);
 	}
 
 	public final void start() {
@@ -64,5 +65,7 @@ public abstract class Ability {
 	public AbilityInfo getInfo() {
 		return info;
 	}
+
+	public abstract void update();
 
 }

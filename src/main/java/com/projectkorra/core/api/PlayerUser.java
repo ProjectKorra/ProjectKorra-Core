@@ -5,7 +5,6 @@ import java.util.List;
 
 import org.bukkit.entity.Player;
 
-import com.projectkorra.core.api.activation.Activation;
 import com.projectkorra.core.util.Pair;
 
 public class PlayerUser extends User {
@@ -29,10 +28,10 @@ public class PlayerUser extends User {
 	}
 
 	@Override
-	protected final List<Pair<AbilityInfo, Activation>> getActivations(boolean current) {
+	protected final List<Pair<AbilityInfo, Sequence<?>>> getSequences(boolean current) {
 		if (current) {
-			List<Pair<AbilityInfo, Activation>> filtered = new ArrayList<>();
-			for (Pair<AbilityInfo, Activation> e : activations) {
+			List<Pair<AbilityInfo, Sequence<?>>> filtered = new ArrayList<>();
+			for (Pair<AbilityInfo, Sequence<?>> e : activations) {
 				if (e.getKey() == this.getCurrentBind() || !e.getKey().bindable) {
 					filtered.add(e);
 				}

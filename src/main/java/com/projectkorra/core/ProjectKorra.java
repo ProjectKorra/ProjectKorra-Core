@@ -26,8 +26,6 @@ public class ProjectKorra extends JavaPlugin {
 		// get infos from classes
 		registerAbilities();
 		// get their activations
-		new ExampleAbilityInfo();
-		new ExampleAbilityTwoInfo();
 
 		// validate activations
 

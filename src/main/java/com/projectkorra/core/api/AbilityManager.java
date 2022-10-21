@@ -4,7 +4,6 @@ import java.util.HashSet;
 import java.util.Iterator;
 import java.util.Set;
 
-import com.projectkorra.core.api.activation.Activation;
 import com.projectkorra.core.api.game.Input;
 import com.projectkorra.core.util.Pair;
 
@@ -13,9 +12,9 @@ public class AbilityManager {
 
 	public static void tick() {
 		for (User user : UserManager.users) {
-			Iterator<Ability> iter = user.getInstances().iterator();
+			Iterator<AbilityInstance> iter = user.getInstances().iterator();
 			while (iter.hasNext()) {
-				Ability i = iter.next();
+				AbilityInstance i = iter.next();
 				if (i.stopped()) {
 					iter.remove();
 				} else if (i.started()) {
@@ -33,13 +32,15 @@ public class AbilityManager {
 		}
 	}
 
-	public static void activate(User user) {
+	public static void activateAbilities(User user) {
 		if (user == null) {
 			return;
 		}
-		for (Pair<AbilityInfo, Activation> e : user.getActivations(true)) {
-			if (!e.getKey().needsMovement() && e.getValue().activate(user)) {
-				user.getInstances().add(e.getKey().createInstance(user));
+		for (Pair<AbilityInfo, Sequence<?>> e : user.getSequences(true)) {
+			if (!e.getKey().needsMovement()) {
+				if (e.getValue().test(user)) {
+					e.getValue().activate(user, e.getKey());
+				}
 			}
 		}
 	}
@@ -48,14 +49,18 @@ public class AbilityManager {
 		if (user == null) {
 			return;
 		}
-		for (Pair<AbilityInfo, Activation> e : user.getActivations(true)) {
-			if (e.getKey().needsMovement() && e.getValue().activate(user)) {
-				user.getInstances().add(e.getKey().createInstance(user));
+		for (Pair<AbilityInfo, Sequence<?>> e : user.getSequences(true)) {
+			if (e.getKey().needsMovement()) {
+				if (e.getValue().test(user)) {
+					if (e.getValue().test(user)) {
+						e.getValue().activate(user, e.getKey());
+					}
+				}
 			}
 		}
 	}
 
-	public static void flagRemoval(User user, Ability ability, boolean cancel) {
+	public static void flagRemoval(User user, AbilityInstance ability, boolean cancel) {
 
 	}
 }

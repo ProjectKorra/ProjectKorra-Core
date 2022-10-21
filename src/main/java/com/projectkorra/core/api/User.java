@@ -4,24 +4,33 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.function.Consumer;
 
 import org.bukkit.entity.Entity;
 import org.bukkit.event.Event;
 
 import com.projectkorra.core.util.Pair;
-import com.projectkorra.core.api.activation.Activation;
 import com.projectkorra.core.api.game.Input;
 
 public abstract class User {
 
-	protected List<Pair<AbilityInfo, Activation>> activations = new ArrayList<>(20);
-	protected List<Ability> instances = new ArrayList<>();
+	protected List<Pair<AbilityInfo, Sequence<?>>> activations = new ArrayList<>(20);
+	protected List<AbilityInstance> instances = new ArrayList<>();
 	protected Map<AbilityInfo, Cooldown> cooldowns = new HashMap<>(20);
 	protected Entity entity;
 
 	private Map<Input, Pair<Boolean, Event>> inputs = new HashMap<>(30);
 	private boolean toggledBindable = false;
 	private boolean toggledNonBindable = false;
+
+	public AbilityInfo getInfo(Sequence<?> a) {
+		for (Pair<AbilityInfo, Sequence<?>> e : activations) {
+			if (e.getValue() == a) {
+
+			}
+		}
+		return null;
+	}
 
 	public User(Entity entity) {
 		this.entity = entity;
@@ -67,7 +76,7 @@ public abstract class User {
 		return inputs;
 	}
 
-	protected final List<Ability> getInstances() {
+	protected final List<AbilityInstance> getInstances() {
 		return instances;
 	}
 
@@ -133,8 +142,16 @@ public abstract class User {
 
 	public abstract AbilityInfo getCurrentBind();
 
-	protected abstract List<Pair<AbilityInfo, Activation>> getActivations(boolean current);
+	protected abstract List<Pair<AbilityInfo, Sequence<?>>> getSequences(boolean current);
 
 	public abstract List<AbilityInfo> getBinds();
+
+	public List<AbilityInstance> getInstances(AbilityInfo info) {
+		return instances.stream().filter(i -> i.getInfo().equals(info)).toList();
+	}
+
+	public List<AbilityInstance> apply(AbilityInfo info, Consumer<AbilityInstance> action) {
+		return instances.stream().filter(i -> i.getInfo().equals(info)).peek(action).toList();
+	}
 
 }

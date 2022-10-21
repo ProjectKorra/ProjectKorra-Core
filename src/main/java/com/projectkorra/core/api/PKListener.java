@@ -44,7 +44,7 @@ public class PKListener implements Listener {
 			user.does(!p.isSneaking() ? Input.SHIFT_DOWN : Input.SHIFT_UP, event);
 			System.out.println("Listener: " + System.currentTimeMillis());
 
-			AbilityManager.activate(user);
+			AbilityManager.activateAbilities(user);
 		}
 	}
 
@@ -56,7 +56,7 @@ public class PKListener implements Listener {
 			user.does(!p.isSprinting() ? Input.SPRINT_ON : Input.SPRINT_OFF, event);
 			System.out.println("Listener: " + System.currentTimeMillis());
 
-			AbilityManager.activate(user);
+			AbilityManager.activateAbilities(user);
 		}
 	}
 
@@ -85,7 +85,7 @@ public class PKListener implements Listener {
 				}
 				System.out.println("Listener: " + System.currentTimeMillis());
 
-				AbilityManager.activate(user);
+				AbilityManager.activateAbilities(user);
 			}
 		}
 	}
@@ -132,7 +132,7 @@ public class PKListener implements Listener {
 			user.does(!p.isFlying() ? Input.FLIGHT_ON : Input.FLIGHT_OFF, event);
 			System.out.println("Listener: " + System.currentTimeMillis());
 
-			AbilityManager.activate(user);
+			AbilityManager.activateAbilities(user);
 		}
 	}
 
@@ -147,7 +147,7 @@ public class PKListener implements Listener {
 			user.does(Input.SLOT_CHANGE, event);
 			System.out.println("Listener: " + System.currentTimeMillis());
 
-			AbilityManager.activate(user);
+			AbilityManager.activateAbilities(user);
 		}
 	}
 
@@ -159,7 +159,7 @@ public class PKListener implements Listener {
 			if (event.getStatistic() == Statistic.JUMP) {
 				user.does(Input.JUMP, event);
 				System.out.println("Listener: " + System.currentTimeMillis());
-				AbilityManager.activate(user);
+				AbilityManager.activateAbilities(user);
 			}
 		}
 	}
@@ -185,7 +185,7 @@ public class PKListener implements Listener {
 			user.does(Input.SWAP_HANDS, event);
 			System.out.println("Listener: " + System.currentTimeMillis());
 
-			AbilityManager.activate(user);
+			AbilityManager.activateAbilities(user);
 		}
 	}
 
@@ -198,7 +198,7 @@ public class PKListener implements Listener {
 			user.does(Input.THROW_ITEM, event);
 			System.out.println("Listener: " + System.currentTimeMillis());
 
-			AbilityManager.activate(user);
+			AbilityManager.activateAbilities(user);
 		}
 	}
 }
