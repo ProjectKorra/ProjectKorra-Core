@@ -50,7 +50,7 @@ public abstract class AbilityInfo {
 
     public abstract Sequence<AbilityInstance> getActivationSequence();
 
-    public abstract List<Sequence<List<AbilityInstance>>> getActionSequences();
+    public abstract Sequence<List<AbilityInstance>> getActionSequence();
 
     public abstract void load();
 

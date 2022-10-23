@@ -52,9 +52,7 @@ public class AbilityManager {
 		for (Pair<AbilityInfo, Sequence<?>> e : user.getSequences(true)) {
 			if (e.getKey().needsMovement()) {
 				if (e.getValue().test(user)) {
-					if (e.getValue().test(user)) {
-						e.getValue().activate(user, e.getKey());
-					}
+					e.getValue().activate(user, e.getKey());
 				}
 			}
 		}

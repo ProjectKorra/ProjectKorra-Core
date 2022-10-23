@@ -5,11 +5,10 @@ import java.util.function.BiFunction;
 import java.util.function.Predicate;
 
 import com.projectkorra.core.api.game.Input;
-import com.projectkorra.core.util.Pair;
 
 public class Sequence<T> {
 
-    List<Pair<Pair<Long, Long>, Criteria>> conditions;
+    List<TimedCriteria> conditions;
     BiFunction<User, AbilityInfo, ?> action;
     int step = 0;
 
@@ -39,26 +38,25 @@ public class Sequence<T> {
     }
 
     public Sequence<T> check(long t1, long t2, boolean reset, Predicate<User> predicate) {
-        Criteria node = new Criteria(reset, predicate);
-        this.conditions.add(new Pair<>(new Pair<>(t1, t2), node));
+        this.conditions.add(new TimedCriteria(t1, t2, reset, predicate));
         return this;
     }
 
     public boolean test(User u) {
 
-        Pair<Pair<Long, Long>, Criteria> curr = conditions.get(step);
+        TimedCriteria curr = conditions.get(step);
 
-        boolean valid = curr.getValue().test(u);
+        boolean valid = curr.test(u);
 
         if (valid) {
             if (step > 0) {
-                Pair<Pair<Long, Long>, Criteria> prev = conditions.get(step - 1);
-                long t1 = curr.getKey().getKey();
-                long t2 = curr.getKey().getValue();
-                long dT = curr.getValue().timeTested - prev.getValue().timeTested;
+                TimedCriteria prev = conditions.get(step - 1);
+                long t1 = curr.getT1();
+                long t2 = curr.getT2();
+                long dT = curr.timeTested - prev.timeTested;
 
                 if (dT > t2 || dT < t1) {
-                    this.step = curr.getValue().reset ? 0 : this.step;
+                    this.step = curr.reset ? 0 : this.step;
                 } else {
                     this.step++;
                 }
@@ -66,10 +64,10 @@ public class Sequence<T> {
                 this.step++;
             }
         } else {
-            if (curr.getValue().reset) {
-                this.step = curr.getValue().getExcludes().test(u) ? this.step : 0;
+            if (curr.reset) {
+                this.step = curr.getExcludes().test(u) ? this.step : 0;
             } else {
-                this.step = curr.getValue().getExcludes().test(u) ? 0 : this.step;
+                this.step = curr.getExcludes().test(u) ? 0 : this.step;
             }
         }
 
@@ -88,7 +86,7 @@ public class Sequence<T> {
     private Predicate<User> asPredicate(Input[] inputs) {
         Predicate<User> predicate = b -> true;
         for (Input input : inputs) {
-            predicate.and(b -> b.did(input));
+            predicate = predicate.and(b -> b.did(input));
         }
         return predicate;
     }

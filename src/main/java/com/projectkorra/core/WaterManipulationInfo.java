@@ -1,8 +1,6 @@
 package com.projectkorra.core;
 
-import java.util.ArrayList;
 import java.util.List;
-import java.util.function.BiFunction;
 
 import com.projectkorra.core.api.AbilityInfo;
 import com.projectkorra.core.api.AbilityInstance;
@@ -24,18 +22,12 @@ public class WaterManipulationInfo extends AbilityInfo {
     }
 
     @Override
-    public List<Sequence<List<AbilityInstance>>> getActionSequences() {
-        BiFunction<User, AbilityInfo, List<AbilityInstance>> action = (u, i) -> {
-            return u.apply(i, a -> a.update());
-        };
+    public Sequence<List<AbilityInstance>> getActionSequence() {
 
-        Sequence<List<AbilityInstance>> c1 = new ActionCriteria(action).check(Input.BACKWARD);
+        Sequence<List<AbilityInstance>> c1 = new ActionCriteria((u, i) -> u.apply(i, a -> a.update()))
+                .check(Input.LEFT_CLICK);
 
-        List<Sequence<List<AbilityInstance>>> list = new ArrayList<>();
-
-        list.add(c1);
-
-        return list;
+        return c1;
     }
 
     @Override
