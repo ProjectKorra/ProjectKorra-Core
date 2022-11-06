@@ -5,6 +5,11 @@
 build/
 debug/
 
+# VS Code
+# -------
+
+.vscode/
+
 # IntelliJ
 # --------
 
