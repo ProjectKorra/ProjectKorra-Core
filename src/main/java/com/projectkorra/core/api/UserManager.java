@@ -42,7 +42,10 @@ public class UserManager {
 		List<AbilityInfo> infos = AbilityManager.infos.stream().filter(i -> user.canBend(i)).toList();
 
 		for (AbilityInfo i : infos) {
-			user.getSequences(false).add(new Pair<>(i, i.getActivationSequence()));
+			for (Sequence<AbilityInstance> e : i.activationCriterias)
+				user.getSequences(false).add(new Pair<>(i, e));
+			for (Sequence<List<AbilityInstance>> e : i.actionCriterias)
+				user.getSequences(false).add(new Pair<>(i, e));
 		}
 	}
 

@@ -6,10 +6,10 @@ import java.util.function.Predicate;
 
 import com.projectkorra.core.api.game.Input;
 
-public class Sequence<T> {
+public abstract class Sequence<T> {
 
     List<TimedCriteria> conditions;
-    BiFunction<User, AbilityInfo, ?> action;
+    BiFunction<User, AbilityInfo, T> action;
     int step = 0;
 
     public Sequence(BiFunction<User, AbilityInfo, T> action) {
@@ -79,8 +79,8 @@ public class Sequence<T> {
         }
     }
 
-    void activate(User user, AbilityInfo info) {
-        this.action.apply(user, info);
+    T activate(User user, AbilityInfo info) {
+        return this.action.apply(user, info);
     }
 
     private Predicate<User> asPredicate(Input[] inputs) {

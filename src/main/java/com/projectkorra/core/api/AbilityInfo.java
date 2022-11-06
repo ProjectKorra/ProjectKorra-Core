@@ -16,6 +16,8 @@ public abstract class AbilityInfo {
     public final boolean bindable;
     public final boolean needsMovement;
     public final String configPath;
+    protected List<Sequence<List<AbilityInstance>>> actionCriterias;
+    protected List<Sequence<AbilityInstance>> activationCriterias;
     public int priority = 1;
 
     public AbilityInfo(String author, String version, String name, boolean bindable,
@@ -48,9 +50,13 @@ public abstract class AbilityInfo {
         }
     }
 
-    public abstract Sequence<AbilityInstance> getActivationSequence();
+    public void registerActivation(Sequence<AbilityInstance> c1) {
+        activationCriterias.add(c1);
+    }
 
-    public abstract Sequence<List<AbilityInstance>> getActionSequence();
+    public void registerAction(Sequence<List<AbilityInstance>> c1) {
+        actionCriterias.add(c1);
+    }
 
     public abstract void load();
 
